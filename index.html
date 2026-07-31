@@ -1,0 +1,1346 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Rotaract Club of Dr. N.G.P Arts & Science College - Official Website. Parented by Rotary Club of Coimbatore Meridian. Club ID: 217835. Rotary International District 3206." />
+  <meta name="keywords" content="Rotaract, Dr NGP, Arts Science College, Coimbatore, Rotary, District 3206, Community Service" />
+  <meta name="author" content="Rotaract Club of Dr. N.G.P Arts & Science College" />
+  <meta property="og:title" content="Rotaract Club of Dr. N.G.P Arts & Science College" />
+  <meta property="og:description" content="Parented by Rotary Club of Coimbatore Meridian | Club ID: 217835 | Rotary International District 3206" />
+  <meta property="og:image" content="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" />
+  <meta property="og:type" content="website" />
+  <title>Rotaract Club of Dr. N.G.P Arts & Science College</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- FileSaver — needed for treasury statement download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <!-- SheetJS for Excel treasury statements -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+  <!-- AOS Animation -->
+  <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
+  <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
+
+  <!-- Swiper -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="css/styles.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" />
+
+  <style>
+    /* Social Media SVG Icon Styles */
+    .social-icon-svg {
+      width: 20px;
+      height: 20px;
+      fill: currentColor;
+      flex-shrink: 0;
+      display: block;
+    }
+    .social-btn .social-icon-svg { width: 20px; height: 20px; }
+    .footer-social-link .social-icon-svg { width: 18px; height: 18px; }
+    .contact-icon-wrap .social-icon-svg { width: 18px; height: 18px; }
+  </style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     LOADING SCREEN — SINGLE LINE
+============================================================ -->
+<div id="loading-screen" class="loading-screen">
+  <div class="loading-content">
+    <img
+      src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
+      alt="Rotaract Logo"
+      class="loading-logo"
+    />
+    <div class="loading-single-line">
+      <div class="loading-line-track">
+        <div class="loading-line-fill"></div>
+      </div>
+    </div>
+    <p class="loading-text">Rotaract Club of Dr. N.G.P Arts &amp; Science College</p>
+  </div>
+</div>
+
+<!-- ============================================================
+     NAVIGATION
+============================================================ -->
+<nav class="navbar" id="navbar">
+  <div class="nav-container">
+
+    <!-- Logo -->
+    <a href="#home" class="nav-logo" id="nav-logo-link">
+      <img
+        src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
+        alt="Rotaract Club Logo"
+        class="nav-logo-img"
+        id="nav-logo-img"
+      />
+      <div class="nav-logo-text">
+        <span class="nav-club-name" id="nav-club-name">
+          Rotaract Club of Dr. N.G.P Arts &amp; Science College
+        </span>
+      </div>
+    </a>
+
+    <!-- Desktop Nav Links -->
+    <ul class="nav-links" id="nav-links">
+      <li><a href="#home" class="nav-link active" data-section="home">
+        <i data-lucide="home" class="nav-icon"></i> Home
+      </a></li>
+      <li><a href="#about" class="nav-link" data-section="about">
+        <i data-lucide="info" class="nav-icon"></i> About
+      </a></li>
+      <li><a href="#projects" class="nav-link" data-section="projects">
+        <i data-lucide="calendar-check" class="nav-icon"></i> Projects
+      </a></li>
+      <li><a href="#members" class="nav-link" data-section="members">
+        <i data-lucide="users" class="nav-icon"></i> Members
+      </a></li>
+      <li><a href="#newsletters" class="nav-link" data-section="newsletters">
+        <i data-lucide="newspaper" class="nav-icon"></i> Bulletin
+      </a></li>
+      <li><a href="#contact" class="nav-link" data-section="contact">
+        <i data-lucide="map-pin" class="nav-icon"></i> Contact
+      </a></li>
+    </ul>
+
+    <!-- Right Controls -->
+    <div class="nav-controls">
+      <button class="theme-toggle neu-btn" id="theme-toggle" aria-label="Toggle theme" title="Toggle Light/Dark Mode">
+        <i data-lucide="sun" class="theme-icon" id="theme-icon-light"></i>
+        <i data-lucide="moon" class="theme-icon hidden" id="theme-icon-dark"></i>
+      </button>
+      <a href="pages/games.html" class="btn btn-outline nav-admin-btn" target="_blank" title="Play Games">
+        <i data-lucide="gamepad-2"></i>
+      </a>
+      <a href="#join" class="btn btn-primary nav-join-btn">
+        <i data-lucide="user-plus"></i>
+        <span>Join Us</span>
+      </a>
+      <a href="pages/admin.html" class="btn btn-outline nav-admin-btn" title="Admin Login">
+        <i data-lucide="shield-check"></i>
+      </a>
+      <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Menu">
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobile-menu">
+    <ul class="mobile-nav-links">
+      <li><a href="#home" class="mobile-nav-link" data-section="home">
+        <i data-lucide="home"></i> Home
+      </a></li>
+      <li><a href="#about" class="mobile-nav-link" data-section="about">
+        <i data-lucide="info"></i> About
+      </a></li>
+      <li><a href="#projects" class="mobile-nav-link" data-section="projects">
+        <i data-lucide="calendar-check"></i> Projects
+      </a></li>
+      <li><a href="#members" class="mobile-nav-link" data-section="members">
+        <i data-lucide="users"></i> Members
+      </a></li>
+      <li><a href="#newsletters" class="mobile-nav-link" data-section="newsletters">
+        <i data-lucide="newspaper"></i> Bulletin
+      </a></li>
+      <li><a href="#contact" class="mobile-nav-link" data-section="contact">
+        <i data-lucide="map-pin"></i> Contact
+      </a></li>
+      <li><a href="pages/games.html" class="mobile-nav-link" target="_blank">
+        <i data-lucide="gamepad-2"></i> Games
+      </a></li>
+      <li><a href="#join" class="mobile-nav-link mobile-join">
+        <i data-lucide="user-plus"></i> Join Us
+      </a></li>
+      <li><a href="pages/admin.html" class="mobile-nav-link">
+        <i data-lucide="shield-check"></i> Admin
+      </a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ============================================================
+     HERO SECTION
+============================================================ -->
+<section class="hero" id="home">
+  <div class="hero-bg">
+    <div class="hero-gradient"></div>
+    <div class="hero-particles" id="hero-particles"></div>
+  </div>
+
+  <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
+    <div class="hero-badge">
+      <i data-lucide="award"></i>
+      <span>Rotary International District 3206</span>
+    </div>
+
+    <img
+      src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
+      alt="Club Logo"
+      class="hero-logo"
+      id="hero-logo"
+    />
+
+    <h1 class="hero-title" id="hero-club-name">
+      Rotaract Club of<br />
+      <span class="hero-title-accent">Dr. N.G.P Arts &amp; Science College</span>
+    </h1>
+
+    <p class="hero-subtitle" id="hero-subtitle">
+      Parented by Rotary Club of Coimbatore Meridian
+    </p>
+
+    <p class="hero-tagline" id="hero-tagline">Service Above Self</p>
+
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <i data-lucide="hash"></i>
+        <span>Club ID: 217835</span>
+      </div>
+      <div class="hero-meta-divider"></div>
+      <div class="hero-meta-item">
+        <i data-lucide="calendar"></i>
+        <span>Est. 11.02.2020</span>
+      </div>
+      <div class="hero-meta-divider"></div>
+      <div class="hero-meta-item">
+        <i data-lucide="globe"></i>
+        <span>RI District 3206</span>
+      </div>
+    </div>
+
+    <div class="hero-cta">
+      <a href="#projects" class="btn btn-primary btn-lg">
+        <i data-lucide="calendar-check"></i>
+        <span>Explore Projects</span>
+      </a>
+      <a href="#join" class="btn btn-outline btn-lg hero-join-btn">
+        <i data-lucide="user-plus"></i>
+        <span>Join Our Club</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-scroll-indicator">
+    <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
+    <span>Scroll to explore</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     TICKER BAR
+============================================================ -->
+<div class="ticker-bar" id="ticker-bar">
+  <div class="ticker-label">
+    <i data-lucide="megaphone"></i>
+    <span>Updates</span>
+  </div>
+  <div class="ticker-track">
+    <div class="ticker-content" id="ticker-content">
+      <span class="ticker-item">Welcome to Rotaract Club of Dr. N.G.P Arts &amp; Science College</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">Parented by Rotary Club of Coimbatore Meridian</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">Club ID: 217835 | Rotary International District 3206 (Coimbatore | Pallakkad)</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">Charter Date: 11.02.2020</span>
+      <span class="ticker-sep">|</span>
+      <span class="ticker-item">Service Above Self</span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     STATISTICS SECTION
+============================================================ -->
+<section class="stats-section" id="stats">
+  <div class="container">
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="stat-icon-wrap"><i data-lucide="folder-check" class="stat-icon"></i></div>
+        <div class="stat-number" data-target="0" id="stat-projects">0</div>
+        <div class="stat-label">Projects Completed</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="--fill:85%"></div></div>
+      </div>
+      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="stat-icon-wrap"><i data-lucide="users" class="stat-icon"></i></div>
+        <div class="stat-number" data-target="0" id="stat-members">0</div>
+        <div class="stat-label">Active Members</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="--fill:70%"></div></div>
+      </div>
+      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="stat-icon-wrap"><i data-lucide="clock" class="stat-icon"></i></div>
+        <div class="stat-number" data-target="0" id="stat-hours">0</div>
+        <div class="stat-label">Service Hours</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="--fill:90%"></div></div>
+      </div>
+      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="300">
+        <div class="stat-icon-wrap"><i data-lucide="heart" class="stat-icon"></i></div>
+        <div class="stat-number" data-target="0" id="stat-lives">0</div>
+        <div class="stat-label">Lives Impacted</div>
+        <div class="stat-bar"><div class="stat-bar-fill" style="--fill:95%"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     ABOUT SECTION
+============================================================ -->
+<section class="section about-section" id="about">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-badge"><i data-lucide="info"></i><span>About Us</span></div>
+      <h2 class="section-title">Who We Are</h2>
+      <p class="section-subtitle">Empowering young professionals through service, leadership, and fellowship</p>
+    </div>
+
+    <div class="about-grid">
+      <!-- About Main Card -->
+      <div class="about-main-card neu-card" data-aos="fade-right">
+        <div class="about-card-header">
+          <img
+            src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
+            alt="Club Logo"
+            class="about-logo"
+          />
+          <div>
+            <h3 class="about-club-title" id="about-club-name">
+              Rotaract Club of Dr. N.G.P Arts &amp; Science College
+            </h3>
+            <p class="about-parent">Parented by Rotary Club of Coimbatore Meridian</p>
+          </div>
+        </div>
+
+        <div class="about-details-grid">
+          <div class="about-detail-item">
+            <i data-lucide="hash"></i>
+            <div>
+              <span class="detail-label">Club ID</span>
+              <span class="detail-value" id="about-club-id">217835</span>
+            </div>
+          </div>
+          <div class="about-detail-item">
+            <i data-lucide="calendar"></i>
+            <div>
+              <span class="detail-label">Charter Date</span>
+              <span class="detail-value" id="about-charter">11.02.2020</span>
+            </div>
+          </div>
+          <div class="about-detail-item">
+            <i data-lucide="globe"></i>
+            <div>
+              <span class="detail-label">RI District</span>
+              <span class="detail-value">3206 (Coimbatore | Pallakkad)</span>
+            </div>
+          </div>
+          <div class="about-detail-item">
+            <i data-lucide="map-pin"></i>
+            <div>
+              <span class="detail-label">Location</span>
+              <span class="detail-value">Coimbatore, Tamil Nadu</span>
+            </div>
+          </div>
+          <div class="about-detail-item">
+            <i data-lucide="mail"></i>
+            <div>
+              <span class="detail-label">Email</span>
+              <span class="detail-value" id="about-email">rac.drngpasc@gmail.com</span>
+            </div>
+          </div>
+          <div class="about-detail-item">
+            <i data-lucide="at-sign"></i>
+            <div>
+              <span class="detail-label">Social Media</span>
+              <span class="detail-value" id="about-social">@rotaractdrngpasc</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="about-social-links">
+          <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Instagram">
+            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+            </svg>
+          </a>
+          <a href="https://facebook.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Facebook">
+            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+          <a href="https://linkedin.com/company/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="LinkedIn">
+            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+          </a>
+          <a href="mailto:rac.drngpasc@gmail.com" class="social-btn neu-btn" title="Email">
+            <i data-lucide="mail"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Avenues Grid -->
+      <div class="avenues-grid" data-aos="fade-left">
+        <h3 class="avenues-title">Our Avenues of Service</h3>
+        <div class="avenue-card neu-card" data-avenue="club_service">
+          <div class="avenue-icon-wrap avenue-cs"><i data-lucide="users-2"></i></div>
+          <div class="avenue-info"><h4>Club Service</h4><p>Building fellowship and strengthening our club's internal activities</p></div>
+          <div class="avenue-count" id="count-club-service">0</div>
+        </div>
+        <div class="avenue-card neu-card" data-avenue="community_service">
+          <div class="avenue-icon-wrap avenue-community"><i data-lucide="heart-handshake"></i></div>
+          <div class="avenue-info"><h4>Community Service</h4><p>Serving and uplifting our local communities with impactful projects</p></div>
+          <div class="avenue-count" id="count-community-service">0</div>
+        </div>
+        <div class="avenue-card neu-card" data-avenue="professional_service">
+          <div class="avenue-icon-wrap avenue-pro"><i data-lucide="briefcase"></i></div>
+          <div class="avenue-info"><h4>Professional Service</h4><p>Developing professional skills and ethical conduct among members</p></div>
+          <div class="avenue-count" id="count-professional-service">0</div>
+        </div>
+        <div class="avenue-card neu-card" data-avenue="international_service">
+          <div class="avenue-icon-wrap avenue-intl"><i data-lucide="globe-2"></i></div>
+          <div class="avenue-info"><h4>International Service</h4><p>Fostering international understanding and goodwill across borders</p></div>
+          <div class="avenue-count" id="count-international-service">0</div>
+        </div>
+        <div class="avenue-card neu-card" data-avenue="district_priority_projects">
+          <div class="avenue-icon-wrap avenue-dpp"><i data-lucide="star"></i></div>
+          <div class="avenue-info"><h4>District Priority Projects</h4><p>Contributing to district-wide priority initiatives and goals</p></div>
+          <div class="avenue-count" id="count-dpp">0</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     UPCOMING PROJECTS (Next 7 Days)
+============================================================ -->
+<section class="section upcoming-section" id="upcoming">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-badge"><i data-lucide="calendar-clock"></i><span>Coming Up</span></div>
+      <h2 class="section-title">Upcoming Projects</h2>
+      <p class="section-subtitle">Projects happening in the next 7 days — mark your calendar!</p>
+    </div>
+    <div class="upcoming-grid" id="upcoming-grid">
+      <div id="upcoming-placeholder">
+        <div class="neu-card placeholder-card">
+          <i data-lucide="calendar-x"></i>
+          <p>No upcoming projects in the next 7 days</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PROJECTS SECTION (Completed - Avenue Wise)
+============================================================ -->
+<section class="section projects-section" id="projects">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-badge"><i data-lucide="folder-open"></i><span>Our Work</span></div>
+      <h2 class="section-title">Completed Projects</h2>
+      <p class="section-subtitle">Explore our impactful initiatives across all avenues of service</p>
+    </div>
+
+    <div class="avenue-tabs" data-aos="fade-up" data-aos-delay="100">
+      <button class="avenue-tab active" data-filter="all">
+        <i data-lucide="layout-grid"></i><span>All Projects</span>
+      </button>
+      <button class="avenue-tab" data-filter="club_service">
+        <i data-lucide="users-2"></i><span>Club Service</span>
+      </button>
+      <button class="avenue-tab" data-filter="community_service">
+        <i data-lucide="heart-handshake"></i><span>Community Service</span>
+      </button>
+      <button class="avenue-tab" data-filter="professional_service">
+        <i data-lucide="briefcase"></i><span>Professional Service</span>
+      </button>
+      <button class="avenue-tab" data-filter="international_service">
+        <i data-lucide="globe-2"></i><span>International Service</span>
+      </button>
+      <button class="avenue-tab" data-filter="district_priority_projects">
+        <i data-lucide="star"></i><span>District Priority Projects</span>
+      </button>
+    </div>
+
+    <div class="projects-grid" id="projects-grid"></div>
+
+    <div class="load-more-wrap" id="load-more-wrap" style="display:none;">
+      <button class="btn btn-outline" id="load-more-btn">
+        <i data-lucide="chevrons-down"></i><span>Load More Projects</span>
+      </button>
+    </div>
+
+    <div class="no-projects-placeholder" id="no-projects-placeholder" style="display:none;">
+      <div class="neu-card placeholder-card">
+        <i data-lucide="folder-x"></i>
+        <p>No completed projects found for this avenue</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PAST PRESIDENTS & SECRETARIES (Timeline)
+============================================================ -->
+<section class="section leaders-section" id="leaders">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-badge"><i data-lucide="crown"></i><span>Legacy</span></div>
+      <h2 class="section-title">Past Presidents &amp; Secretaries</h2>
+      <p class="section-subtitle">Honoring the leaders who shaped our club's journey</p>
+    </div>
+    <div class="leaders-timeline" id="leaders-timeline"></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     MEMBERS SECTION
+============================================================ -->
+<section class="section members-section" id="members">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-badge"><i data-lucide="users"></i><span>Our Team</span></div>
+      <h2 class="section-title">Meet Our Members</h2>
+      <p class="section-subtitle">The passionate individuals driving change in our community</p>
+    </div>
+
+    <div class="members-filter" data-aos="fade-up" data-aos-delay="100">
+      <button class="filter-btn active" data-filter="all">All Members</button>
+      <button class="filter-btn" data-filter="board">Board Members</button>
+      <button class="filter-btn" data-filter="A+">A+</button>
+      <button class="filter-btn" data-filter="A-">A-</button>
+      <button class="filter-btn" data-filter="B+">B+</button>
+      <button class="filter-btn" data-filter="B-">B-</button>
+      <button class="filter-btn" data-filter="AB+">AB+</button>
+      <button class="filter-btn" data-filter="AB-">AB-</button>
+      <button class="filter-btn" data-filter="O+">O+</button>
+      <button class="filter-btn" data-filter="O-">O-</button>
+    </div>
+
+    <div class="members-search-wrap" data-aos="fade-up" data-aos-delay="150">
+      <div class="search-input-wrap neu-inset">
+        <i data-lucide="search"></i>
+        <input type="text" id="members-search" placeholder="Search members by name, portfolio, area..." class="search-input" />
+      </div>
+    </div>
+
+    <div class="members-grid" id="members-grid"></div>
+
+    <div class="no-members-placeholder" id="no-members-placeholder" style="display:none;">
+      <div class="neu-card placeholder-card">
+        <i data-lucide="user-x"></i>
+        <p>No members found</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     BENEFITS OF JOINING
+============================================================ -->
+<section class="section benefits-section" id="benefits">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-badge"><i data-lucide="sparkles"></i><span>Why Join</span></div>
+      <h2 class="section-title">Benefits of Joining Rotaract</h2>
+      <p class="section-subtitle">Discover the transformative impact of being a Rotaractor</p>
+    </div>
+    <div class="benefits-grid">
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="benefit-icon-wrap"><i data-lucide="network"></i></div>
+        <h3>Global Network</h3>
+        <p>Connect with over 217,000 Rotaractors in 200+ countries across the world through Rotary International</p>
+      </div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="60">
+        <div class="benefit-icon-wrap"><i data-lucide="trending-up"></i></div>
+        <h3>Leadership Development</h3>
+        <p>Develop vital leadership skills through hands-on experience in organizing and executing real-world projects</p>
+      </div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="120">
+        <div class="benefit-icon-wrap"><i data-lucide="briefcase"></i></div>
+        <h3>Professional Growth</h3>
+        <p>Build your professional profile with mentorship from Rotary members and industry leaders in your area</p>
+      </div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="180">
+        <div class="benefit-icon-wrap"><i data-lucide="heart-handshake"></i></div>
+        <h3>Community Impact</h3>
+        <p>Create meaningful change in society by working on impactful service projects that truly transform lives</p>
+      </div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="240">
+        <div class="benefit-icon-wrap"><i data-lucide="users-2"></i></div>
+        <h3>Fellowship &amp; Friendship</h3>
+        <p>Build lifelong friendships with like-minded young professionals who share your passion for service</p>
+      </div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="300">
+        <div class="benefit-icon-wrap"><i data-lucide="award"></i></div>
+        <h3>Recognition &amp; Awards</h3>
+        <p>Gain recognition at club, district, and international levels for outstanding contributions and service</p>
+      </div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="360">
+        <div class="benefit-icon-wrap"><i data-lucide="globe"></i></div>
+        <h3>International Exchange</h3>
+        <p>Participate in international exchange programs, conferences, and Rotary's global peace initiatives</p>
+      </div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="420">
+        <div class="benefit-icon-wrap"><i data-lucide="shield"></i></div>
+        <h3>Rotary Foundation</h3>
+        <p>Access scholarships, grants, and opportunities through the Rotary Foundation's world-class programs</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     NEWSLETTERS / BULLETINS
+============================================================ -->
+<section class="section newsletters-section" id="newsletters">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-badge"><i data-lucide="newspaper"></i><span>Publications</span></div>
+      <h2 class="section-title">Monthly Bulletins</h2>
+      <p class="section-subtitle">Stay updated with our monthly newsletters and club bulletins</p>
+    </div>
+    <div class="newsletters-swiper-wrap" data-aos="fade-up" data-aos-delay="100">
+      <div class="swiper newsletters-swiper">
+        <div class="swiper-wrapper" id="newsletters-swiper-wrapper"></div>
+        <div class="swiper-pagination newsletters-pagination"></div>
+        <div class="swiper-button-prev newsletters-prev"></div>
+        <div class="swiper-button-next newsletters-next"></div>
+      </div>
+    </div>
+    <div id="newsletters-placeholder" style="display:none;">
+      <div class="neu-card placeholder-card">
+        <i data-lucide="file-x"></i>
+        <p>No bulletins published yet</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     JOIN US SECTION
+============================================================ -->
+<section class="section join-section" id="join">
+  <div class="container">
+    <div class="join-wrapper" data-aos="fade-up">
+      <div class="join-info">
+        <div class="section-badge"><i data-lucide="user-plus"></i><span>Join Us</span></div>
+        <h2 class="section-title">Become a Rotaractor</h2>
+        <p class="join-desc">Join our vibrant community of young leaders committed to making a difference. Fill out the application form and take your first step toward a life of service above self.</p>
+        <div class="join-requirements">
+          <h4>Eligibility</h4>
+          <ul>
+            <li><i data-lucide="check-circle"></i> Age between 18 and 30 years</li>
+            <li><i data-lucide="check-circle"></i> Student or young professional</li>
+            <li><i data-lucide="check-circle"></i> Committed to service above self</li>
+            <li><i data-lucide="check-circle"></i> Willingness to participate actively</li>
+          </ul>
+        </div>
+        <a href="pages/apply.html" class="btn btn-primary btn-lg">
+          <i data-lucide="send"></i><span>Apply for Membership</span>
+        </a>
+      </div>
+
+      <div class="join-form-card neu-card" id="join-form-card">
+        <h3 class="join-form-title">
+          <i data-lucide="file-text"></i> Quick Application
+        </h3>
+        <form id="quick-join-form" class="join-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="join-name"><i data-lucide="user"></i> Full Name *</label>
+            <div class="input-wrap neu-inset">
+              <input type="text" id="join-name" name="full_name" class="form-input" placeholder="Your full name" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="join-email"><i data-lucide="mail"></i> Email Address *</label>
+            <div class="input-wrap neu-inset">
+              <input type="email" id="join-email" name="email" class="form-input" placeholder="your@email.com" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="join-phone"><i data-lucide="phone"></i> Phone Number *</label>
+            <div class="input-wrap neu-inset">
+              <input type="tel" id="join-phone" name="phone" class="form-input" placeholder="+91 XXXXX XXXXX" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="join-dob"><i data-lucide="cake"></i> Date of Birth *</label>
+              <div class="input-wrap neu-inset">
+                <input type="date" id="join-dob" name="date_of_birth" class="form-input" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="join-blood"><i data-lucide="droplets"></i> Blood Group *</label>
+              <div class="select-wrap neu-inset">
+                <select id="join-blood" name="blood_group" class="form-select" required>
+                  <option value="">Select</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+                <i data-lucide="chevron-down" class="select-arrow"></i>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="join-area"><i data-lucide="map-pin"></i> Area / Locality</label>
+            <div class="input-wrap neu-inset">
+              <input type="text" id="join-area" name="area" class="form-input" placeholder="Your area or locality" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="join-photo"><i data-lucide="camera"></i> Professional Photo *</label>
+            <div class="file-upload-wrap neu-inset" id="join-photo-wrap">
+              <input type="file" id="join-photo" name="professional_photo" class="file-input" accept="image/*" required />
+              <div class="file-upload-ui">
+                <i data-lucide="upload-cloud"></i>
+                <span id="join-photo-label">Click to upload photo (Max 5MB)</span>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="join-message"><i data-lucide="message-square"></i> Why do you want to join?</label>
+            <div class="input-wrap neu-inset">
+              <textarea id="join-message" name="message" class="form-textarea" rows="3"
+                placeholder="Tell us why you want to join Rotaract..."></textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary btn-full" id="join-submit-btn">
+            <i data-lucide="send"></i><span>Submit Application</span>
+          </button>
+          <div class="form-message" id="join-form-message"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     BLOOD REQUEST SECTION
+============================================================ -->
+<section class="section blood-section" id="blood">
+  <div class="container">
+    <div class="blood-wrapper" data-aos="fade-up">
+      <div class="blood-info">
+        <div class="section-badge blood-badge"><i data-lucide="droplets"></i><span>Blood Donation</span></div>
+        <h2 class="section-title">Need Blood?</h2>
+        <p class="blood-desc">In a medical emergency, every second counts. Submit a blood request and our Blood Donation Chair will coordinate with available donors immediately.</p>
+        <div class="blood-meta-card neu-card">
+          <div class="blood-meta-item">
+            <i data-lucide="zap"></i>
+            <div><strong>Emergency Response</strong><span>WhatsApp alert sent immediately to our Blood Donation team</span></div>
+          </div>
+          <div class="blood-meta-item">
+            <i data-lucide="users"></i>
+            <div><strong>Donor Network</strong><span>Access our wide network of willing blood donors</span></div>
+          </div>
+          <div class="blood-meta-item">
+            <i data-lucide="clock"></i>
+            <div><strong>24/7 Coordination</strong><span>Our team is always ready to help in emergencies</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="blood-form-card neu-card">
+        <h3 class="blood-form-title"><i data-lucide="heart-pulse"></i> Blood Request Form</h3>
+        <form id="blood-request-form" class="blood-form" novalidate>
+          <div class="form-group">
+            <label class="form-label" for="blood-patient"><i data-lucide="user"></i> Patient Name *</label>
+            <div class="input-wrap neu-inset">
+              <input type="text" id="blood-patient" name="patient_name" class="form-input" placeholder="Patient's full name" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="blood-group-req"><i data-lucide="droplets"></i> Blood Group *</label>
+              <div class="select-wrap neu-inset">
+                <select id="blood-group-req" name="blood_group" class="form-select" required>
+                  <option value="">Select</option>
+                  <option value="A+">A+</option>
+                  <option value="A-">A-</option>
+                  <option value="B+">B+</option>
+                  <option value="B-">B-</option>
+                  <option value="AB+">AB+</option>
+                  <option value="AB-">AB-</option>
+                  <option value="O+">O+</option>
+                  <option value="O-">O-</option>
+                </select>
+                <i data-lucide="chevron-down" class="select-arrow"></i>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="blood-units"><i data-lucide="layers"></i> Units Required *</label>
+              <div class="input-wrap neu-inset">
+                <input type="number" id="blood-units" name="units_required" class="form-input" min="1" max="10" value="1" required />
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="blood-hospital"><i data-lucide="building-2"></i> Hospital Name *</label>
+            <div class="input-wrap neu-inset">
+              <input type="text" id="blood-hospital" name="hospital_name" class="form-input" placeholder="Hospital name" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="blood-address"><i data-lucide="map-pin"></i> Hospital Address *</label>
+            <div class="input-wrap neu-inset">
+              <input type="text" id="blood-address" name="hospital_address" class="form-input" placeholder="Full hospital address" required />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="blood-contact-name"><i data-lucide="contact"></i> Contact Person *</label>
+              <div class="input-wrap neu-inset">
+                <input type="text" id="blood-contact-name" name="contact_name" class="form-input" placeholder="Contact person name" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="blood-contact-phone"><i data-lucide="phone"></i> Contact Phone *</label>
+              <div class="input-wrap neu-inset">
+                <input type="tel" id="blood-contact-phone" name="contact_phone" class="form-input" placeholder="+91 XXXXX XXXXX" required />
+              </div>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="blood-required-date"><i data-lucide="calendar"></i> Required By *</label>
+              <div class="input-wrap neu-inset">
+                <input type="date" id="blood-required-date" name="required_date" class="form-input" required />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="blood-urgency"><i data-lucide="alert-triangle"></i> Urgency Level</label>
+              <div class="select-wrap neu-inset">
+                <select id="blood-urgency" name="urgency_level" class="form-select">
+                  <option value="normal">Normal</option>
+                  <option value="urgent">Urgent</option>
+                  <option value="critical">Critical - Emergency</option>
+                </select>
+                <i data-lucide="chevron-down" class="select-arrow"></i>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="blood-additional"><i data-lucide="file-text"></i> Additional Information</label>
+            <div class="input-wrap neu-inset">
+              <textarea id="blood-additional" name="additional_info" class="form-textarea" rows="2" placeholder="Any additional details..."></textarea>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-danger btn-full" id="blood-submit-btn">
+            <i data-lucide="send"></i><span>Submit Blood Request</span>
+          </button>
+          <div class="form-message" id="blood-form-message"></div>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CONTACT & MAP SECTION
+============================================================ -->
+<section class="section contact-section" id="contact">
+  <div class="container">
+    <div class="section-header" data-aos="fade-up">
+      <div class="section-badge"><i data-lucide="map-pin"></i><span>Find Us</span></div>
+      <h2 class="section-title">Contact Us</h2>
+      <p class="section-subtitle">Reach out to us or visit our campus</p>
+    </div>
+
+    <div class="contact-grid" data-aos="fade-up" data-aos-delay="100">
+      <div class="contact-info-card neu-card">
+        <div class="contact-info-header">
+          <img
+            src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
+            alt="Club Logo"
+            class="contact-logo"
+          />
+          <div>
+            <h3 id="contact-club-name">Rotaract Club of Dr. N.G.P Arts &amp; Science College</h3>
+            <p>Parented by Rotary Club of Coimbatore Meridian</p>
+          </div>
+        </div>
+
+        <div class="contact-details">
+          <div class="contact-detail-item">
+            <div class="contact-icon-wrap"><i data-lucide="map-pin"></i></div>
+            <div>
+              <span class="contact-label">Address</span>
+              <address id="contact-address">
+                Dr. N.G.P. Arts and Science College,<br />
+                Autonomous and Affiliated to Bharathiar University,<br />
+                Dr.N.G.P. - Kalapatti Road,<br />
+                Coimbatore - 641048. Tamil Nadu.
+              </address>
+            </div>
+          </div>
+          <div class="contact-detail-item">
+            <div class="contact-icon-wrap"><i data-lucide="mail"></i></div>
+            <div>
+              <span class="contact-label">Email</span>
+              <a href="mailto:rac.drngpasc@gmail.com" class="contact-link" id="contact-email">rac.drngpasc@gmail.com</a>
+            </div>
+          </div>
+          <div class="contact-detail-item">
+            <div class="contact-icon-wrap">
+              <svg class="social-icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+              </svg>
+            </div>
+            <div>
+              <span class="contact-label">Social Media</span>
+              <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="contact-link">@rotaractdrngpasc</a>
+            </div>
+          </div>
+          <div class="contact-detail-item">
+            <div class="contact-icon-wrap"><i data-lucide="hash"></i></div>
+            <div>
+              <span class="contact-label">Club ID</span>
+              <span>217835 | Rotary International District 3206</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="contact-social">
+          <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Instagram">
+            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+            </svg>
+          </a>
+          <a href="https://facebook.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Facebook">
+            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+            </svg>
+          </a>
+          <a href="https://linkedin.com/company/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="LinkedIn">
+            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+            </svg>
+          </a>
+          <a href="mailto:rac.drngpasc@gmail.com" class="social-btn neu-btn" title="Email">
+            <i data-lucide="mail"></i>
+          </a>
+        </div>
+      </div>
+
+      <!-- Map -->
+      <div class="contact-map-wrap neu-card" data-aos="fade-left" data-aos-delay="200">
+        <div class="map-header">
+          <i data-lucide="navigation"></i>
+          <span>Find Us on Map</span>
+          <a href="https://maps.google.com/?q=Dr.+N.G.P.+Arts+and+Science+College,+Coimbatore"
+             target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
+            <i data-lucide="external-link"></i><span>Open in Maps</span>
+          </a>
+        </div>
+        <div class="map-container" id="map-container">
+          <iframe
+            id="map-embed"
+            src="https://maps.google.com/maps?q=Dr.+N.G.P.+Arts+and+Science+College,+Dr.N.G.P.+Kalapatti+Road,+Coimbatore+641048&output=embed"
+            width="100%"
+            height="100%"
+            style="border:0;"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            title="Rotaract Club of Dr. N.G.P Arts & Science College Location">
+          </iframe>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer class="footer" id="footer">
+  <div class="footer-top">
+    <div class="container">
+      <div class="footer-grid">
+
+        <div class="footer-brand">
+          <img
+            src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713318/ngp_logo_whiteAsset_4_2x-8_rgwwq1.png"
+            alt="Rotaract Logo White"
+            class="footer-logo"
+            id="footer-logo"
+          />
+          <h3 class="footer-club-name" id="footer-club-name">
+            Rotaract Club of Dr. N.G.P Arts &amp; Science College
+          </h3>
+          <p class="footer-tagline" id="footer-vision">
+            To develop future leaders committed to service above self
+          </p>
+          <div class="footer-social">
+            <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Instagram">
+              <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+              </svg>
+            </a>
+            <a href="https://facebook.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Facebook">
+              <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+              </svg>
+            </a>
+            <a href="https://linkedin.com/company/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="LinkedIn">
+              <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+              </svg>
+            </a>
+            <a href="https://youtube.com/@rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="YouTube">
+              <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+              </svg>
+            </a>
+            <a href="https://x.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="X (Twitter)">
+              <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-links-col">
+          <h4 class="footer-col-title">Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="#home"><i data-lucide="chevron-right"></i> Home</a></li>
+            <li><a href="#about"><i data-lucide="chevron-right"></i> About Us</a></li>
+            <li><a href="#projects"><i data-lucide="chevron-right"></i> Projects</a></li>
+            <li><a href="#members"><i data-lucide="chevron-right"></i> Members</a></li>
+            <li><a href="#newsletters"><i data-lucide="chevron-right"></i> Bulletins</a></li>
+            <li><a href="#leaders"><i data-lucide="chevron-right"></i> Past Leaders</a></li>
+            <li><a href="#contact"><i data-lucide="chevron-right"></i> Contact</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-links-col">
+          <h4 class="footer-col-title">Avenues of Service</h4>
+          <ul class="footer-links">
+            <li><a href="#projects" data-scroll-filter="club_service"><i data-lucide="chevron-right"></i> Club Service</a></li>
+            <li><a href="#projects" data-scroll-filter="community_service"><i data-lucide="chevron-right"></i> Community Service</a></li>
+            <li><a href="#projects" data-scroll-filter="professional_service"><i data-lucide="chevron-right"></i> Professional Service</a></li>
+            <li><a href="#projects" data-scroll-filter="international_service"><i data-lucide="chevron-right"></i> International Service</a></li>
+            <li><a href="#projects" data-scroll-filter="district_priority_projects"><i data-lucide="chevron-right"></i> District Priority Projects</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-info-col">
+          <h4 class="footer-col-title">Club Information</h4>
+          <div class="footer-info-items">
+            <div class="footer-info-item"><i data-lucide="hash"></i><span>Club ID: 217835</span></div>
+            <div class="footer-info-item"><i data-lucide="calendar"></i><span>Charter: 11.02.2020</span></div>
+            <div class="footer-info-item"><i data-lucide="globe"></i><span>Rotary International District 3206</span></div>
+            <div class="footer-info-item"><i data-lucide="map-pin"></i><span>Coimbatore | Pallakkad</span></div>
+            <div class="footer-info-item">
+              <i data-lucide="mail"></i>
+              <a href="mailto:rac.drngpasc@gmail.com">rac.drngpasc@gmail.com</a>
+            </div>
+            <div class="footer-info-item"><i data-lucide="at-sign"></i><span>@rotaractdrngpasc</span></div>
+          </div>
+          <div class="footer-quick-actions">
+            <a href="#join" class="btn btn-primary btn-sm"><i data-lucide="user-plus"></i><span>Join Us</span></a>
+            <a href="#blood" class="btn btn-danger btn-sm"><i data-lucide="droplets"></i><span>Blood Request</span></a>
+            <a href="pages/games.html" class="btn btn-outline btn-sm" target="_blank">
+              <i data-lucide="gamepad-2"></i><span>Games</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="footer-bottom-content">
+        <p class="footer-copy">
+          &copy; <span id="footer-year"></span>
+          Rotaract Club of Dr. N.G.P Arts &amp; Science College. All rights reserved.
+        </p>
+        <p class="footer-rotary">
+          <i data-lucide="heart" class="heart-icon"></i>
+          Parented by Rotary Club of Coimbatore Meridian | Rotary International District 3206
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     PROJECT DETAIL MODAL
+============================================================ -->
+<div class="modal-overlay" id="project-modal-overlay">
+  <div class="modal-container neu-card" id="project-modal">
+    <div class="modal-header">
+      <div class="modal-title-area">
+        <div class="modal-avenue-badge" id="modal-avenue-badge"></div>
+        <h2 class="modal-title" id="modal-project-title"></h2>
+      </div>
+      <button class="modal-close neu-btn" id="modal-close-btn"><i data-lucide="x"></i></button>
+    </div>
+    <div class="modal-body" id="modal-body">
+      <div class="modal-poster-wrap" id="modal-poster-wrap">
+        <div class="modal-poster-swiper swiper" id="modal-poster-swiper">
+          <div class="swiper-wrapper" id="modal-poster-wrapper"></div>
+          <div class="swiper-pagination"></div>
+          <div class="swiper-button-prev"></div>
+          <div class="swiper-button-next"></div>
+        </div>
+      </div>
+      <div class="modal-details-grid">
+        <div class="modal-detail-item"><i data-lucide="calendar"></i><div><span class="modal-detail-label">Date</span><span class="modal-detail-value" id="modal-date"></span></div></div>
+        <div class="modal-detail-item"><i data-lucide="clock"></i><div><span class="modal-detail-label">Time</span><span class="modal-detail-value" id="modal-time"></span></div></div>
+        <div class="modal-detail-item"><i data-lucide="map-pin"></i><div><span class="modal-detail-label">Venue</span><span class="modal-detail-value" id="modal-venue"></span></div></div>
+        <div class="modal-detail-item"><i data-lucide="user-check"></i><div><span class="modal-detail-label">Event Chair</span><span class="modal-detail-value" id="modal-chair"></span></div></div>
+        <div class="modal-detail-item" id="modal-secretary-wrap"><i data-lucide="user"></i><div><span class="modal-detail-label">Event Secretary</span><span class="modal-detail-value" id="modal-secretary"></span></div></div>
+        <div class="modal-detail-item" id="modal-collaboration-wrap"><i data-lucide="handshake"></i><div><span class="modal-detail-label">Collaboration</span><span class="modal-detail-value" id="modal-collaboration"></span></div></div>
+        <div class="modal-detail-item" id="modal-attendance-wrap"><i data-lucide="users"></i><div><span class="modal-detail-label">Attendance</span><span class="modal-detail-value" id="modal-attendance"></span></div></div>
+        <div class="modal-detail-item" id="modal-beneficiaries-wrap"><i data-lucide="heart"></i><div><span class="modal-detail-label">Beneficiaries</span><span class="modal-detail-value" id="modal-beneficiaries"></span></div></div>
+      </div>
+      <div class="modal-description-section"><h4><i data-lucide="file-text"></i> About This Project</h4><p id="modal-description"></p></div>
+      <div class="modal-photos-section" id="modal-photos-section"><h4><i data-lucide="image"></i> Action Photographs</h4><div class="modal-photos-grid" id="modal-photos-grid"></div></div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="modal-add-calendar-btn"><i data-lucide="calendar-plus"></i><span>Add to Calendar</span></button>
+        <button class="btn btn-outline" id="modal-share-btn"><i data-lucide="share-2"></i><span>Share Project</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MEMBER DETAIL MODAL
+============================================================ -->
+<div class="modal-overlay" id="member-modal-overlay">
+  <div class="modal-container neu-card member-modal" id="member-modal">
+    <button class="modal-close neu-btn" id="member-modal-close"><i data-lucide="x"></i></button>
+    <div class="member-modal-body">
+      <div class="member-modal-photo-wrap">
+        <img src="" alt="" class="member-modal-photo" id="member-modal-photo" />
+        <div class="member-blood-badge" id="member-modal-blood"></div>
+      </div>
+      <div class="member-modal-info">
+        <h2 id="member-modal-name"></h2>
+        <p class="member-modal-portfolio" id="member-modal-portfolio"></p>
+        <div class="member-modal-details">
+          <div class="member-modal-detail" id="member-modal-ri-wrap"><i data-lucide="hash"></i><span id="member-modal-ri"></span></div>
+          <div class="member-modal-detail" id="member-modal-area-wrap"><i data-lucide="map-pin"></i><span id="member-modal-area"></span></div>
+          <div class="member-modal-detail" id="member-modal-email-wrap"><i data-lucide="mail"></i><a id="member-modal-email" href="#"></a></div>
+          <div class="member-modal-detail" id="member-modal-phone-wrap"><i data-lucide="phone"></i><span id="member-modal-phone"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     PHOTO LIGHTBOX
+============================================================ -->
+<div class="lightbox-overlay" id="lightbox-overlay">
+  <div class="lightbox-content">
+    <button class="lightbox-close" id="lightbox-close"><i data-lucide="x"></i></button>
+    <button class="lightbox-prev" id="lightbox-prev"><i data-lucide="chevron-left"></i></button>
+    <img src="" alt="" class="lightbox-img" id="lightbox-img" />
+    <button class="lightbox-next" id="lightbox-next"><i data-lucide="chevron-right"></i></button>
+    <div class="lightbox-caption" id="lightbox-caption"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TOAST NOTIFICATIONS
+============================================================ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ============================================================
+     BACK TO TOP
+============================================================ -->
+<button class="back-to-top neu-btn" id="back-to-top" aria-label="Back to top">
+  <i data-lucide="chevron-up"></i>
+</button>
+
+<!-- ============================================================
+     AI CHATBOT
+============================================================ -->
+<div class="chatbot-fab" id="chatbot-fab" title="Chat with Rotaract AI Assistant">
+  <i data-lucide="message-circle" class="chatbot-fab-icon"></i>
+  <span class="chatbot-fab-badge" id="chatbot-badge">AI</span>
+</div>
+
+<div class="chatbot-window" id="chatbot-window">
+  <div class="chatbot-header">
+    <div class="chatbot-header-info">
+      <div class="chatbot-avatar"><i data-lucide="bot"></i></div>
+      <div>
+        <h4>Rotaract AI Assistant</h4>
+        <span class="chatbot-status"><span class="status-dot"></span>Online</span>
+      </div>
+    </div>
+    <div class="chatbot-header-actions">
+      <button class="chatbot-btn" id="chatbot-clear-btn" title="Clear chat"><i data-lucide="trash-2"></i></button>
+      <button class="chatbot-btn" id="chatbot-close-btn" title="Close"><i data-lucide="x"></i></button>
+    </div>
+  </div>
+  <div class="chatbot-messages" id="chatbot-messages">
+    <div class="chatbot-message bot">
+      <div class="chatbot-avatar-sm"><i data-lucide="bot"></i></div>
+      <div class="chatbot-bubble">
+        <p>Hello! I am the Rotaract AI Assistant for <strong>Rotaract Club of Dr. N.G.P Arts &amp; Science College</strong>.</p>
+        <p>I can answer all your questions about Rotary International, Rotaract, Rotary International District 3206, RSAMDIO, End Polio, and everything related to our club.</p>
+        <p>How can I assist you today?</p>
+      </div>
+    </div>
+  </div>
+  <div class="chatbot-quick-prompts" id="chatbot-quick-prompts">
+    <button class="quick-prompt" data-prompt="What is Rotaract?">What is Rotaract?</button>
+    <button class="quick-prompt" data-prompt="Tell me about RI District 3206">About District 3206</button>
+    <button class="quick-prompt" data-prompt="What is End Polio Now?">End Polio Now</button>
+    <button class="quick-prompt" data-prompt="What is RSAMDIO?">What is RSAMDIO?</button>
+    <button class="quick-prompt" data-prompt="How to join Rotaract?">How to Join?</button>
+  </div>
+  <div class="chatbot-input-area">
+    <div class="chatbot-input-wrap neu-inset">
+      <input type="text" id="chatbot-input" placeholder="Ask anything about Rotary &amp; Rotaract..." class="chatbot-input" />
+      <button class="chatbot-send-btn" id="chatbot-send-btn"><i data-lucide="send"></i></button>
+    </div>
+    <p class="chatbot-powered">
+      <i data-lucide="cpu"></i>
+      Powered by AI | Rotaract Club of Dr. N.G.P Arts &amp; Science College
+    </p>
+  </div>
+</div>
+
+<!-- ============================================================
+     SCRIPTS — Exact order is critical
+============================================================ -->
+<script src="js/config.js"></script>
+<script src="js/email-service.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/document-generator.js"></script>
+<script src="js/public.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ========== INSTANT THEME APPLY ========== */
+  try {
+    var saved = localStorage.getItem('rac_theme');
+    if (saved) {
+      var parsed = JSON.parse(saved);
+      if (parsed && parsed.value) {
+        document.documentElement.setAttribute('data-theme', parsed.value);
+        if (parsed.value === 'dark') {
+          var li = document.getElementById('theme-icon-light');
+          var di = document.getElementById('theme-icon-dark');
+          if (li) li.classList.add('hidden');
+          if (di) di.classList.remove('hidden');
+        }
+      }
+    }
+  } catch (e) {}
+
+  /* ========== AOS ========== */
+  if (typeof AOS !== 'undefined') {
+    AOS.init({
+      duration: 800,
+      easing: 'ease-out-cubic',
+      once: true,
+      offset: 60
+    });
+  }
+
+  /* ========== LUCIDE ========== */
+  if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+  }
+
+  /* ========== FOOTER YEAR ========== */
+  var fy = document.getElementById('footer-year');
+  if (fy) fy.textContent = new Date().getFullYear();
+
+  /* ========== GUARANTEED LOADING SCREEN REMOVAL ========== */
+
+  // Fallback 1: Force hide after 4 seconds
+  window._loadingFallback = setTimeout(function () {
+    var s = document.getElementById('loading-screen');
+    if (s && !s.classList.contains('hidden')) {
+      s.classList.add('hidden');
+    }
+  }, 4000);
+
+  // Fallback 2: Window load event
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      var s = document.getElementById('loading-screen');
+      if (s && !s.classList.contains('hidden')) {
+        s.classList.add('hidden');
+      }
+      if (window._loadingFallback) {
+        clearTimeout(window._loadingFallback);
+      }
+    }, 600);
+  });
+
+  // Fallback 3: On any JS error
+  window.addEventListener('error', function () {
+    var s = document.getElementById('loading-screen');
+    if (s) s.classList.add('hidden');
+  });
+
+  // Fallback 4: On unhandled promise rejection
+  window.addEventListener('unhandledrejection', function () {
+    var s = document.getElementById('loading-screen');
+    if (s) s.classList.add('hidden');
+  });
+
+  // Fallback 5: DOMContentLoaded safety net
+  document.addEventListener('DOMContentLoaded', function () {
+    setTimeout(function () {
+      var s = document.getElementById('loading-screen');
+      if (s && !s.classList.contains('hidden')) {
+        s.classList.add('hidden');
+      }
+    }, 3000);
+  });
+
+})();
+</script>
+
+</body>
+</html>

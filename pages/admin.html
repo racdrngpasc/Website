@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Admin Portal | Rotaract Club of Dr. N.G.P Arts & Science College</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+
+  <!-- FileSaver — for treasury statement download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+  <!-- EmailJS -->
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+  <!-- SheetJS for Excel -->
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
+
+  <!-- Swiper -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+
+  <!-- Main CSS -->
+  <link rel="stylesheet" href="../css/styles.css" />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png"
+    href="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" />
+
+  <style>
+    /* ============================================================
+       ADMIN PAGE BASE STYLES
+    ============================================================ */
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    /* Loading screen styles */
+    .admin-loading-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
+    }
+
+    .admin-loading-screen.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .admin-loading-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .admin-loading-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      animation: adminLoadPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes adminLoadPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.95); }
+    }
+
+    .admin-loading-bar {
+      width: 200px;
+      height: 4px;
+      border-radius: 999px;
+      background: var(--bg-secondary, #D5D5D5);
+      overflow: hidden;
+    }
+
+    .admin-loading-bar-track {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .admin-loading-bar-fill {
+      position: absolute;
+      top: 0;
+      left: -40%;
+      width: 40%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, var(--accent, #0055FF), transparent);
+      border-radius: 999px;
+      animation: adminBarSlide 1.2s ease-in-out infinite;
+    }
+
+    @keyframes adminBarSlide {
+      0%   { left: -40%; }
+      100% { left: 100%; }
+    }
+
+    .admin-loading-text {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--text-muted, #999);
+      text-align: center;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    /* Login page allows scrolling */
+    body.login-mode {
+      overflow: auto !important;
+    }
+
+    /* Admin app fills viewport */
+    #admin-app {
+      display: none;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Login container */
+    #admin-login-container {
+      display: none;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+
+<body>
+
+<!-- ============================================================
+     LOADING SCREEN
+============================================================ -->
+<div id="loading-screen" class="admin-loading-screen">
+  <div class="admin-loading-content">
+    <img
+      src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
+      alt="Rotaract Logo"
+      class="admin-loading-logo"
+    />
+    <div class="admin-loading-bar">
+      <div class="admin-loading-bar-track">
+        <div class="admin-loading-bar-fill"></div>
+      </div>
+    </div>
+    <p class="admin-loading-text">Loading Admin Portal...</p>
+  </div>
+</div>
+
+<!-- ============================================================
+     ADMIN DASHBOARD CONTAINER
+     Shown when authenticated — AdminDashboard renders here
+============================================================ -->
+<div id="admin-app"></div>
+
+<!-- ============================================================
+     LOGIN CONTAINER
+     Shown when not authenticated — AdminLoginUI renders here
+============================================================ -->
+<div id="admin-login-container"></div>
+
+<!-- ============================================================
+     SCRIPTS — Exact order is critical
+     1. config.js   — defines SUPABASE_URL, constants, getSupabaseClient
+     2. auth.js     — AuthManager, AdminLoginUI, AdminPanelRenderer
+     3. email-service.js
+     4. document-generator.js — calls edge functions for DOCX
+     5. public.js
+     6. Module files — events, meetings, treasury, members, reports
+     7. admin.js    — AdminDashboard (must be last)
+============================================================ -->
+<script src="../js/config.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/email-service.js"></script>
+<script src="../js/document-generator.js"></script>
+<script src="../js/public.js"></script>
+<script src="../js/events-admin.js"></script>
+<script src="../js/meetings-admin.js"></script>
+<script src="../js/treasury-admin.js"></script>
+<script src="../js/members-admin.js"></script>
+<script src="../js/reports-admin.js"></script>
+<script src="../js/admin.js"></script>
+
+<!-- ============================================================
+     INITIALIZATION
+============================================================ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ==========================================
+     INSTANT THEME APPLY FROM LOCALSTORAGE
+     ========================================== */
+  try {
+    var savedTheme = localStorage.getItem('rac_theme');
+    if (savedTheme) {
+      var parsedTheme = JSON.parse(savedTheme);
+      if (parsedTheme && parsedTheme.value) {
+        document.documentElement.setAttribute('data-theme', parsedTheme.value);
+      }
+    }
+  } catch (e) {}
+
+  /* ==========================================
+     LUCIDE ICONS — Initial render
+     ========================================== */
+  try {
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  } catch (e) {}
+
+  /* ==========================================
+     LOADING SCREEN HELPERS
+     ========================================== */
+  function hideLoading() {
+    if (window._adminLoadingFallback) {
+      clearTimeout(window._adminLoadingFallback);
+      window._adminLoadingFallback = null;
+    }
+    var screen = document.getElementById('loading-screen');
+    if (screen && !screen.classList.contains('hidden')) {
+      screen.classList.add('hidden');
+    }
+  }
+
+  /* ==========================================
+     GUARANTEED LOADING SCREEN REMOVAL
+     5 independent fallbacks
+     ========================================== */
+
+  // Fallback 1: Force hide after 5 seconds maximum
+  window._adminLoadingFallback = setTimeout(function () {
+    hideLoading();
+  }, 5000);
+
+  // Fallback 2: Window load event
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      hideLoading();
+    }, 800);
+  });
+
+  // Fallback 3: Any JavaScript error
+  window.addEventListener('error', function () {
+    setTimeout(function () {
+      hideLoading();
+      safeCheckAuth();
+    }, 400);
+  });
+
+  // Fallback 4: Unhandled promise rejection
+  window.addEventListener('unhandledrejection', function () {
+    setTimeout(function () {
+      hideLoading();
+      safeCheckAuth();
+    }, 400);
+  });
+
+  // Fallback 5: DOMContentLoaded + delay
+  document.addEventListener('DOMContentLoaded', function () {
+    // Wait for all scripts to initialize, then check auth
+    setTimeout(function () {
+      safeCheckAuth();
+    }, 200);
+  });
+
+  /* ==========================================
+     AUTH STATE CHECK — Safe wrapper
+     ========================================== */
+  function safeCheckAuth() {
+    try {
+      var auth = window.authManager;
+      if (!auth) {
+        // authManager not loaded yet — show login
+        showLoginPage();
+        return;
+      }
+      if (auth.isAuthenticated()) {
+        showDashboardPage();
+      } else {
+        showLoginPage();
+      }
+    } catch (e) {
+      console.error('Auth check error:', e);
+      showLoginPage();
+    }
+  }
+
+  /* ==========================================
+     SHOW LOGIN PAGE
+     ========================================== */
+  function showLoginPage() {
+    var appEl = document.getElementById('admin-app');
+    var loginEl = document.getElementById('admin-login-container');
+
+    if (appEl) appEl.style.display = 'none';
+    if (loginEl) loginEl.style.display = 'block';
+
+    // Allow scrolling for login page
+    document.body.classList.add('login-mode');
+    document.body.style.overflow = 'auto';
+    document.documentElement.style.overflow = 'auto';
+
+    // Render login UI
+    try {
+      if (window.AdminLoginUI && window.authManager) {
+        var loginUI = new AdminLoginUI(window.authManager);
+        loginUI.renderLoginForm('admin-login-container');
+      } else {
+        // Fallback login form
+        if (loginEl) {
+          loginEl.innerHTML = buildFallbackLoginHTML();
+        }
+      }
+    } catch (e) {
+      console.error('Login render error:', e);
+      var loginEl2 = document.getElementById('admin-login-container');
+      if (loginEl2) loginEl2.innerHTML = buildFallbackLoginHTML();
+    }
+
+    // Hide loading screen
+    hideLoading();
+
+    // Render icons
+    try {
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    } catch (e) {}
+
+    // Show logout message if present
+    try {
+      var logoutMsg = sessionStorage.getItem('logout_message');
+      if (logoutMsg) {
+        sessionStorage.removeItem('logout_message');
+        setTimeout(function () {
+          var msgEl = document.getElementById('admin-logout-msg');
+          var msgTextEl = document.getElementById('admin-logout-msg-text');
+          if (msgEl && msgTextEl) {
+            msgTextEl.textContent = logoutMsg;
+            msgEl.style.display = 'flex';
+          }
+        }, 300);
+      }
+    } catch (e) {}
+  }
+
+  /* ==========================================
+     SHOW DASHBOARD PAGE
+     ========================================== */
+  function showDashboardPage() {
+    var appEl = document.getElementById('admin-app');
+    var loginEl = document.getElementById('admin-login-container');
+
+    if (appEl) appEl.style.display = 'flex';
+    if (loginEl) loginEl.style.display = 'none';
+
+    // Lock scroll for dashboard
+    document.body.classList.remove('login-mode');
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+
+    // AdminDashboard (admin.js) initializes itself
+    // It will call hideLoading when ready
+  }
+
+  /* ==========================================
+     FALLBACK LOGIN HTML
+     Used if AdminLoginUI class fails to load
+     ========================================== */
+  function buildFallbackLoginHTML() {
+    return [
+      '<div style="min-height:100vh;display:flex;align-items:center;justify-content:center;',
+      'padding:24px;background:var(--bg);">',
+      '<div class="neu-card" style="width:100%;max-width:420px;padding:40px;">',
+
+      '<!-- Logo & Title -->',
+      '<div style="text-align:center;margin-bottom:28px;">',
+      '<img src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"',
+      ' style="width:72px;height:72px;object-fit:contain;margin:0 auto 14px;display:block;" alt="Logo" />',
+      '<h1 style="font-size:1.5rem;font-weight:800;color:var(--text-heading);margin-bottom:6px;">',
+      'Admin Portal</h1>',
+      '<p style="font-size:0.8rem;color:var(--text-muted);line-height:1.5;">',
+      'Rotaract Club of Dr. N.G.P Arts &amp; Science College</p>',
+      '<div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;',
+      'padding:4px 14px;border-radius:20px;background:var(--accent-light);',
+      'color:var(--accent);font-size:0.7rem;font-weight:600;">',
+      '<i data-lucide="shield-check" style="width:12px;height:12px;"></i>',
+      '<span>Secure Access &bull; Club ID: 217835</span></div>',
+      '</div>',
+
+      '<!-- Logout message -->',
+      '<div id="admin-logout-msg" style="display:none;align-items:center;gap:10px;',
+      'padding:12px 14px;border-radius:var(--border-radius-sm);',
+      'background:var(--accent-light);color:var(--accent);',
+      'font-size:0.82rem;margin-bottom:16px;',
+      'border-left:3px solid var(--accent);">',
+      '<i data-lucide="info" style="width:15px;height:15px;flex-shrink:0;"></i>',
+      '<span id="admin-logout-msg-text"></span>',
+      '</div>',
+
+      '<!-- Login Form -->',
+      '<form id="fb-login-form" onsubmit="return window.handleFBLogin(event)" novalidate>',
+
+      '<!-- Email -->',
+      '<div style="margin-bottom:16px;">',
+      '<label style="display:block;font-size:0.82rem;font-weight:600;',
+      'color:var(--text-secondary);margin-bottom:6px;">',
+      '<i data-lucide="mail" style="width:13px;height:13px;vertical-align:middle;margin-right:4px;"></i>',
+      'Email Address</label>',
+      '<div class="input-wrap neu-inset" style="padding:12px 16px;">',
+      '<input type="email" id="fb-email" class="form-input"',
+      ' placeholder="admin@email.com" required autocomplete="email" />',
+      '</div></div>',
+
+      '<!-- Password -->',
+      '<div style="margin-bottom:16px;">',
+      '<label style="display:block;font-size:0.82rem;font-weight:600;',
+      'color:var(--text-secondary);margin-bottom:6px;">',
+      '<i data-lucide="lock" style="width:13px;height:13px;vertical-align:middle;margin-right:4px;"></i>',
+      'Password</label>',
+      '<div class="input-wrap neu-inset" style="padding:12px 16px;display:flex;',
+      'align-items:center;gap:8px;">',
+      '<input type="password" id="fb-password" class="form-input"',
+      ' placeholder="Enter your password" required autocomplete="current-password"',
+      ' style="flex:1;" />',
+      '<button type="button" onclick="window.toggleFBPass()"',
+      ' style="background:none;border:none;cursor:pointer;',
+      'color:var(--text-muted);display:flex;align-items:center;padding:2px;",',
+      ' aria-label="Toggle password visibility">',
+      '<i data-lucide="eye" id="fb-eye" style="width:16px;height:16px;"></i>',
+      '</button>',
+      '</div></div>',
+
+      '<!-- Error message -->',
+      '<div id="fb-error" style="display:none;padding:10px 14px;',
+      'border-radius:var(--border-radius-sm);background:var(--danger-light);',
+      'color:var(--danger);font-size:0.82rem;margin-bottom:12px;',
+      'border-left:3px solid var(--danger);"></div>',
+
+      '<!-- Loading bar -->',
+      '<div id="fb-loading" style="display:none;margin-bottom:12px;">',
+      '<div class="admin-loading-bar" style="width:100%;margin:0 auto;">',
+      '<div class="admin-loading-bar-track">',
+      '<div class="admin-loading-bar-fill"></div>',
+      '</div></div></div>',
+
+      '<!-- Submit button -->',
+      '<button type="submit" class="btn btn-primary btn-full" id="fb-submit-btn">',
+      '<i data-lucide="log-in" style="width:16px;height:16px;"></i>',
+      '<span>Sign In to Admin Portal</span>',
+      '</button>',
+
+      '</form>',
+
+      '<!-- Footer links -->',
+      '<div style="text-align:center;margin-top:20px;padding-top:16px;',
+      'border-top:1px solid var(--border-color);">',
+      '<a href="../index.html" class="btn btn-outline btn-sm">',
+      '<i data-lucide="home" style="width:14px;height:14px;"></i>',
+      '<span>Back to Website</span>',
+      '</a>',
+      '<div style="display:flex;align-items:center;justify-content:center;',
+      'gap:6px;margin-top:12px;font-size:0.7rem;color:var(--text-muted);">',
+      '<i data-lucide="shield" style="width:12px;height:12px;color:var(--success);"></i>',
+      '<span>Secured Admin Portal</span>',
+      '</div>',
+      '</div>',
+
+      '</div></div>'
+    ].join('');
+  }
+
+  /* ==========================================
+     FALLBACK LOGIN HANDLERS
+     ========================================== */
+  window.toggleFBPass = function () {
+    var input = document.getElementById('fb-password');
+    var icon = document.getElementById('fb-eye');
+    if (!input) return;
+    var isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    if (icon) {
+      icon.setAttribute('data-lucide', isPass ? 'eye-off' : 'eye');
+      try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (e) {}
+    }
+  };
+
+  window.handleFBLogin = async function (e) {
+    e.preventDefault();
+
+    var emailEl = document.getElementById('fb-email');
+    var passEl = document.getElementById('fb-password');
+    var errorEl = document.getElementById('fb-error');
+    var submitBtn = document.getElementById('fb-submit-btn');
+    var loadingEl = document.getElementById('fb-loading');
+
+    var email = (emailEl ? emailEl.value : '').trim();
+    var password = passEl ? passEl.value : '';
+
+    // Basic validation
+    if (!email || !password) {
+      if (errorEl) {
+        errorEl.textContent = 'Please enter your email address and password.';
+        errorEl.style.display = 'block';
+      }
+      return false;
+    }
+
+    // Email format check
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      if (errorEl) {
+        errorEl.textContent = 'Please enter a valid email address.';
+        errorEl.style.display = 'block';
+      }
+      return false;
+    }
+
+    // Show loading state
+    if (errorEl) errorEl.style.display = 'none';
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.style.display = 'none'; }
+    if (loadingEl) loadingEl.style.display = 'block';
+
+    try {
+      var auth = window.authManager;
+      if (!auth) {
+        throw new Error(
+          'Authentication system not loaded. Please refresh the page and try again.'
+        );
+      }
+
+      var result = await auth.login(email, password);
+
+      if (result && result.success) {
+        // Success — show feedback
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (submitBtn) {
+          submitBtn.style.display = 'flex';
+          submitBtn.innerHTML = [
+            '<i data-lucide="check-circle" style="width:16px;height:16px;"></i>',
+            '<span>Login Successful! Redirecting...</span>'
+          ].join('');
+          submitBtn.style.background = 'var(--success)';
+          submitBtn.style.borderColor = 'var(--success)';
+          try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (ex) {}
+        }
+
+        // Reload to show dashboard
+        setTimeout(function () {
+          window.location.reload();
+        }, 700);
+      } else {
+        // Login failed
+        var msg = (result && result.message)
+          ? result.message
+          : 'Invalid email or password. Please try again.';
+
+        if (errorEl) {
+          errorEl.textContent = msg;
+          errorEl.style.display = 'block';
+        }
+        if (loadingEl) loadingEl.style.display = 'none';
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.style.display = 'flex';
+          submitBtn.style.background = '';
+          submitBtn.style.borderColor = '';
+          submitBtn.innerHTML = [
+            '<i data-lucide="log-in" style="width:16px;height:16px;"></i>',
+            '<span>Sign In to Admin Portal</span>'
+          ].join('');
+          try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (ex) {}
+        }
+        // Clear password on failure
+        if (passEl) passEl.value = '';
+      }
+    } catch (err) {
+      console.error('Fallback login error:', err);
+      var errMsg = err.message || 'Login failed. Please refresh and try again.';
+
+      if (errorEl) {
+        errorEl.textContent = errMsg;
+        errorEl.style.display = 'block';
+      }
+      if (loadingEl) loadingEl.style.display = 'none';
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.style.display = 'flex';
+        submitBtn.innerHTML = [
+          '<i data-lucide="log-in" style="width:16px;height:16px;"></i>',
+          '<span>Sign In to Admin Portal</span>'
+        ].join('');
+        try { if (typeof lucide !== 'undefined') lucide.createIcons(); } catch (ex) {}
+      }
+    }
+
+    return false;
+  };
+
+  /* ==========================================
+     LIBRARY VERIFICATION ON LOAD
+     ========================================== */
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      var libs = {
+        'Supabase': typeof supabase !== 'undefined',
+        'Lucide': typeof lucide !== 'undefined',
+        'FileSaver': typeof saveAs !== 'undefined',
+        'EmailJS': typeof emailjs !== 'undefined',
+        'XLSX': typeof XLSX !== 'undefined',
+        'Swiper': typeof Swiper !== 'undefined'
+      };
+
+      var missing = Object.entries(libs)
+        .filter(function (e) { return !e[1]; })
+        .map(function (e) { return e[0]; });
+
+      if (missing.length > 0) {
+        console.warn(
+          '%c Admin Portal — Missing libraries: ' + missing.join(', '),
+          'color:orange;font-weight:600;'
+        );
+      } else {
+        console.log(
+          '%c Admin Portal — All libraries loaded',
+          'color:#38A169;font-weight:600;'
+        );
+      }
+
+      console.log(
+        '%c DOCX generation via Supabase Edge Functions (no window.docx required)',
+        'color:#0055FF;font-weight:500;font-size:11px;'
+      );
+    }, 1000);
+  });
+
+})();
+</script>
+
+</body>
+</html>

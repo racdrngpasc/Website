@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Apply for membership at Rotaract Club of Dr. N.G.P Arts & Science College" />
+  <title>Apply for Membership | Rotaract Club of Dr. N.G.P Arts & Science College</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="icon" type="image/png" href="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" />
+
+  <style>
+    html, body { min-height: 100vh; }
+
+    .apply-page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .apply-header {
+      background: var(--bg-card);
+      box-shadow: var(--neu-shadow-sm);
+      padding: 16px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .apply-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .apply-header-logo {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .apply-header-title h1 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .apply-header-title h1 i,
+    .apply-header-title h1 svg {
+      width: 20px;
+      height: 20px;
+      color: var(--accent);
+    }
+
+    .apply-header-title p {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .apply-header-right {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    /* Main Content */
+    .apply-content {
+      flex: 1;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+      width: 100%;
+    }
+
+    /* Intro Card */
+    .apply-intro {
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 40px 32px;
+      background: linear-gradient(135deg, var(--accent-light), var(--bg-secondary));
+      border-radius: var(--border-radius-lg);
+      box-shadow: var(--neu-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .apply-intro::before {
+      content: '';
+      position: absolute;
+      top: -30%;
+      right: -15%;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(var(--accent-rgb), 0.1) 0%, transparent 70%);
+      border-radius: 50%;
+    }
+
+    .apply-intro-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      margin: 0 auto 16px;
+      filter: drop-shadow(0 4px 12px rgba(var(--accent-rgb), 0.3));
+      position: relative;
+    }
+
+    .apply-intro h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .apply-intro p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      max-width: 480px;
+      margin: 0 auto;
+      line-height: 1.7;
+      position: relative;
+    }
+
+    .apply-intro-meta {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .apply-intro-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: var(--border-radius-full);
+      background: var(--bg-card);
+      box-shadow: var(--neu-shadow-sm);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .apply-intro-meta-item i,
+    .apply-intro-meta-item svg {
+      width: 14px;
+      height: 14px;
+      color: var(--accent);
+    }
+
+    /* Eligibility */
+    .apply-eligibility {
+      margin-bottom: 28px;
+    }
+
+    .apply-eligibility h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-heading);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .apply-eligibility h3 i,
+    .apply-eligibility h3 svg {
+      width: 18px;
+      height: 18px;
+      color: var(--accent);
+    }
+
+    .eligibility-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .eligibility-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      border-radius: var(--border-radius-sm);
+      background: var(--bg-card);
+      box-shadow: var(--neu-shadow-sm);
+      font-size: 0.84rem;
+      color: var(--text-secondary);
+    }
+
+    .eligibility-item i,
+    .eligibility-item svg {
+      width: 16px;
+      height: 16px;
+      color: var(--success);
+      flex-shrink: 0;
+    }
+
+    /* Form Card */
+    .apply-form-card {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .apply-form-header {
+      padding: 24px 32px;
+      background: linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.8));
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .apply-form-header-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--border-radius-sm);
+      background: rgba(255, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .apply-form-header-icon i,
+    .apply-form-header-icon svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .apply-form-header-text h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .apply-form-header-text p {
+      font-size: 0.78rem;
+      opacity: 0.85;
+    }
+
+    .apply-form-body {
+      padding: 32px;
+    }
+
+    /* Steps Indicator */
+    .apply-steps {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 32px;
+    }
+
+    .apply-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .apply-step-number {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      box-shadow: var(--neu-shadow-sm);
+      transition: var(--transition);
+    }
+
+    .apply-step.active .apply-step-number {
+      background: var(--accent);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.35);
+    }
+
+    .apply-step.completed .apply-step-number {
+      background: var(--success);
+      color: #FFFFFF;
+    }
+
+    .apply-step-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .apply-step.active .apply-step-label {
+      color: var(--accent);
+    }
+
+    .apply-step.completed .apply-step-label {
+      color: var(--success);
+    }
+
+    .apply-step-line {
+      width: 40px;
+      height: 2px;
+      background: var(--border-color);
+      margin: 0 8px;
+    }
+
+    .apply-step-line.completed {
+      background: var(--success);
+    }
+
+    /* Photo Preview */
+    .apply-photo-preview {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+      box-shadow: var(--neu-shadow-sm);
+      display: none;
+      margin: 12px auto 0;
+    }
+
+    /* Success State */
+    .apply-success {
+      text-align: center;
+      padding: 48px 32px;
+      display: none;
+    }
+
+    .apply-success-icon {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--success-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      animation: successPulse 1s ease;
+    }
+
+    .apply-success-icon i,
+    .apply-success-icon svg {
+      width: 40px;
+      height: 40px;
+      color: var(--success);
+    }
+
+    @keyframes successPulse {
+      0% { transform: scale(0.5); opacity: 0; }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .apply-success h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text-heading);
+      margin-bottom: 8px;
+    }
+
+    .apply-success p {
+      font-size: 0.88rem;
+      color: var(--text-secondary);
+      line-height: 1.7;
+      max-width: 400px;
+      margin: 0 auto 24px;
+    }
+
+    /* Footer */
+    .apply-footer {
+      text-align: center;
+      padding: 24px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .apply-footer p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .apply-footer a {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .apply-header { flex-direction: column; align-items: flex-start; gap: 10px; }
+      .apply-header-right { width: 100%; justify-content: flex-end; }
+      .apply-content { padding: 20px 16px 40px; }
+      .apply-intro { padding: 28px 20px; }
+      .apply-intro h2 { font-size: 1.2rem; }
+      .eligibility-list { grid-template-columns: 1fr; }
+      .apply-form-body { padding: 24px 20px; }
+      .apply-steps { flex-wrap: wrap; gap: 4px; }
+      .apply-step-label { display: none; }
+      .apply-step-line { width: 24px; }
+      .apply-form-header { padding: 20px 24px; }
+      .apply-intro-meta { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="apply-page">
+
+  <!-- ============================================================
+       HEADER
+  ============================================================ -->
+  <header class="apply-header">
+    <div class="apply-header-left">
+      <a href="../index.html">
+        <img
+          src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
+          alt="Rotaract Logo"
+          class="apply-header-logo"
+        />
+      </a>
+      <div class="apply-header-title">
+        <h1>
+          <i data-lucide="user-plus"></i>
+          Membership Application
+        </h1>
+        <p>Rotaract Club of Dr. N.G.P Arts &amp; Science College</p>
+      </div>
+    </div>
+    <div class="apply-header-right">
+      <button class="neu-btn" id="apply-theme-toggle" title="Toggle Theme"
+              style="width:38px;height:38px;border-radius:50%;">
+        <i data-lucide="sun" id="apply-theme-light" style="width:17px;height:17px;"></i>
+        <i data-lucide="moon" id="apply-theme-dark" class="hidden" style="width:17px;height:17px;"></i>
+      </button>
+      <a href="../index.html" class="btn btn-outline btn-sm">
+        <i data-lucide="home"></i>
+        <span>Home</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       MAIN CONTENT
+  ============================================================ -->
+  <div class="apply-content">
+
+    <!-- Intro Banner -->
+    <div class="apply-intro">
+      <img
+        src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
+        alt="Rotaract Logo"
+        class="apply-intro-logo"
+      />
+      <h2>Become a Rotaractor</h2>
+      <p>
+        Join our vibrant community of young leaders committed to making a
+        difference through service above self. Fill out the form below to apply.
+      </p>
+      <div class="apply-intro-meta">
+        <div class="apply-intro-meta-item">
+          <i data-lucide="hash"></i>
+          <span>Club ID: 217835</span>
+        </div>
+        <div class="apply-intro-meta-item">
+          <i data-lucide="globe"></i>
+          <span>RI District 3206</span>
+        </div>
+        <div class="apply-intro-meta-item">
+          <i data-lucide="map-pin"></i>
+          <span>Coimbatore</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Eligibility -->
+    <div class="apply-eligibility">
+      <h3>
+        <i data-lucide="check-circle"></i>
+        Eligibility Criteria
+      </h3>
+      <div class="eligibility-list">
+        <div class="eligibility-item">
+          <i data-lucide="check"></i>
+          <span>Age between 18 and 30 years</span>
+        </div>
+        <div class="eligibility-item">
+          <i data-lucide="check"></i>
+          <span>Student or young professional</span>
+        </div>
+        <div class="eligibility-item">
+          <i data-lucide="check"></i>
+          <span>Committed to service above self</span>
+        </div>
+        <div class="eligibility-item">
+          <i data-lucide="check"></i>
+          <span>Willingness to participate actively</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Application Form -->
+    <div class="apply-form-card neu-card">
+
+      <div class="apply-form-header">
+        <div class="apply-form-header-icon">
+          <i data-lucide="file-text"></i>
+        </div>
+        <div class="apply-form-header-text">
+          <h3>Application Form</h3>
+          <p>All fields marked with * are required</p>
+        </div>
+      </div>
+
+      <div class="apply-form-body" id="apply-form-body">
+
+        <!-- Steps Indicator -->
+        <div class="apply-steps">
+          <div class="apply-step active" id="step-1-indicator">
+            <div class="apply-step-number">1</div>
+            <span class="apply-step-label">Personal</span>
+          </div>
+          <div class="apply-step-line" id="step-line-1"></div>
+          <div class="apply-step" id="step-2-indicator">
+            <div class="apply-step-number">2</div>
+            <span class="apply-step-label">Details</span>
+          </div>
+          <div class="apply-step-line" id="step-line-2"></div>
+          <div class="apply-step" id="step-3-indicator">
+            <div class="apply-step-number">3</div>
+            <span class="apply-step-label">Photo &amp; Submit</span>
+          </div>
+        </div>
+
+        <!-- Form -->
+        <form id="apply-form" novalidate>
+
+          <!-- Step 1: Personal Information -->
+          <div id="apply-step-1">
+            <div class="form-group">
+              <label class="form-label" for="apply-name">
+                <i data-lucide="user"></i> Full Name *
+              </label>
+              <div class="input-wrap neu-inset">
+                <input type="text" id="apply-name" name="full_name" class="form-input"
+                       placeholder="Enter your full name" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="apply-email">
+                <i data-lucide="mail"></i> Email Address *
+              </label>
+              <div class="input-wrap neu-inset">
+                <input type="email" id="apply-email" name="email" class="form-input"
+                       placeholder="your@email.com" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="apply-phone">
+                <i data-lucide="phone"></i> Phone Number *
+              </label>
+              <div class="input-wrap neu-inset">
+                <input type="tel" id="apply-phone" name="phone" class="form-input"
+                       placeholder="+91 XXXXX XXXXX" required />
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:flex-end;margin-top:20px;">
+              <button type="button" class="btn btn-primary"
+                      onclick="nextStep(2)">
+                <span>Next</span>
+                <i data-lucide="arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Additional Details -->
+          <div id="apply-step-2" style="display:none;">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label" for="apply-dob">
+                  <i data-lucide="cake"></i> Date of Birth *
+                </label>
+                <div class="input-wrap neu-inset">
+                  <input type="date" id="apply-dob" name="date_of_birth" class="form-input" required />
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="apply-blood">
+                  <i data-lucide="droplets"></i> Blood Group *
+                </label>
+                <div class="select-wrap neu-inset">
+                  <select id="apply-blood" name="blood_group" class="form-select" required>
+                    <option value="">Select Blood Group</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                  </select>
+                  <i data-lucide="chevron-down" class="select-arrow"></i>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="apply-area">
+                <i data-lucide="map-pin"></i> Area / Locality
+              </label>
+              <div class="input-wrap neu-inset">
+                <input type="text" id="apply-area" name="area" class="form-input"
+                       placeholder="Your area or locality" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="apply-message">
+                <i data-lucide="message-square"></i> Why do you want to join Rotaract?
+              </label>
+              <div class="input-wrap neu-inset">
+                <textarea id="apply-message" name="message" class="form-textarea" rows="4"
+                          placeholder="Tell us why you want to join Rotaract and how you plan to contribute..."></textarea>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;margin-top:20px;gap:12px;">
+              <button type="button" class="btn btn-outline" onclick="nextStep(1)">
+                <i data-lucide="arrow-left"></i>
+                <span>Back</span>
+              </button>
+              <button type="button" class="btn btn-primary" onclick="nextStep(3)">
+                <span>Next</span>
+                <i data-lucide="arrow-right"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Photo & Submit -->
+          <div id="apply-step-3" style="display:none;">
+            <div class="form-group">
+              <label class="form-label" for="apply-photo">
+                <i data-lucide="camera"></i> Professional Photo *
+              </label>
+              <div class="file-upload-wrap neu-inset" id="apply-photo-wrap">
+                <input type="file" id="apply-photo" name="professional_photo"
+                       class="file-input" accept="image/*" required />
+                <div class="file-upload-ui">
+                  <i data-lucide="upload-cloud"></i>
+                  <span id="apply-photo-label">Click or drag to upload your professional photo</span>
+                  <span style="font-size:0.7rem;color:var(--text-muted);">
+                    JPG, PNG or WebP — Max 5MB
+                  </span>
+                </div>
+              </div>
+              <img id="apply-photo-preview" class="apply-photo-preview" src="" alt="Preview" />
+            </div>
+
+            <div style="margin:20px 0;padding:16px;background:var(--accent-light);
+                        border-radius:var(--border-radius-sm);">
+              <div style="display:flex;align-items:flex-start;gap:10px;">
+                <i data-lucide="info" style="width:18px;height:18px;color:var(--accent);
+                   flex-shrink:0;margin-top:2px;"></i>
+                <div>
+                  <p style="font-size:0.82rem;color:var(--text-secondary);line-height:1.6;margin:0;">
+                    By submitting this application, you confirm that the information provided is
+                    accurate and you agree to uphold the values of Rotaract —
+                    <strong>Service Above Self</strong>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;justify-content:space-between;margin-top:20px;gap:12px;">
+              <button type="button" class="btn btn-outline" onclick="nextStep(2)">
+                <i data-lucide="arrow-left"></i>
+                <span>Back</span>
+              </button>
+              <button type="submit" class="btn btn-primary" id="apply-submit-btn">
+                <i data-lucide="send"></i>
+                <span>Submit Application</span>
+              </button>
+            </div>
+
+            <div class="form-message" id="apply-form-message"></div>
+          </div>
+
+        </form>
+
+        <!-- Success State -->
+        <div class="apply-success" id="apply-success">
+          <div class="apply-success-icon">
+            <i data-lucide="check-circle"></i>
+          </div>
+          <h2>Application Submitted!</h2>
+          <p>
+            Thank you for your interest in joining our club.
+            We will review your application and contact you soon.
+          </p>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+            <a href="../index.html" class="btn btn-primary">
+              <i data-lucide="home"></i>
+              <span>Back to Website</span>
+            </a>
+            <button type="button" class="btn btn-outline" onclick="resetForm()">
+              <i data-lucide="rotate-ccw"></i>
+              <span>Submit Another</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="apply-footer">
+    <p>
+      <strong>Rotaract Club of Dr. N.G.P Arts &amp; Science College</strong><br />
+      Parented by Rotary Club of Coimbatore Meridian |
+      Club ID: 217835 |
+      Rotary International District 3206<br /><br />
+      <a href="../index.html">Back to Website</a> |
+      <a href="../index.html#contact">Contact Us</a>
+    </p>
+  </div>
+
+</div>
+
+<!-- ============================================================
+     TOAST
+============================================================ -->
+<div class="toast-container" id="toast-container"></div>
+
+<!-- ============================================================
+     SCRIPTS
+============================================================ -->
+<script src="../js/config.js"></script>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ========== THEME ========== */
+  try {
+    var saved = localStorage.getItem('rac_theme');
+    if (saved) {
+      var parsed = JSON.parse(saved);
+      if (parsed && parsed.value) {
+        document.documentElement.setAttribute('data-theme', parsed.value);
+        if (parsed.value === 'dark') {
+          var li = document.getElementById('apply-theme-light');
+          var di = document.getElementById('apply-theme-dark');
+          if (li) li.classList.add('hidden');
+          if (di) di.classList.remove('hidden');
+        }
+      }
+    }
+  } catch (e) {}
+
+  var themeBtn = document.getElementById('apply-theme-toggle');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function () {
+      var current = document.documentElement.getAttribute('data-theme');
+      var next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      var li = document.getElementById('apply-theme-light');
+      var di = document.getElementById('apply-theme-dark');
+      if (next === 'dark') {
+        if (li) li.classList.add('hidden');
+        if (di) di.classList.remove('hidden');
+      } else {
+        if (li) li.classList.remove('hidden');
+        if (di) di.classList.add('hidden');
+      }
+      try {
+        localStorage.setItem('rac_theme', JSON.stringify({ value: next, timestamp: Date.now() }));
+      } catch (e) {}
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+  }
+
+  /* ========== LUCIDE ========== */
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  /* ========== SUPABASE ========== */
+  var db = getSupabaseClient();
+
+  /* ========== PHOTO PREVIEW ========== */
+  var photoInput = document.getElementById('apply-photo');
+  var photoLabel = document.getElementById('apply-photo-label');
+  var photoPreview = document.getElementById('apply-photo-preview');
+
+  if (photoInput) {
+    photoInput.addEventListener('change', function (e) {
+      var file = e.target.files[0];
+      if (!file) return;
+
+      if (!Validate.imageType(file)) {
+        showToast('Please upload a valid image (JPG, PNG, WebP)', 'error');
+        photoInput.value = '';
+        return;
+      }
+
+      if (!Validate.fileSize(file, FILE_LIMITS.APPLICATION_PHOTO)) {
+        showToast('Photo must be under 5MB', 'error');
+        photoInput.value = '';
+        return;
+      }
+
+      if (photoLabel) photoLabel.textContent = file.name;
+
+      if (photoPreview) {
+        var reader = new FileReader();
+        reader.onload = function (ev) {
+          photoPreview.src = ev.target.result;
+          photoPreview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  /* ========== FORM SUBMIT ========== */
+  var form = document.getElementById('apply-form');
+  if (form) {
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      var name = document.getElementById('apply-name').value.trim();
+      var email = document.getElementById('apply-email').value.trim();
+      var phone = document.getElementById('apply-phone').value.trim();
+      var dob = document.getElementById('apply-dob').value;
+      var blood = document.getElementById('apply-blood').value;
+      var area = document.getElementById('apply-area').value.trim();
+      var message = document.getElementById('apply-message').value.trim();
+      var photo = document.getElementById('apply-photo').files[0];
+
+      // Validate
+      if (!Validate.required(name)) { showMsg('Please enter your full name', 'error'); return; }
+      if (!Validate.email(email)) { showMsg('Please enter a valid email', 'error'); return; }
+      if (!Validate.phone(phone)) { showMsg('Please enter a valid phone number', 'error'); return; }
+      if (!dob) { showMsg('Please enter your date of birth', 'error'); return; }
+      if (!blood) { showMsg('Please select your blood group', 'error'); return; }
+      if (!photo) { showMsg('Please upload your professional photo', 'error'); return; }
+
+      var btn = document.getElementById('apply-submit-btn');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader-2"></i><span>Submitting...</span>';
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+      }
+
+      try {
+        // Upload photo
+        var photoUrl = '';
+        try {
+          var compressed = await ImageUtils.compress(photo, 800, 800, 0.85);
+          var filename = ImageUtils.generateFilename('applicant', 'jpg');
+          var uploadResult = await db.storage
+            .from(STORAGE_BUCKETS.APPLICATIONS)
+            .upload(filename, compressed, { contentType: 'image/jpeg' });
+
+          if (!uploadResult.error && uploadResult.data) {
+            photoUrl = ImageUtils.getPublicUrl(STORAGE_BUCKETS.APPLICATIONS, uploadResult.data.path);
+          }
+        } catch (uploadErr) {
+          console.warn('Photo upload failed:', uploadErr);
+        }
+
+        // Insert application
+        var result = await db.from('membership_applications').insert({
+          full_name: name,
+          email: email,
+          phone: phone,
+          date_of_birth: dob,
+          blood_group: blood,
+          professional_photo_url: photoUrl || null,
+          area: area || null,
+          message: message || null,
+          status: 'pending'
+        });
+
+        if (result.error) throw result.error;
+
+        // Show success
+        document.getElementById('apply-form').style.display = 'none';
+        document.querySelector('.apply-steps').style.display = 'none';
+        document.getElementById('apply-success').style.display = 'block';
+
+        showToast('Application submitted successfully!', 'success');
+
+      } catch (err) {
+        console.error('Application error:', err);
+        showMsg('Failed to submit application. Please try again.', 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<i data-lucide="send"></i><span>Submit Application</span>';
+          if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+      }
+    });
+  }
+
+})();
+
+/* ========== MULTI-STEP NAVIGATION ========== */
+var currentStep = 1;
+
+function nextStep(step) {
+  // Validate current step before moving forward
+  if (step > currentStep) {
+    if (currentStep === 1) {
+      var name = document.getElementById('apply-name').value.trim();
+      var email = document.getElementById('apply-email').value.trim();
+      var phone = document.getElementById('apply-phone').value.trim();
+
+      if (!name) { showToast('Please enter your full name', 'error'); return; }
+      if (!Validate.email(email)) { showToast('Please enter a valid email', 'error'); return; }
+      if (!Validate.phone(phone)) { showToast('Please enter a valid phone number', 'error'); return; }
+    }
+
+    if (currentStep === 2) {
+      var dob = document.getElementById('apply-dob').value;
+      var blood = document.getElementById('apply-blood').value;
+      if (!dob) { showToast('Please enter your date of birth', 'error'); return; }
+      if (!blood) { showToast('Please select your blood group', 'error'); return; }
+    }
+  }
+
+  // Hide all steps
+  for (var i = 1; i <= 3; i++) {
+    var stepEl = document.getElementById('apply-step-' + i);
+    if (stepEl) stepEl.style.display = 'none';
+  }
+
+  // Show target step
+  var target = document.getElementById('apply-step-' + step);
+  if (target) target.style.display = 'block';
+
+  // Update step indicators
+  for (var j = 1; j <= 3; j++) {
+    var indicator = document.getElementById('step-' + j + '-indicator');
+    if (indicator) {
+      indicator.className = 'apply-step';
+      if (j < step) indicator.classList.add('completed');
+      if (j === step) indicator.classList.add('active');
+    }
+  }
+
+  // Update step lines
+  for (var k = 1; k <= 2; k++) {
+    var line = document.getElementById('step-line-' + k);
+    if (line) {
+      line.className = 'apply-step-line';
+      if (k < step) line.classList.add('completed');
+    }
+  }
+
+  currentStep = step;
+
+  // Scroll to top of form
+  document.querySelector('.apply-form-card')?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start'
+  });
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+function resetForm() {
+  document.getElementById('apply-form').reset();
+  document.getElementById('apply-form').style.display = 'block';
+  document.querySelector('.apply-steps').style.display = 'flex';
+  document.getElementById('apply-success').style.display = 'none';
+
+  var preview = document.getElementById('apply-photo-preview');
+  if (preview) { preview.style.display = 'none'; preview.src = ''; }
+
+  var label = document.getElementById('apply-photo-label');
+  if (label) label.textContent = 'Click or drag to upload your professional photo';
+
+  nextStep(1);
+}
+
+function showMsg(msg, type) {
+  var el = document.getElementById('apply-form-message');
+  if (el) {
+    el.textContent = msg;
+    el.className = 'form-message ' + type;
+  }
+}
+
+function showToast(message, type) {
+  var container = document.getElementById('toast-container');
+  if (!container) return;
+
+  var icons = { success: 'check-circle', error: 'alert-circle', warning: 'alert-triangle', info: 'info' };
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  toast.innerHTML =
+    '<i data-lucide="' + (icons[type] || 'info') + '" class="toast-icon"></i>' +
+    '<div class="toast-content">' +
+    '<div class="toast-title">' + type.charAt(0).toUpperCase() + type.slice(1) + '</div>' +
+    '<div class="toast-message">' + message + '</div>' +
+    '</div>' +
+    '<button class="toast-close" onclick="this.parentElement.remove()"><i data-lucide="x"></i></button>';
+
+  container.appendChild(toast);
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+
+  setTimeout(function () {
+    toast.classList.add('removing');
+    setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 350);
+  }, 4000);
+}
+</script>
+
+</body>
+</html>
