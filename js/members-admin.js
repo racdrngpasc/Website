@@ -436,14 +436,11 @@ class MembersAdminManager {
 
             <div class="form-group">
               <label class="form-label"><i data-lucide="calendar-range"></i> Rotary Year</label>
-              <div class="select-wrap neu-inset">
-                <select name="rotary_year" class="form-select">
-                  ${ROTARY_YEARS.slice().reverse().map(y =>
-      `<option value="${y}" ${isEdit && memberData.rotary_year === y ? 'selected'
-        : y === DateUtils.getCurrentRotaryYear() ? 'selected' : ''}>${y}</option>`
-    ).join('')}
-                </select>
-                <i data-lucide="chevron-down" class="select-arrow"></i>
+              <div class="input-wrap neu-inset">
+                <input type="text" name="rotary_year" class="form-input"
+                       placeholder="e.g., 2024-25"
+                       pattern="\\d{4}-\\d{2}"
+                       value="${isEdit ? (memberData.rotary_year || '') : DateUtils.getCurrentRotaryYear()}" />
               </div>
             </div>
 
@@ -570,7 +567,7 @@ class MembersAdminManager {
         avenue: data.avenue || null,
         area: data.area?.trim() || null,
         join_date: data.join_date || null,
-        rotary_year: data.rotary_year || null,
+        rotary_year: data.rotary_year?.trim() || null,
         is_board_member: !!data.is_board_member,
         is_active: !!data.is_active,
         updated_at: new Date().toISOString()
@@ -850,7 +847,6 @@ class MembersAdminManager {
 
       if (!app) return;
 
-      // Create member from application
       await this.db.from('members').insert({
         full_name: app.full_name,
         email: app.email,
@@ -1088,7 +1084,6 @@ class MembersAdminManager {
         let coverUrl = isEdit ? nlData.cover_image_url : null;
         let pdfUrl = isEdit ? nlData.pdf_url : null;
 
-        // Upload cover
         const coverFile = document.getElementById('nl-cover-input')?.files?.[0];
         if (coverFile) {
           const compressed = await ImageUtils.compress(coverFile, 1200, 1600, 0.85);
@@ -1101,7 +1096,6 @@ class MembersAdminManager {
           }
         }
 
-        // Upload PDF
         const pdfFile = document.getElementById('nl-pdf-input')?.files?.[0];
         if (pdfFile) {
           const filename = `newsletter_${Date.now()}.pdf`;
