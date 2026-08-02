@@ -1,15 +1,16 @@
 /* ============================================================
    ROTARACT CLUB OF DR. N.G.P ARTS & SCIENCE COLLEGE
    js/email-service.js
-   
+
    All emails sent via Supabase Edge Function (send-email)
    which handles Resend → Gmail SMTP → EmailJS delivery.
-   
+
    Public API:
      emailService.sendEventApprovalNotification(eventId)
      emailService.sendReportNotification(eventId)
      emailService.sendMeetingInvitation(meeting)
-     emailService.sendMeetingAttendanceForm(meetingId)
+     emailService.sendAttendanceFormLink(meeting, formUrl, token)  ← NEW
+     emailService.sendMeetingAttendanceForm(meetingId)             ← updated
      emailService.sendMeetingMinutes(meetingId)
      emailService.sendBirthdayWish(member)
      emailService.sendMonthlyTreasuryStatement()
@@ -24,15 +25,15 @@ class EmailService {
      CONSTRUCTOR
      ============================================================ */
   constructor() {
-    this._db               = null;   // lazy — set in _getDb()
+    this._db               = null;
     this._settings         = {};
     this._settingsLoaded   = false;
     this._settingsLoadedAt = 0;
-    this._SETTINGS_TTL_MS  = 5 * 60 * 1000;   // 5 minutes
+    this._SETTINGS_TTL_MS  = 5 * 60 * 1000;
 
-    this._birthdayTimer        = null;
-    this._meetingTimers        = {};
-    this._monthlyTimer         = null;
+    this._birthdayTimer  = null;
+    this._meetingTimers  = {};
+    this._monthlyTimer   = null;
 
     this.edgeFunctionUrl = `${SUPABASE_URL}/functions/v1/send-email`;
     this.edgeHeaders     = {
@@ -48,9 +49,7 @@ class EmailService {
      PRIVATE — LAZY SUPABASE CLIENT
      ============================================================ */
   _getDb() {
-    if (!this._db) {
-      this._db = getSupabaseClient();
-    }
+    if (!this._db) this._db = getSupabaseClient();
     return this._db;
   }
 
@@ -72,8 +71,8 @@ class EmailService {
      SETTINGS — LOAD WITH TTL CACHE
      ============================================================ */
   async _loadSettings(force = false) {
-    const now    = Date.now();
-    const stale  = (now - this._settingsLoadedAt) > this._SETTINGS_TTL_MS;
+    const now   = Date.now();
+    const stale = (now - this._settingsLoadedAt) > this._SETTINGS_TTL_MS;
 
     if (!force && this._settingsLoaded && !stale) return;
 
@@ -100,7 +99,6 @@ class EmailService {
     }
   }
 
-  /** Return a setting value or the fallback */
   _getSetting(key, fallback = '') {
     return (this._settings[key] != null && this._settings[key] !== '')
       ? this._settings[key]
@@ -110,19 +108,14 @@ class EmailService {
   /* ============================================================
      PRIVATE — VALIDATION HELPERS
      ============================================================ */
-
-  /** True only for absolute HTTPS URLs */
   _isValidHttpsUrl(url) {
     if (!url || typeof url !== 'string' || url.trim() === '') return false;
     try {
       const u = new URL(url.trim());
       return u.protocol === 'https:';
-    } catch {
-      return false;
-    }
+    } catch { return false; }
   }
 
-  /** True for a plausible email address */
   _isValidEmail(email) {
     if (!email || typeof email !== 'string') return false;
     return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
@@ -131,8 +124,6 @@ class EmailService {
   /* ============================================================
      PRIVATE — SANITISATION HELPERS
      ============================================================ */
-
-  /** Escape HTML special characters to prevent XSS */
   _esc(str) {
     if (str == null) return '';
     return String(str)
@@ -143,7 +134,6 @@ class EmailService {
       .replace(/'/g,  '&#39;');
   }
 
-  /** Remove HTML tags — used when building plain-text fallbacks */
   _stripTags(html) {
     if (!html || typeof html !== 'string') return '';
     return html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
@@ -152,8 +142,6 @@ class EmailService {
   /* ============================================================
      PRIVATE — FORMAT HELPERS
      ============================================================ */
-
-  /** Format a date string to "1 January 2025" */
   _fmtDate(d) {
     if (!d) return '';
     try {
@@ -163,26 +151,23 @@ class EmailService {
     } catch { return String(d); }
   }
 
-  /** Format a time string "HH:MM" or "HH:MM:SS" to "9:30 AM" */
   _fmtTime(t) {
     if (!t || typeof t !== 'string') return '';
     try {
-      const parts = t.split(':').map(Number);
-      const h     = parts[0] ?? 0;
-      const m     = parts[1] ?? 0;
-      const period   = h >= 12 ? 'PM' : 'AM';
-      const displayH = h % 12 || 12;
-      return `${displayH}:${String(m).padStart(2, '0')} ${period}`;
+      const parts  = t.split(':').map(Number);
+      const h      = parts[0] ?? 0;
+      const m      = parts[1] ?? 0;
+      const period = h >= 12 ? 'PM' : 'AM';
+      const dispH  = h % 12 || 12;
+      return `${dispH}:${String(m).padStart(2, '0')} ${period}`;
     } catch { return t; }
   }
 
-  /** Format a number as Indian Rupees */
   _fmtCur(v) {
     const num = parseFloat(String(v ?? 0)) || 0;
     return `Rs.\u00a0${num.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
   }
 
-  /** Short date "02 Jan 2025" */
   _fmtShortDate(d) {
     if (!d) return '';
     try {
@@ -228,18 +213,13 @@ class EmailService {
       try { result = await response.json(); } catch { /* non-JSON */ }
 
       if (!response.ok) {
-        console.error(
-          '[EmailService] send failed:',
-          response.status,
-          result.error ?? result
-        );
+        console.error('[EmailService] send failed:', response.status, result.error ?? result);
         return false;
       }
 
       if (result.success) {
         console.log(
-          `[EmailService] sent via ${result.method ?? 'edge'}`
-          + ` → ${result.recipient}`
+          `[EmailService] sent via ${result.method ?? 'edge'} → ${result.recipient}`
         );
       }
 
@@ -267,13 +247,9 @@ class EmailService {
   }
 
   /* ============================================================
-     BUILD — EMAIL WRAPPER (table-based layout)
-     Produces a complete <!DOCTYPE html> document.
-     Detects if bodyContent is already a full document (birthday
-     email) and returns it unchanged to prevent double-wrapping.
+     BUILD — EMAIL WRAPPER
      ============================================================ */
   _buildEmailWrapper(subject, bodyContent) {
-    // Prevent double-wrapping
     const trimmed = (bodyContent || '').trimStart();
     if (
       trimmed.toLowerCase().startsWith('<!doctype') ||
@@ -288,17 +264,11 @@ class EmailService {
     const logoUrl  = this._isValidHttpsUrl(rawLogo) ? rawLogo : '';
 
     const logoHtml = logoUrl
-      ? `<img
-           src="${logoUrl}"
-           alt="${this._esc(clubName)} Logo"
-           width="64" height="64"
-           style="display:block;margin:0 auto 14px;border:0;
-                  outline:none;border-radius:8px;" />`
+      ? `<img src="${logoUrl}" alt="${this._esc(clubName)} Logo"
+              width="64" height="64"
+              style="display:block;margin:0 auto 14px;border:0;outline:none;
+                     border-radius:8px;" />`
       : '';
-
-    const safeSubject  = this._esc(subject);
-    const safeClubName = this._esc(clubName);
-    const safeClubId   = this._esc(clubId);
 
     return `<!DOCTYPE html>
 <html lang="en">
@@ -306,87 +276,73 @@ class EmailService {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <title>${safeSubject}</title>
+  <title>${this._esc(subject)}</title>
 </head>
 <body style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;
              background-color:#f0f0f0;-webkit-font-smoothing:antialiased;">
-
   <table width="100%" cellpadding="0" cellspacing="0" border="0"
          style="background-color:#f0f0f0;padding:20px 0;">
-    <tr>
-      <td align="center">
-
-        <table width="620" cellpadding="0" cellspacing="0" border="0"
-               style="max-width:620px;width:100%;background:#ffffff;
-                      border-radius:12px;overflow:hidden;
-                      box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-
-          <!-- ═══ HEADER ═══ -->
-          <tr>
-            <td style="background:linear-gradient(135deg,#0055FF 0%,#003ACC 100%);
-                       padding:32px 28px;text-align:center;">
-              ${logoHtml}
-              <h1 style="color:#ffffff;font-size:19px;font-weight:700;
-                         margin:0 0 4px;letter-spacing:0.01em;
-                         font-family:Arial,Helvetica,sans-serif;">
-                ${safeClubName}
-              </h1>
-              <p style="color:rgba(255,255,255,0.80);font-size:12px;margin:0;
-                        font-family:Arial,Helvetica,sans-serif;">
-                Parented by Rotary Club of Coimbatore Meridian
-              </p>
-            </td>
-          </tr>
-
-          <!-- ═══ BODY ═══ -->
-          <tr>
-            <td style="padding:28px;font-family:Arial,Helvetica,sans-serif;">
-              ${bodyContent}
-            </td>
-          </tr>
-
-          <!-- ═══ FOOTER ═══ -->
-          <tr>
-            <td style="background:#f7f8fa;padding:20px 28px;
-                       border-top:1px solid #eeeeee;text-align:center;
-                       font-family:Arial,Helvetica,sans-serif;">
-              <p style="margin:0 0 4px;color:#333333;font-size:12px;font-weight:700;">
-                ${safeClubName}
-              </p>
-              <p style="margin:0 0 3px;color:#999999;font-size:11px;">
-                Parented by Rotary Club of Coimbatore Meridian
-              </p>
-              <p style="margin:0 0 3px;color:#999999;font-size:11px;">
-                Club ID: ${safeClubId}
-                &nbsp;&bull;&nbsp;
-                Rotary International District 3206
-              </p>
-              <p style="margin:0 0 3px;color:#999999;font-size:11px;">
-                Dr. N.G.P. Arts and Science College,
-                Coimbatore&#8209;641048. Tamil&nbsp;Nadu.
-              </p>
-              <p style="margin:10px 0 0;color:#cccccc;font-size:10px;">
-                This is an automated notification from the Rotaract Club Portal.
-              </p>
-            </td>
-          </tr>
-
-        </table>
-
-      </td>
-    </tr>
+    <tr><td align="center">
+      <table width="620" cellpadding="0" cellspacing="0" border="0"
+             style="max-width:620px;width:100%;background:#ffffff;
+                    border-radius:12px;overflow:hidden;
+                    box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+        <!-- HEADER -->
+        <tr>
+          <td style="background:linear-gradient(135deg,#0055FF 0%,#003ACC 100%);
+                     padding:32px 28px;text-align:center;">
+            ${logoHtml}
+            <h1 style="color:#ffffff;font-size:19px;font-weight:700;
+                       margin:0 0 4px;font-family:Arial,Helvetica,sans-serif;">
+              ${this._esc(clubName)}
+            </h1>
+            <p style="color:rgba(255,255,255,0.80);font-size:12px;margin:0;
+                      font-family:Arial,Helvetica,sans-serif;">
+              Parented by Rotary Club of Coimbatore Meridian
+            </p>
+          </td>
+        </tr>
+        <!-- BODY -->
+        <tr>
+          <td style="padding:28px;font-family:Arial,Helvetica,sans-serif;">
+            ${bodyContent}
+          </td>
+        </tr>
+        <!-- FOOTER -->
+        <tr>
+          <td style="background:#f7f8fa;padding:20px 28px;
+                     border-top:1px solid #eeeeee;text-align:center;
+                     font-family:Arial,Helvetica,sans-serif;">
+            <p style="margin:0 0 4px;color:#333333;font-size:12px;font-weight:700;">
+              ${this._esc(clubName)}
+            </p>
+            <p style="margin:0 0 3px;color:#999999;font-size:11px;">
+              Parented by Rotary Club of Coimbatore Meridian
+            </p>
+            <p style="margin:0 0 3px;color:#999999;font-size:11px;">
+              Club ID: ${this._esc(clubId)}
+              &nbsp;&bull;&nbsp; Rotary International District 3206
+            </p>
+            <p style="margin:0 0 3px;color:#999999;font-size:11px;">
+              Dr. N.G.P. Arts and Science College, Coimbatore&#8209;641048.
+            </p>
+            <p style="margin:10px 0 0;color:#cccccc;font-size:10px;">
+              This is an automated notification from the Rotaract Club Portal.
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td></tr>
   </table>
-
 </body>
 </html>`;
   }
 
   /* ============================================================
-     BUILD — INFO BANNER
+     BUILD — REUSABLE COMPONENTS
      ============================================================ */
   _banner(colour, icon, title, subtitle) {
-    /* colour: '#0055FF' | '#38A169' | '#E53E3E' | '#6B46C1' | '#2D3748' */
-    const bg = colour + '18';   // 10% opacity hex
+    const bg = colour + '18';
     return `
       <div style="background:${bg};border-left:4px solid ${colour};
                   padding:16px;border-radius:0 8px 8px 0;margin-bottom:20px;">
@@ -403,9 +359,6 @@ class EmailService {
       </div>`;
   }
 
-  /* ============================================================
-     BUILD — DETAIL TABLE ROW
-     ============================================================ */
   _row(label, value, last = false) {
     const border = last ? '' : 'border-bottom:1px solid #eeeeee;';
     return `
@@ -422,15 +375,103 @@ class EmailService {
       </tr>`;
   }
 
-  /* ============================================================
-     BUILD — DETAIL TABLE WRAPPER
-     ============================================================ */
   _table(rows) {
     return `
       <table style="width:100%;border-collapse:collapse;margin-bottom:20px;
                     font-family:Arial,Helvetica,sans-serif;">
         ${rows}
       </table>`;
+  }
+
+  /* ============================================================
+     BUILD — ATTENDANCE FORM CTA BUTTON BLOCK
+     Used inside email body to show the form link prominently
+     ============================================================ */
+  _buildFormCtaBlock(formUrl, meeting) {
+    const safeUrl  = this._esc(formUrl);
+    const timeStr  = meeting?.start_time ? this._fmtTime(meeting.start_time) : '';
+    const endStr   = meeting?.end_time   ? ` to ${this._fmtTime(meeting.end_time)}` : '';
+    const agenda   = Array.isArray(meeting?.agenda) ? meeting.agenda : [];
+
+    return `
+      <!-- ── Urgency Banner ── -->
+      <div style="background:#FFF5F5;border:2px solid #FC8181;
+                  border-radius:8px;padding:14px 16px;margin-bottom:18px;
+                  text-align:center;">
+        <p style="margin:0;color:#C53030;font-size:14px;font-weight:700;
+                  font-family:Arial,Helvetica,sans-serif;">
+          &#x23F0;&nbsp; The meeting has started — please mark your attendance now!
+        </p>
+      </div>
+
+      <!-- ── Meeting Info ── -->
+      ${this._table(
+        this._row('Meeting', `<strong>${this._esc(meeting?.title || '')}</strong>`)
+      + this._row('Date',    this._fmtDate(meeting?.meeting_date))
+      + this._row('Time',    timeStr + endStr)
+      + this._row('Venue',   this._esc(meeting?.venue || '—'), agenda.length === 0)
+      + (agenda.length > 0
+          ? this._row('Agenda items', String(agenda.length), true)
+          : '')
+      )}
+
+      <!-- ── What the form collects ── -->
+      <div style="background:#e8f4fd;padding:14px 16px;border-radius:8px;
+                  margin-bottom:20px;">
+        <h3 style="margin:0 0 8px;color:#0055FF;font-size:13px;font-weight:700;
+                   font-family:Arial,Helvetica,sans-serif;">
+          The attendance form collects:
+        </h3>
+        <ul style="margin:0;padding-left:20px;color:#555555;font-size:13px;
+                   line-height:1.9;font-family:Arial,Helvetica,sans-serif;">
+          <li>Your Full Name &amp; RI ID</li>
+          <li>Your Designation / Portfolio</li>
+          <li>Your In-Time</li>
+          <li>Electronic Signature (drawn on-screen)</li>
+        </ul>
+      </div>
+
+      <!-- ── Big CTA Button ── -->
+      <table width="100%" cellpadding="0" cellspacing="0" border="0"
+             style="margin-bottom:20px;">
+        <tr>
+          <td align="center">
+            <a href="${safeUrl}" target="_blank" rel="noopener noreferrer"
+               style="display:inline-block;padding:16px 40px;
+                      background:linear-gradient(135deg,#E53E3E,#C53030);
+                      color:#ffffff;font-size:16px;font-weight:800;
+                      text-decoration:none;border-radius:10px;
+                      font-family:Arial,Helvetica,sans-serif;
+                      box-shadow:0 4px 14px rgba(229,62,62,0.40);
+                      letter-spacing:0.02em;">
+              ✅&nbsp;&nbsp;Open Attendance Form
+            </a>
+          </td>
+        </tr>
+      </table>
+
+      <!-- ── Fallback URL ── -->
+      <div style="background:#f9fafb;border:1px solid #e5e7eb;
+                  border-radius:6px;padding:10px 14px;margin-bottom:16px;">
+        <p style="margin:0 0 4px;font-size:11px;font-weight:700;
+                  color:#6b7280;text-transform:uppercase;letter-spacing:0.05em;
+                  font-family:Arial,Helvetica,sans-serif;">
+          Or copy this link into your browser:
+        </p>
+        <p style="margin:0;font-size:11px;color:#2563eb;word-break:break-all;
+                  font-family:monospace,Arial;">
+          ${safeUrl}
+        </p>
+      </div>
+
+      <!-- ── Deadline notice ── -->
+      <p style="color:#999999;font-size:11px;text-align:center;margin:0;
+                font-family:Arial,Helvetica,sans-serif;">
+        Please complete this form within <strong>30 minutes</strong>
+        of the meeting start time.
+        The form closes automatically after the meeting ends.
+      </p>
+    `;
   }
 
   /* ============================================================
@@ -452,11 +493,11 @@ class EmailService {
       }
 
       const AVENUE_LABELS = {
-        club_service:              'Club Service',
-        community_service:         'Community Service',
-        professional_service:      'Professional Service',
-        international_service:     'International Service',
-        district_priority_projects:'District Priority Projects'
+        club_service:               'Club Service',
+        community_service:          'Community Service',
+        professional_service:       'Professional Service',
+        international_service:      'International Service',
+        district_priority_projects: 'District Priority Projects'
       };
 
       const avenueLabel = event.is_dpp
@@ -468,17 +509,15 @@ class EmailService {
           + (event.end_time ? ` to ${this._fmtTime(event.end_time)}` : '')
         : '—';
 
-      const subject = `[Rotaract] New Event Approved: ${event.title}`;
+      const subject  = `[Rotaract] New Event Approved: ${event.title}`;
 
       const bodyContent = `
         ${this._banner('#0055FF', '&#x1F4CB;', 'New Event Approved!',
           'An event has been approved and published on the club portal.')}
-
         <h3 style="color:#222222;font-size:17px;margin:0 0 14px;font-weight:700;
                    font-family:Arial,Helvetica,sans-serif;">
           ${this._esc(event.title)}
         </h3>
-
         ${this._table(
           this._row('Date',            this._fmtDate(event.event_date))
         + this._row('Time',            timeRange)
@@ -488,16 +527,14 @@ class EmailService {
             ? this._row('Event Secretary', this._esc(event.event_secretary))
             : '')
         + this._row('Avenue',          avenueLabel)
-        + this._row('Group',           `Group ${this._esc(String(event.group_number || 1))}`, true)
+        + this._row('Group',
+            `Group ${this._esc(String(event.group_number || 1))}`, true)
         )}
-
         ${event.description ? `
         <div style="background:#f9f9f9;padding:14px;border-radius:6px;
                     margin-bottom:20px;">
           <h4 style="margin:0 0 6px;font-size:13px;color:#333333;font-weight:700;
-                     font-family:Arial,Helvetica,sans-serif;">
-            About This Event
-          </h4>
+                     font-family:Arial,Helvetica,sans-serif;">About This Event</h4>
           <p style="margin:0;color:#666666;font-size:13px;line-height:1.7;
                     font-family:Arial,Helvetica,sans-serif;">
             ${this._esc(event.description)}
@@ -532,10 +569,9 @@ class EmailService {
         return false;
       }
 
-      // Find the approved report — not just index 0
       const report = (event.event_reports || []).find(r => r.is_approved);
       if (!report) {
-        console.warn('[EmailService] no approved report found for event:', eventId);
+        console.warn('[EmailService] no approved report found:', eventId);
         return false;
       }
 
@@ -544,22 +580,21 @@ class EmailService {
       const bodyContent = `
         ${this._banner('#38A169', '&#x1F4C4;', 'Event Report Published!',
           'The event report has been approved and is now available.')}
-
         <h3 style="color:#222222;font-size:17px;margin:0 0 14px;font-weight:700;
                    font-family:Arial,Helvetica,sans-serif;">
           ${this._esc(event.title)}
         </h3>
-
         ${this._table(
           this._row('Date', this._fmtDate(event.event_date))
         + (event.actual_attendance
-            ? this._row('Attendance', `${this._esc(String(event.actual_attendance))} participants`)
+            ? this._row('Attendance',
+                `${this._esc(String(event.actual_attendance))} participants`)
             : '')
         + (event.service_hours
-            ? this._row('Service Hours', `${this._esc(String(event.service_hours))} hours`, true)
+            ? this._row('Service Hours',
+                `${this._esc(String(event.service_hours))} hours`, true)
             : '')
         )}
-
         ${report.key_highlights ? `
         <div style="background:#f0f7ff;padding:14px;border-radius:6px;margin-top:4px;">
           <strong style="color:#0055FF;font-size:13px;display:block;margin-bottom:6px;
@@ -605,8 +640,7 @@ class EmailService {
           + (meeting.end_time ? ` to ${this._fmtTime(meeting.end_time)}` : '')
         : '—';
 
-      const agenda = Array.isArray(meeting.agenda) ? meeting.agenda : [];
-
+      const agenda  = Array.isArray(meeting.agenda) ? meeting.agenda : [];
       const subject = `[Rotaract] Meeting Invitation: ${meeting.title}`;
 
       const bodyContent = `
@@ -622,37 +656,34 @@ class EmailService {
             ${typeLabel}
           </span>
         </div>
-
         ${this._table(
           this._row('Date',  this._fmtDate(meeting.meeting_date))
         + this._row('Time',  timeRange)
         + this._row('Venue', this._esc(meeting.venue) || '—')
-        + this._row('Group', `Group ${this._esc(String(meeting.group_number || 1))}`, true)
+        + this._row('Group',
+            `Group ${this._esc(String(meeting.group_number || 1))}`, true)
         )}
-
         ${agenda.length > 0 ? `
-        <div style="background:#f0f7ff;padding:16px;border-radius:6px;margin-bottom:20px;">
+        <div style="background:#f0f7ff;padding:16px;border-radius:6px;
+                    margin-bottom:20px;">
           <h3 style="margin:0 0 10px;color:#0055FF;font-size:13px;font-weight:700;
-                     font-family:Arial,Helvetica,sans-serif;">
-            Agenda
-          </h3>
+                     font-family:Arial,Helvetica,sans-serif;">Agenda</h3>
           <ol style="margin:0;padding-left:20px;">
             ${agenda.map(item => `
-              <li style="color:#444444;font-size:13px;line-height:1.8;margin-bottom:4px;
-                         font-family:Arial,Helvetica,sans-serif;">
+              <li style="color:#444444;font-size:13px;line-height:1.8;
+                         margin-bottom:4px;font-family:Arial,Helvetica,sans-serif;">
                 ${this._esc(item.text || String(item))}
               </li>
             `).join('')}
           </ol>
         </div>` : ''}
-
         <div style="background:#fff8e1;border:1px solid #ffc107;
                     padding:12px 14px;border-radius:6px;">
           <p style="margin:0;color:#856404;font-size:13px;font-weight:600;
                     font-family:Arial,Helvetica,sans-serif;">
             &#x26A0;&#xFE0F;&nbsp;
             Please ensure timely attendance.
-            An attendance form will be sent at the start of the meeting.
+            An attendance form link will be sent at the start of the meeting.
           </p>
         </div>
       `;
@@ -667,7 +698,75 @@ class EmailService {
   }
 
   /* ============================================================
-     4. MEETING ATTENDANCE FORM
+     4a. SEND ATTENDANCE FORM LINK  ← NEW CORE METHOD
+         Called by MeetingsAdminManager.sendAttendanceForm()
+         after the HTML form page is uploaded to Supabase Storage.
+         Sends the clickable form URL to all members via group email.
+     ============================================================ */
+  async sendAttendanceFormLink(meeting, formUrl, token) {
+    if (!meeting || !formUrl) {
+      console.warn('[EmailService] sendAttendanceFormLink: missing meeting or formUrl');
+      return false;
+    }
+
+    if (!this._isValidHttpsUrl(formUrl)) {
+      console.warn('[EmailService] sendAttendanceFormLink: invalid formUrl', formUrl);
+      return false;
+    }
+
+    try {
+      const subject = `[Rotaract ATTENDANCE] ${meeting.title} — Open Form Now`;
+
+      const bodyContent = `
+        ${this._banner(
+          '#E53E3E',
+          '&#x1F4CB;',
+          'Attendance Form — Mark Now!',
+          `${this._esc(meeting.title)} has started. Submit your attendance below.`
+        )}
+        ${this._buildFormCtaBlock(formUrl, meeting)}
+      `;
+
+      const htmlBody = this._buildEmailWrapper(subject, bodyContent);
+      const result   = await this._sendToGroup(
+        subject, htmlBody, 'meeting_attendance_form'
+      );
+
+      if (result) {
+        console.log(
+          `[EmailService] attendance form link sent for meeting: ${meeting.id}`
+        );
+        /* Log it in Supabase so admins can see it in email logs */
+        try {
+          await this._getDb().from('email_logs').insert({
+            email_type      : 'meeting_attendance_form',
+            subject,
+            recipient_group : 'ngpmembers@googlegroups.com',
+            status          : 'sent',
+            related_id      : meeting.id,
+            related_type    : 'meetings',
+            method          : 'edge_function',
+            metadata        : { form_url: formUrl, token }
+          });
+        } catch (logErr) {
+          /* Non-critical — ignore */
+          console.warn('[EmailService] email log insert failed:', logErr);
+        }
+      }
+
+      return result;
+
+    } catch (e) {
+      console.error('[EmailService] sendAttendanceFormLink:', e);
+      return false;
+    }
+  }
+
+  /* ============================================================
+     4b. MEETING ATTENDANCE FORM (legacy / fallback)
+         Called by the auto-timer when no form URL is stored yet.
+         Tries to generate the form first via MeetingsAdminManager,
+         then falls back to a plain reminder email.
      ============================================================ */
   async sendMeetingAttendanceForm(meetingId) {
     if (!meetingId) return false;
@@ -684,34 +783,47 @@ class EmailService {
         return false;
       }
 
+      /* ── If MeetingsAdminManager is available, generate + send the
+             real HTML form. This is the preferred path. ── */
+      if (window.meetingsAdmin) {
+        try {
+          const formUrl = await window.meetingsAdmin.sendAttendanceForm(
+            meetingId, true   /* silent = true so we control toasts here */
+          );
+          if (formUrl) {
+            console.log(
+              `[EmailService] attendance form generated & sent: ${formUrl}`
+            );
+            return true;
+          }
+        } catch (genErr) {
+          console.warn(
+            '[EmailService] form generation failed, falling back to reminder:',
+            genErr
+          );
+        }
+      }
+
+      /* ── Fallback: plain reminder email (no clickable form) ── */
       const subject = `[Rotaract ATTENDANCE] ${meeting.title} — Mark Now`;
 
       const bodyContent = `
         ${this._banner('#E53E3E', '&#x23F0;', 'Mark Your Attendance Now!',
           'The meeting has started. Please mark your attendance immediately.')}
-
         ${this._table(
           this._row('Meeting', `<strong>${this._esc(meeting.title)}</strong>`)
         + this._row('Date',    this._fmtDate(meeting.meeting_date))
         + this._row('Time',    this._fmtTime(meeting.start_time))
         + this._row('Venue',   this._esc(meeting.venue) || '—', true)
         )}
-
-        <div style="background:#e8f4fd;padding:14px;border-radius:6px;margin-bottom:16px;">
-          <h3 style="margin:0 0 8px;color:#0055FF;font-size:13px;font-weight:700;
-                     font-family:Arial,Helvetica,sans-serif;">
-            This form collects:
-          </h3>
-          <ul style="margin:0;padding-left:20px;color:#555555;font-size:13px;
-                     line-height:1.9;font-family:Arial,Helvetica,sans-serif;">
-            <li>Your Full Name</li>
-            <li>Your Designation / Portfolio</li>
-            <li>Your RI ID</li>
-            <li>Your In-Time</li>
-            <li>E-Signature (Photo Upload)</li>
-          </ul>
+        <div style="background:#fff8e1;border:1px solid #ffc107;
+                    padding:12px 14px;border-radius:6px;margin-bottom:16px;">
+          <p style="margin:0;color:#856404;font-size:13px;font-weight:600;
+                    font-family:Arial,Helvetica,sans-serif;">
+            &#x26A0;&#xFE0F;&nbsp;
+            Contact the admin to get the attendance form link directly.
+          </p>
         </div>
-
         <p style="color:#999999;font-size:11px;text-align:center;margin:0;
                   font-family:Arial,Helvetica,sans-serif;">
           Please mark attendance within 30 minutes of meeting start.
@@ -728,7 +840,7 @@ class EmailService {
             .update({ is_invitation_sent: true })
             .eq('id', meetingId);
         } catch (dbErr) {
-          console.warn('[EmailService] failed to mark invitation sent:', dbErr);
+          console.warn('[EmailService] failed to update is_invitation_sent:', dbErr);
         }
       }
 
@@ -759,7 +871,7 @@ class EmailService {
       }
 
       if (!meeting.minutes_finalized) {
-        console.warn('[EmailService] minutes not finalized for meeting:', meetingId);
+        console.warn('[EmailService] minutes not finalized:', meetingId);
         return false;
       }
 
@@ -770,9 +882,8 @@ class EmailService {
         emergency_meeting:    'Emergency Meeting'
       };
 
-      const minutes = Array.isArray(meeting.minutes_content)
+      const minutes     = Array.isArray(meeting.minutes_content)
         ? meeting.minutes_content : [];
-
       const actualStart = meeting.actual_start_time || meeting.start_time;
       const actualEnd   = meeting.actual_end_time   || meeting.end_time;
       let   durationMin = 0;
@@ -781,7 +892,7 @@ class EmailService {
         try {
           const [sh, sm] = actualStart.split(':').map(Number);
           const [eh, em] = actualEnd.split(':').map(Number);
-          durationMin = (eh * 60 + em) - (sh * 60 + sm);
+          durationMin    = (eh * 60 + em) - (sh * 60 + sm);
           if (durationMin < 0) durationMin = 0;
         } catch { /* ignore */ }
       }
@@ -790,22 +901,21 @@ class EmailService {
 
       const bodyContent = `
         ${this._banner('#2D3748', '&#x1F4CB;', 'Meeting Minutes Ready',
-          'Minutes of the meeting have been finalized and are now available.')}
-
+          'Minutes have been finalized and are now available.')}
         <h3 style="color:#222222;font-size:16px;margin:0 0 14px;font-weight:700;
                    font-family:Arial,Helvetica,sans-serif;">
           ${this._esc(meeting.title)}
         </h3>
-
         ${this._table(
-          this._row('Date',   this._fmtDate(meeting.meeting_date))
-        + this._row('Venue',  this._esc(meeting.venue) || '—')
-        + this._row('Type',   MEETING_LABELS[meeting.meeting_type] || this._esc(meeting.meeting_type))
+          this._row('Date',  this._fmtDate(meeting.meeting_date))
+        + this._row('Venue', this._esc(meeting.venue) || '—')
+        + this._row('Type',
+            MEETING_LABELS[meeting.meeting_type]
+            || this._esc(meeting.meeting_type))
         + (durationMin > 0
             ? this._row('Duration', `${durationMin} minutes`, true)
             : '')
         )}
-
         ${minutes.length > 0 ? `
         <div style="border:1px solid #e2e8f0;border-radius:8px;
                     overflow:hidden;margin-bottom:16px;">
@@ -874,7 +984,6 @@ class EmailService {
 
   /* ============================================================
      6. BIRTHDAY WISH
-     Individual email — not sent to group
      ============================================================ */
   async sendBirthdayWish(member) {
     if (!member?.email || !this._isValidEmail(member.email)) {
@@ -883,19 +992,18 @@ class EmailService {
     }
 
     try {
-      const clubName  = this._getSetting('club_name',   CLUB_INFO.name);
-      const clubId    = this._getSetting('club_id',     CLUB_INFO.clubId);
-      const parentClub = this._getSetting('parent_club', CLUB_INFO.parentClub
-        || 'Rotary Club of Coimbatore Meridian');
+      const clubName   = this._getSetting('club_name',   CLUB_INFO.name);
+      const clubId     = this._getSetting('club_id',     CLUB_INFO.clubId);
+      const parentClub = this._getSetting('parent_club',
+        CLUB_INFO.parentClub || 'Rotary Club of Coimbatore Meridian');
 
-      const safeName     = this._esc(member.full_name || 'Rotaractor');
-      const safeClub     = this._esc(clubName);
-      const safeParent   = this._esc(parentClub);
-      const safeClubId   = this._esc(clubId);
+      const safeName   = this._esc(member.full_name || 'Rotaractor');
+      const safeClub   = this._esc(clubName);
+      const safeParent = this._esc(parentClub);
+      const safeClubId = this._esc(clubId);
 
-      const subject = `Happy Birthday ${member.full_name}! — ${clubName}`;
+      const subject  = `Happy Birthday ${member.full_name}! — ${clubName}`;
 
-      // Birthday email uses its own full-document design (not the standard wrapper)
       const htmlBody = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -906,112 +1014,93 @@ class EmailService {
 </head>
 <body style="margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;
              background-color:#f5f5f5;-webkit-font-smoothing:antialiased;">
-
   <table width="100%" cellpadding="0" cellspacing="0" border="0"
          style="background-color:#f5f5f5;padding:20px 0;">
-    <tr>
-      <td align="center">
-
-        <!-- Gradient border wrapper -->
-        <table width="580" cellpadding="3" cellspacing="0" border="0"
-               style="max-width:580px;width:100%;
-                      background:linear-gradient(135deg,#f093fb,#f5576c);
-                      border-radius:14px;">
-          <tr>
-            <td>
-
-              <table width="100%" cellpadding="0" cellspacing="0" border="0"
-                     style="background:#ffffff;border-radius:12px;overflow:hidden;">
-
-                <!-- Header -->
-                <tr>
-                  <td style="background:linear-gradient(135deg,#f093fb,#f5576c);
-                             padding:40px 28px;text-align:center;">
-                    <div style="font-size:54px;line-height:1;margin-bottom:12px;">
-                      &#127874;
-                    </div>
-                    <h1 style="color:#ffffff;font-size:28px;font-weight:800;
-                               margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;">
-                      Happy Birthday!
-                    </h1>
-                    <p style="color:rgba(255,255,255,0.95);font-size:17px;
-                              font-weight:600;margin:0;
-                              font-family:Arial,Helvetica,sans-serif;">
-                      ${safeName}
-                    </p>
-                  </td>
-                </tr>
-
-                <!-- Body -->
-                <tr>
-                  <td style="padding:32px 28px;text-align:center;
-                             font-family:Arial,Helvetica,sans-serif;">
-                    <p style="color:#333333;font-size:16px;font-weight:600;
-                              margin:0 0 14px;">
-                      Wishing you a wonderful birthday! &#127881;
-                    </p>
-                    <p style="color:#555555;font-size:14px;line-height:1.9;
-                              margin:0 0 24px;max-width:420px;
-                              margin-left:auto;margin-right:auto;">
-                      On behalf of the entire <strong>${safeClub}</strong> family,
-                      we wish you a very happy birthday!
-                      May this special day bring you joy, success, and fulfilment.
-                      Your dedication and service to Rotaract inspire us all!
-                    </p>
-
-                    <!-- Quote box -->
-                    <div style="background:linear-gradient(135deg,
-                                  rgba(240,147,251,0.10),rgba(245,87,108,0.10));
-                                border:1px solid rgba(245,87,108,0.22);
-                                padding:16px;border-radius:8px;margin-bottom:28px;">
-                      <p style="margin:0;color:#C53030;font-size:13px;
-                                font-style:italic;font-weight:600;
-                                font-family:Arial,Helvetica,sans-serif;">
-                        &ldquo;Service Above Self&rdquo;
-                        &mdash; Happy Birthday, Rotaractor!
-                      </p>
-                    </div>
-
-                    <p style="color:#555555;font-size:13px;margin:0 0 4px;">
-                      With warm regards,
-                    </p>
-                    <p style="color:#333333;font-size:14px;font-weight:700;
-                              margin:0 0 3px;">
-                      ${safeClub}
-                    </p>
-                    <p style="color:#888888;font-size:12px;margin:0 0 2px;">
-                      Parented by ${safeParent}
-                    </p>
-                    <p style="color:#888888;font-size:12px;margin:0;">
-                      Club ID: ${safeClubId}
-                      &nbsp;|&nbsp;
-                      Rotary International District 3206
-                    </p>
-                  </td>
-                </tr>
-
-                <!-- Footer -->
-                <tr>
-                  <td style="background:#f7f8fa;padding:16px 28px;
-                             border-top:1px solid #eeeeee;text-align:center;
-                             font-family:Arial,Helvetica,sans-serif;">
-                    <p style="margin:0;color:#cccccc;font-size:10px;">
-                      This birthday wish was sent automatically
-                      by the Rotaract Club Portal.
-                    </p>
-                  </td>
-                </tr>
-
-              </table>
-
-            </td>
-          </tr>
-        </table>
-
-      </td>
-    </tr>
+    <tr><td align="center">
+      <table width="580" cellpadding="3" cellspacing="0" border="0"
+             style="max-width:580px;width:100%;
+                    background:linear-gradient(135deg,#f093fb,#f5576c);
+                    border-radius:14px;">
+        <tr><td>
+          <table width="100%" cellpadding="0" cellspacing="0" border="0"
+                 style="background:#ffffff;border-radius:12px;overflow:hidden;">
+            <!-- Header -->
+            <tr>
+              <td style="background:linear-gradient(135deg,#f093fb,#f5576c);
+                         padding:40px 28px;text-align:center;">
+                <div style="font-size:54px;line-height:1;margin-bottom:12px;">
+                  &#127874;
+                </div>
+                <h1 style="color:#ffffff;font-size:28px;font-weight:800;
+                           margin:0 0 8px;font-family:Arial,Helvetica,sans-serif;">
+                  Happy Birthday!
+                </h1>
+                <p style="color:rgba(255,255,255,0.95);font-size:17px;
+                          font-weight:600;margin:0;
+                          font-family:Arial,Helvetica,sans-serif;">
+                  ${safeName}
+                </p>
+              </td>
+            </tr>
+            <!-- Body -->
+            <tr>
+              <td style="padding:32px 28px;text-align:center;
+                         font-family:Arial,Helvetica,sans-serif;">
+                <p style="color:#333333;font-size:16px;font-weight:600;
+                          margin:0 0 14px;">
+                  Wishing you a wonderful birthday! &#127881;
+                </p>
+                <p style="color:#555555;font-size:14px;line-height:1.9;
+                          margin:0 0 24px;max-width:420px;
+                          margin-left:auto;margin-right:auto;">
+                  On behalf of the entire <strong>${safeClub}</strong> family,
+                  we wish you a very happy birthday!
+                  May this special day bring you joy, success, and fulfilment.
+                  Your dedication and service to Rotaract inspire us all!
+                </p>
+                <div style="background:linear-gradient(135deg,
+                              rgba(240,147,251,0.10),rgba(245,87,108,0.10));
+                            border:1px solid rgba(245,87,108,0.22);
+                            padding:16px;border-radius:8px;margin-bottom:28px;">
+                  <p style="margin:0;color:#C53030;font-size:13px;
+                            font-style:italic;font-weight:600;
+                            font-family:Arial,Helvetica,sans-serif;">
+                    &ldquo;Service Above Self&rdquo;
+                    &mdash; Happy Birthday, Rotaractor!
+                  </p>
+                </div>
+                <p style="color:#555555;font-size:13px;margin:0 0 4px;">
+                  With warm regards,
+                </p>
+                <p style="color:#333333;font-size:14px;font-weight:700;
+                          margin:0 0 3px;">
+                  ${safeClub}
+                </p>
+                <p style="color:#888888;font-size:12px;margin:0 0 2px;">
+                  Parented by ${safeParent}
+                </p>
+                <p style="color:#888888;font-size:12px;margin:0;">
+                  Club ID: ${safeClubId} &nbsp;|&nbsp;
+                  Rotary International District 3206
+                </p>
+              </td>
+            </tr>
+            <!-- Footer -->
+            <tr>
+              <td style="background:#f7f8fa;padding:16px 28px;
+                         border-top:1px solid #eeeeee;text-align:center;
+                         font-family:Arial,Helvetica,sans-serif;">
+                <p style="margin:0;color:#cccccc;font-size:10px;">
+                  This birthday wish was sent automatically
+                  by the Rotaract Club Portal.
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td></tr>
+      </table>
+    </td></tr>
   </table>
-
 </body>
 </html>`;
 
@@ -1040,7 +1129,6 @@ class EmailService {
     if (enabled !== 'true') return false;
 
     try {
-      // Compute date range for the previous calendar month
       const now            = new Date();
       const firstOfMonth   = new Date(now.getFullYear(), now.getMonth(), 1);
       const lastMonthEnd   = new Date(firstOfMonth - 1);
@@ -1061,8 +1149,7 @@ class EmailService {
         .order('transaction_date', { ascending: true });
 
       if (error) throw error;
-
-      if (!transactions || transactions.length === 0) {
+      if (!transactions?.length) {
         console.log('[EmailService] no transactions for', monthName, yearLabel);
         return false;
       }
@@ -1081,17 +1168,16 @@ class EmailService {
       const subject =
         `[Rotaract] Monthly Treasury Statement — ${monthName} ${yearLabel}`;
 
-      /* ── Summary cards ── */
-      const summaryRow = (bg, border, labelColor, label, valColor, value) => `
+      const summaryCell = (bg, border, lc, label, vc, value) => `
         <td style="width:33%;padding:4px;">
           <div style="background:${bg};border:1px solid ${border};
                       padding:14px;border-radius:8px;text-align:center;">
-            <div style="color:${labelColor};font-size:10px;font-weight:700;
+            <div style="color:${lc};font-size:10px;font-weight:700;
                         text-transform:uppercase;letter-spacing:0.07em;
                         margin-bottom:5px;font-family:Arial,Helvetica,sans-serif;">
               ${label}
             </div>
-            <div style="color:${valColor};font-size:14px;font-weight:800;
+            <div style="color:${vc};font-size:14px;font-weight:800;
                         font-family:Arial,Helvetica,sans-serif;">
               ${value}
             </div>
@@ -1099,24 +1185,21 @@ class EmailService {
         </td>`;
 
       const bodyContent = `
-        ${this._banner('#38A169', '&#x1F4B0;',
-          'Monthly Treasury Statement',
+        ${this._banner('#38A169', '&#x1F4B0;', 'Monthly Treasury Statement',
           `${monthName} ${yearLabel} — ${transactions.length} transaction${transactions.length !== 1 ? 's' : ''}`
         )}
-
-        <!-- Summary -->
         <table width="100%" cellpadding="0" cellspacing="0" border="0"
                style="margin-bottom:20px;">
           <tr>
-            ${summaryRow('#f0fff4','#68D391','#38A169','Total Income',  '#276749', this._fmtCur(totalIncome))}
-            ${summaryRow('#fff5f5','#FC8181','#E53E3E','Total Expense', '#C53030', this._fmtCur(totalExpense))}
-            ${summaryRow('#ebf4ff','#63B3ED','#3182CE','Closing Balance',
-              closingBalance >= 0 ? '#2B6CB0' : '#C53030',
-              this._fmtCur(closingBalance))}
+            ${summaryCell('#f0fff4','#68D391','#38A169','Total Income',
+                '#276749', this._fmtCur(totalIncome))}
+            ${summaryCell('#fff5f5','#FC8181','#E53E3E','Total Expense',
+                '#C53030', this._fmtCur(totalExpense))}
+            ${summaryCell('#ebf4ff','#63B3ED','#3182CE','Closing Balance',
+                closingBalance >= 0 ? '#2B6CB0' : '#E53E3E',
+                this._fmtCur(closingBalance))}
           </tr>
         </table>
-
-        <!-- Transaction table -->
         <h4 style="font-size:13px;font-weight:700;color:#333333;margin:0 0 10px;
                    font-family:Arial,Helvetica,sans-serif;">
           Transaction Details
@@ -1136,8 +1219,8 @@ class EmailService {
           </thead>
           <tbody>
             ${transactions.slice(0, 30).map((t, i) => {
-              const isIncome  = t.transaction_type === 'income';
-              const bal       = parseFloat(t.balance ?? 0) || 0;
+              const isIncome = t.transaction_type === 'income';
+              const bal      = parseFloat(t.balance ?? 0) || 0;
               return `
               <tr style="background:${i % 2 === 0 ? '#f9fafb' : '#ffffff'};">
                 <td style="padding:7px 8px;color:#888888;">${i + 1}</td>
@@ -1161,7 +1244,6 @@ class EmailService {
                 </td>
               </tr>`;
             }).join('')}
-            <!-- Totals row -->
             <tr style="background:#2D3748;color:#ffffff;font-weight:700;">
               <td colspan="3"
                   style="padding:9px 8px;text-align:right;
@@ -1180,7 +1262,6 @@ class EmailService {
             </tr>
           </tbody>
         </table>
-
         ${transactions.length > 30 ? `
         <p style="font-size:11px;color:#999999;margin:8px 0 0;text-align:center;
                   font-family:Arial,Helvetica,sans-serif;">
@@ -1199,9 +1280,7 @@ class EmailService {
   }
 
   /* ============================================================
-     SCHEDULER — BIRTHDAY
-     Runs once daily at 00:01 AM — NOT on every page load
-     Uses localStorage to track sent emails per year per member
+     SCHEDULER — BIRTHDAY (daily at 00:01 AM)
      ============================================================ */
   _startBirthdayScheduler() {
     const enabled = this._getSetting('birthday_email_enabled', 'true');
@@ -1209,15 +1288,13 @@ class EmailService {
 
     const checkBirthdays = async () => {
       try {
-        await this._loadSettings();   // refresh settings before each run
+        await this._loadSettings();
+        if (this._getSetting('birthday_email_enabled', 'true') !== 'true') return;
 
-        const enabled2 = this._getSetting('birthday_email_enabled', 'true');
-        if (enabled2 !== 'true') return;
-
-        const today     = new Date();
-        const todayMon  = today.getMonth() + 1;
-        const todayDay  = today.getDate();
-        const thisYear  = today.getFullYear();
+        const today    = new Date();
+        const todayMon = today.getMonth() + 1;
+        const todayDay = today.getDate();
+        const thisYear = today.getFullYear();
 
         const { data: members, error } = await this._getDb()
           .from('members')
@@ -1234,33 +1311,25 @@ class EmailService {
 
           const dob = new Date(member.date_of_birth);
           if (isNaN(dob.getTime())) continue;
+          if (dob.getMonth() + 1 !== todayMon || dob.getDate() !== todayDay) continue;
 
-          if (dob.getMonth() + 1 !== todayMon || dob.getDate() !== todayDay) {
-            continue;
-          }
-
-          // One email per member per year — stored in localStorage
           const sentKey = `bday_${member.id}_${thisYear}`;
           let alreadySent = false;
 
           try {
             const stored = localStorage.getItem(sentKey);
-            if (stored) {
-              const parsed = JSON.parse(stored);
-              alreadySent  = parsed?.sent === true;
-            }
-          } catch { /* ignore storage errors */ }
+            if (stored) alreadySent = JSON.parse(stored)?.sent === true;
+          } catch { /* ignore */ }
 
           if (alreadySent) continue;
 
           const sent = await this.sendBirthdayWish(member);
           if (sent) {
             try {
-              localStorage.setItem(sentKey, JSON.stringify({
-                sent: true,
-                at:   new Date().toISOString()
-              }));
-            } catch { /* storage full — ignore */ }
+              localStorage.setItem(sentKey,
+                JSON.stringify({ sent: true, at: new Date().toISOString() })
+              );
+            } catch { /* storage full */ }
           }
         }
       } catch (e) {
@@ -1272,31 +1341,28 @@ class EmailService {
       const now      = new Date();
       const midnight = new Date(
         now.getFullYear(), now.getMonth(), now.getDate() + 1,
-        0, 1, 0   // 00:01 AM
+        0, 1, 0
       );
       const delay = midnight.getTime() - now.getTime();
 
       this._birthdayTimer = setTimeout(async () => {
         await checkBirthdays();
-        scheduleNextMidnight();     // self-reschedule each day
+        scheduleNextMidnight();
       }, delay);
 
-      console.log(
-        `[EmailService] birthday check in ${Math.round(delay / 60000)}m`
-      );
+      console.log(`[EmailService] birthday check in ${Math.round(delay / 60000)}m`);
     };
 
     scheduleNextMidnight();
   }
 
   /* ============================================================
-     SCHEDULER — MONTHLY STATEMENT
-     Fires at 09:00 AM on the 1st of each month
+     SCHEDULER — MONTHLY STATEMENT (1st of each month at 09:00)
      ============================================================ */
   _startMonthlyStatementScheduler() {
     const scheduleNext = () => {
-      const now              = new Date();
-      const firstNextMonth   = new Date(
+      const now            = new Date();
+      const firstNextMonth = new Date(
         now.getFullYear(), now.getMonth() + 1, 1, 9, 0, 0
       );
       const delay = firstNextMonth.getTime() - now.getTime();
@@ -1320,8 +1386,10 @@ class EmailService {
   }
 
   /* ============================================================
-     SCHEDULER — TODAY'S MEETING ATTENDANCE FORMS
-     Fires at each meeting's start_time
+     SCHEDULER — TODAY'S MEETINGS
+     Fires at each meeting's start_time.
+     Calls sendAttendanceForm() on MeetingsAdminManager first
+     (generates real HTML form), then falls back to email reminder.
      ============================================================ */
   async _scheduleTodayMeetings() {
     try {
@@ -1329,9 +1397,8 @@ class EmailService {
 
       const { data: meetings, error } = await this._getDb()
         .from('meetings')
-        .select('id, title, meeting_date, start_time')
-        .eq('meeting_date', today)
-        .eq('is_invitation_sent', false);
+        .select('id, title, meeting_date, start_time, attendance_form_url')
+        .eq('meeting_date', today);
 
       if (error) throw error;
       if (!meetings?.length) return;
@@ -1341,29 +1408,24 @@ class EmailService {
       meetings.forEach(meeting => {
         if (!meeting.start_time) return;
 
-        const parts = meeting.start_time.split(':').map(Number);
-        const h = parts[0] ?? 0;
-        const m = parts[1] ?? 0;
-
-        const todayDate  = new Date();
-        const meetingTs  = new Date(
-          todayDate.getFullYear(),
-          todayDate.getMonth(),
-          todayDate.getDate(),
+        const parts       = meeting.start_time.split(':').map(Number);
+        const h           = parts[0] ?? 0;
+        const m           = parts[1] ?? 0;
+        const todayDate   = new Date();
+        const meetingTs   = new Date(
+          todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate(),
           h, m, 0
         ).getTime();
 
         const delay = meetingTs - now;
-
-        // Only schedule if it's still in the future (within 24h)
         if (delay <= 0 || delay >= 24 * 60 * 60 * 1000) return;
 
-        // Clear any existing timer for this meeting
         if (this._meetingTimers[meeting.id]) {
           clearTimeout(this._meetingTimers[meeting.id]);
         }
 
         this._meetingTimers[meeting.id] = setTimeout(async () => {
+          console.log(`[EmailService] auto-sending attendance for: ${meeting.title}`);
           await this.sendMeetingAttendanceForm(meeting.id);
           delete this._meetingTimers[meeting.id];
         }, delay);
@@ -1380,8 +1442,7 @@ class EmailService {
   }
 
   /* ============================================================
-     PUBLIC ALIAS — scheduleTodayMeetings
-     Exposed so the admin UI can trigger a reschedule
+     PUBLIC ALIAS
      ============================================================ */
   async scheduleTodayMeetings() {
     return this._scheduleTodayMeetings();
@@ -1404,7 +1465,7 @@ class EmailService {
   }
 
   /* ============================================================
-     PUBLIC — LOAD EMAIL LOGS (admin UI)
+     PUBLIC — LOAD EMAIL LOGS
      ============================================================ */
   async loadEmailLogs() {
     const container = document.getElementById('email-logs-container');
@@ -1436,15 +1497,13 @@ class EmailService {
       };
 
       container.innerHTML = logs.map(log => {
-        const color      = STATUS_COLORS[log.status] || 'var(--text-muted)';
-        const safeSubj   = log.subject   || log.email_type || '(no subject)';
-        const safeType   = (log.email_type || '').replace(/_/g, ' ');
+        const color     = STATUS_COLORS[log.status] || 'var(--text-muted)';
+        const safeSubj  = log.subject   || log.email_type || '(no subject)';
+        const safeType  = (log.email_type || '').replace(/_/g, ' ');
         const safeMethod = log.method ? ` via ${log.method}` : '';
-        const recipient  = log.recipient_email
+        const recipient = log.recipient_email
           ? log.recipient_email
-          : log.recipient_group
-            ? 'Group'
-            : '—';
+          : log.recipient_group ? 'Group' : '—';
 
         const dateStr = log.created_at
           ? new Date(log.created_at).toLocaleDateString('en-IN', {
@@ -1452,6 +1511,9 @@ class EmailService {
               hour: '2-digit', minute: '2-digit'
             })
           : '—';
+
+        /* Show form URL for attendance_form emails */
+        const formUrl = log.metadata?.form_url || '';
 
         return `
           <div style="display:flex;align-items:flex-start;gap:10px;
@@ -1461,7 +1523,7 @@ class EmailService {
             <div style="flex:1;overflow:hidden;min-width:0;">
               <div style="font-size:0.82rem;font-weight:600;color:var(--text-heading);
                           overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-                   title="${safeSubj.replace(/"/g,'&quot;')}">
+                   title="${safeSubj.replace(/"/g, '&quot;')}">
                 ${safeSubj.substring(0, 80)}
               </div>
               <div style="font-size:0.70rem;color:var(--text-muted);margin-top:2px;">
@@ -1469,10 +1531,17 @@ class EmailService {
                 &nbsp;&bull;&nbsp;${recipient}
                 &nbsp;&bull;&nbsp;${dateStr}
               </div>
+              ${formUrl ? `
+              <div style="font-size:0.68rem;color:var(--accent);margin-top:2px;">
+                <a href="${formUrl}" target="_blank"
+                   style="color:inherit;text-decoration:underline;">
+                  View Form →
+                </a>
+              </div>` : ''}
               ${log.error_message ? `
               <div style="font-size:0.68rem;color:var(--danger);margin-top:2px;
                           overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
-                   title="${String(log.error_message).replace(/"/g,'&quot;')}">
+                   title="${String(log.error_message).replace(/"/g, '&quot;')}">
                 ${String(log.error_message).substring(0, 90)}
               </div>` : ''}
             </div>
@@ -1554,23 +1623,17 @@ class EmailService {
 
           <form id="custom-email-form" novalidate>
             <div class="form-group" style="margin-bottom:12px;">
-              <label class="form-label" for="custom-email-subject">
-                Subject *
-              </label>
+              <label class="form-label" for="custom-email-subject">Subject *</label>
               <div class="input-wrap neu-inset">
                 <input type="text" id="custom-email-subject" class="form-input"
                        placeholder="Email subject" maxlength="200" required />
               </div>
             </div>
             <div class="form-group" style="margin-bottom:16px;">
-              <label class="form-label" for="custom-email-message">
-                Message *
-              </label>
+              <label class="form-label" for="custom-email-message">Message *</label>
               <div class="input-wrap neu-inset">
-                <textarea id="custom-email-message" class="form-textarea"
-                          rows="6"
-                          placeholder="Email message..."
-                          required></textarea>
+                <textarea id="custom-email-message" class="form-textarea" rows="6"
+                          placeholder="Email message..." required></textarea>
               </div>
             </div>
             <button type="submit" id="custom-email-btn"
@@ -1627,8 +1690,7 @@ class EmailService {
 
           <div style="padding-top:16px;border-top:1px solid var(--border-color);">
             <h4 style="font-size:0.78rem;font-weight:700;color:var(--text-muted);
-                        margin:0 0 10px;text-transform:uppercase;
-                        letter-spacing:0.06em;">
+                        margin:0 0 10px;text-transform:uppercase;letter-spacing:0.06em;">
               Manual Triggers
             </h4>
             <div style="display:flex;flex-direction:column;gap:8px;">
@@ -1637,8 +1699,7 @@ class EmailService {
                         .sendMonthlyTreasuryStatement()
                         .then(r => window.dashboard?.showToast(
                           r ? 'Statement sent!' : 'Failed to send.',
-                          r ? 'success' : 'error'
-                        ))">
+                          r ? 'success' : 'error'))">
                 <i data-lucide="indian-rupee"></i>
                 <span>Send Monthly Statement Now</span>
               </button>
@@ -1646,8 +1707,7 @@ class EmailService {
                       onclick="window.emailService
                         .scheduleTodayMeetings()
                         .then(() => window.dashboard?.showToast(
-                          'Meeting timers reset.', 'info'
-                        ))">
+                          'Meeting timers reset.', 'info'))">
                 <i data-lucide="calendar"></i>
                 <span>Reschedule Today&rsquo;s Meetings</span>
               </button>
@@ -1665,10 +1725,7 @@ class EmailService {
       <!-- Email Logs -->
       <div class="admin-card neu-card">
         <div class="admin-card-header">
-          <h3>
-            <i data-lucide="activity"></i>
-            Recent Email Logs
-          </h3>
+          <h3><i data-lucide="activity"></i> Recent Email Logs</h3>
           <button class="btn btn-outline btn-sm"
                   onclick="window.emailService.loadEmailLogs()">
             <i data-lucide="refresh-cw"></i>
@@ -1701,22 +1758,19 @@ class EmailService {
 
         if (!subject || !message) {
           if (msgEl) {
-            msgEl.textContent  = 'Subject and message are required.';
-            msgEl.className    = 'form-message error';
+            msgEl.textContent = 'Subject and message are required.';
+            msgEl.className   = 'form-message error';
           }
           return;
         }
 
         if (btn) {
-          btn.disabled   = true;
-          btn.innerHTML  = '<i data-lucide="loader-2"></i><span>Sending&hellip;</span>';
+          btn.disabled  = true;
+          btn.innerHTML = '<i data-lucide="loader-2"></i><span>Sending&hellip;</span>';
           if (typeof lucide !== 'undefined') lucide.createIcons();
         }
         if (msgEl) { msgEl.textContent = ''; msgEl.className = 'form-message'; }
 
-        const clubName = this._getSetting('club_name', CLUB_INFO.name);
-
-        // Build body HTML — escape user content
         const htmlBody = this._buildEmailWrapper(
           subject,
           `<h2 style="color:#0055FF;font-size:16px;margin:0 0 14px;
@@ -1730,9 +1784,7 @@ class EmailService {
         );
 
         const result = await this._sendToGroup(
-          `[Rotaract] ${subject}`,
-          htmlBody,
-          'custom_email'
+          `[Rotaract] ${subject}`, htmlBody, 'custom_email'
         );
 
         if (btn) {
@@ -1763,21 +1815,18 @@ class EmailService {
         }
       });
 
-    /* ── Init icons + logs ── */
     if (typeof lucide !== 'undefined') lucide.createIcons();
     this.loadEmailLogs();
   }
 
   /* ============================================================
-     PUBLIC — DESTROY (cleanup all timers)
+     PUBLIC — DESTROY
      ============================================================ */
   destroy() {
-    if (this._birthdayTimer)  clearTimeout(this._birthdayTimer);
-    if (this._monthlyTimer)   clearTimeout(this._monthlyTimer);
-
+    if (this._birthdayTimer) clearTimeout(this._birthdayTimer);
+    if (this._monthlyTimer)  clearTimeout(this._monthlyTimer);
     Object.values(this._meetingTimers).forEach(t => clearTimeout(t));
     this._meetingTimers = {};
-
     console.log('[EmailService] destroyed');
   }
 }
@@ -1785,5 +1834,5 @@ class EmailService {
 /* ============================================================
    GLOBAL SINGLETON
    ============================================================ */
-const emailService      = new EmailService();
-window.emailService     = emailService;
+const emailService  = new EmailService();
+window.emailService = emailService;
