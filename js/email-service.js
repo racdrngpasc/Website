@@ -9,8 +9,8 @@
      emailService.sendEventApprovalNotification(eventId)
      emailService.sendReportNotification(eventId)
      emailService.sendMeetingInvitation(meeting)
-     emailService.sendAttendanceFormLink(meeting, formUrl, token)  ← NEW
-     emailService.sendMeetingAttendanceForm(meetingId)             ← updated
+     emailService.sendAttendanceFormLink(meeting, formUrl, token)
+     emailService.sendMeetingAttendanceForm(meetingId)
      emailService.sendMeetingMinutes(meetingId)
      emailService.sendBirthdayWish(member)
      emailService.sendMonthlyTreasuryStatement()
@@ -18,6 +18,31 @@
    ============================================================ */
 
 'use strict';
+
+/* ============================================================
+   DPP LABEL MAPS  (mirrors JS-side constants)
+   ============================================================ */
+const DPP_PILLAR_LABELS_EMAIL = {
+  community_service    : 'Community Service',
+  club_service         : 'Club Service',
+  vocational_service   : 'Vocational Service',
+  international_service: 'International Service',
+  youth_service        : 'Youth Service'
+};
+
+const DPP_CATEGORY_LABELS_EMAIL = {
+  flagship : 'Flagship Project',
+  signature: 'Signature Project',
+  standard : 'Standard DPP'
+};
+
+const AVENUE_LABELS_EMAIL = {
+  club_service               : 'Club Service',
+  community_service          : 'Community Service',
+  professional_service       : 'Professional Service',
+  international_service      : 'International Service',
+  district_priority_projects : 'District Priority Projects'
+};
 
 class EmailService {
 
@@ -31,9 +56,9 @@ class EmailService {
     this._settingsLoadedAt = 0;
     this._SETTINGS_TTL_MS  = 5 * 60 * 1000;
 
-    this._birthdayTimer  = null;
-    this._meetingTimers  = {};
-    this._monthlyTimer   = null;
+    this._birthdayTimer = null;
+    this._meetingTimers = {};
+    this._monthlyTimer  = null;
 
     this.edgeFunctionUrl = `${SUPABASE_URL}/functions/v1/send-email`;
     this.edgeHeaders     = {
@@ -118,7 +143,21 @@ class EmailService {
 
   _isValidEmail(email) {
     if (!email || typeof email !== 'string') return false;
-    return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+    return (
+      email.length <= 254 &&
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
+    );
+  }
+
+  /* ============================================================
+     PRIVATE — LABEL HELPERS
+     ============================================================ */
+  _resolveLabel(key, map) {
+    if (!key) return '—';
+    return (
+      map[key] ||
+      key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+    );
   }
 
   /* ============================================================
@@ -196,16 +235,17 @@ class EmailService {
         method:  'POST',
         headers: this.edgeHeaders,
         body: JSON.stringify({
-          email_type:      params.email_type      || 'general',
-          to_email:        params.to_email        || null,
-          to_name:         params.to_name         || null,
-          from_name:       params.from_name       || this._getSetting('club_name', CLUB_INFO.name),
-          subject:         params.subject.trim(),
-          html_message:    htmlMsg,
-          message:         plainMsg,
-          recipient_group: params.recipient_group || null,
-          related_id:      params.related_id      || null,
-          related_type:    params.related_type    || null
+          email_type      : params.email_type      || 'general',
+          to_email        : params.to_email        || null,
+          to_name         : params.to_name         || null,
+          from_name       : params.from_name
+            || this._getSetting('club_name', CLUB_INFO.name),
+          subject         : params.subject.trim(),
+          html_message    : htmlMsg,
+          message         : plainMsg,
+          recipient_group : params.recipient_group || null,
+          related_id      : params.related_id      || null,
+          related_type    : params.related_type    || null
         })
       });
 
@@ -213,7 +253,11 @@ class EmailService {
       try { result = await response.json(); } catch { /* non-JSON */ }
 
       if (!response.ok) {
-        console.error('[EmailService] send failed:', response.status, result.error ?? result);
+        console.error(
+          '[EmailService] send failed:',
+          response.status,
+          result.error ?? result
+        );
         return false;
       }
 
@@ -236,13 +280,13 @@ class EmailService {
      ============================================================ */
   async _sendToGroup(subject, htmlBody, emailType = 'group') {
     return this.sendEmail({
-      email_type:      emailType,
-      to_email:        'ngpmembers@googlegroups.com',
-      recipient_group: 'ngpmembers@googlegroups.com',
-      from_name:       this._getSetting('club_name', CLUB_INFO.name),
+      email_type      : emailType,
+      to_email        : 'ngpmembers@googlegroups.com',
+      recipient_group : 'ngpmembers@googlegroups.com',
+      from_name       : this._getSetting('club_name', CLUB_INFO.name),
       subject,
-      html_message:    htmlBody,
-      message:         this._stripTags(htmlBody)
+      html_message    : htmlBody,
+      message         : this._stripTags(htmlBody)
     });
   }
 
@@ -260,7 +304,9 @@ class EmailService {
 
     const clubName = this._getSetting('club_name', CLUB_INFO.name);
     const clubId   = this._getSetting('club_id',   CLUB_INFO.clubId);
-    const rawLogo  = this._getSetting('logo_colour_url', CLUB_INFO.logos?.colour ?? '');
+    const rawLogo  = this._getSetting(
+      'logo_colour_url', CLUB_INFO.logos?.colour ?? ''
+    );
     const logoUrl  = this._isValidHttpsUrl(rawLogo) ? rawLogo : '';
 
     const logoHtml = logoUrl
@@ -384,14 +430,84 @@ class EmailService {
   }
 
   /* ============================================================
+     BUILD — DPP INFO BLOCK
+     Renders a highlighted block with the 4 DPP-specific fields.
+     Only shown when at least one field has a value.
+     ============================================================ */
+  _buildDPPInfoBlock(event) {
+    if (!event?.is_dpp) return '';
+
+    const approvalNumber = event.dpp_approval_number || '';
+    const pillarLabel    = this._resolveLabel(
+      event.dpp_pillar, DPP_PILLAR_LABELS_EMAIL
+    );
+    const categoryLabel  = this._resolveLabel(
+      event.dpp_category, DPP_CATEGORY_LABELS_EMAIL
+    );
+    const councilMember  = event.dpp_council_member || '';
+
+    // Only render if at least one field is non-empty
+    const hasAny =
+      (approvalNumber && approvalNumber !== '—') ||
+      (event.dpp_pillar) ||
+      (event.dpp_category) ||
+      (councilMember && councilMember !== '—');
+
+    if (!hasAny) return '';
+
+    const fieldRow = (label, value, color = '#1a56db') => {
+      if (!value || value === '—') return '';
+      return `
+        <tr>
+          <td style="padding:7px 10px;font-size:12px;font-weight:700;
+                     color:${color};width:40%;border-bottom:1px solid #e8f0ff;
+                     font-family:Arial,Helvetica,sans-serif;">
+            ${this._esc(label)}
+          </td>
+          <td style="padding:7px 10px;font-size:12px;color:#333333;
+                     border-bottom:1px solid #e8f0ff;
+                     font-family:Arial,Helvetica,sans-serif;">
+            ${this._esc(value)}
+          </td>
+        </tr>`;
+    };
+
+    return `
+      <div style="background:#e8f0ff;border:1px solid #b3c6ff;
+                  border-radius:8px;overflow:hidden;margin-bottom:16px;">
+        <div style="background:#1a56db;padding:8px 14px;">
+          <span style="color:#ffffff;font-size:11px;font-weight:800;
+                       text-transform:uppercase;letter-spacing:0.08em;
+                       font-family:Arial,Helvetica,sans-serif;">
+            &#x1F3C6;&nbsp; DPP Project Details
+          </span>
+        </div>
+        <table style="width:100%;border-collapse:collapse;">
+          ${approvalNumber
+            ? fieldRow('Project Approval Number', approvalNumber, '#1a56db')
+            : ''}
+          ${event.dpp_pillar
+            ? fieldRow('DPP Pillar', pillarLabel, '#047857')
+            : ''}
+          ${event.dpp_category
+            ? fieldRow('Category', categoryLabel, '#047857')
+            : ''}
+          ${councilMember
+            ? fieldRow('Council Member / District Trainer', councilMember, '#92400e')
+            : ''}
+        </table>
+      </div>`;
+  }
+
+  /* ============================================================
      BUILD — ATTENDANCE FORM CTA BUTTON BLOCK
-     Used inside email body to show the form link prominently
      ============================================================ */
   _buildFormCtaBlock(formUrl, meeting) {
-    const safeUrl  = this._esc(formUrl);
-    const timeStr  = meeting?.start_time ? this._fmtTime(meeting.start_time) : '';
-    const endStr   = meeting?.end_time   ? ` to ${this._fmtTime(meeting.end_time)}` : '';
-    const agenda   = Array.isArray(meeting?.agenda) ? meeting.agenda : [];
+    const safeUrl = this._esc(formUrl);
+    const timeStr = meeting?.start_time ? this._fmtTime(meeting.start_time) : '';
+    const endStr  = meeting?.end_time
+      ? ` to ${this._fmtTime(meeting.end_time)}` : '';
+    const agenda  = Array.isArray(meeting?.agenda) ? meeting.agenda : [];
 
     return `
       <!-- ── Urgency Banner ── -->
@@ -444,7 +560,7 @@ class EmailService {
                       font-family:Arial,Helvetica,sans-serif;
                       box-shadow:0 4px 14px rgba(229,62,62,0.40);
                       letter-spacing:0.02em;">
-              ✅&nbsp;&nbsp;Open Attendance Form
+              &#x2705;&nbsp;&nbsp;Open Attendance Form
             </a>
           </td>
         </tr>
@@ -476,14 +592,22 @@ class EmailService {
 
   /* ============================================================
      1. EVENT APPROVAL NOTIFICATION
+        Includes DPP-specific fields block for DPP events.
      ============================================================ */
   async sendEventApprovalNotification(eventId) {
     if (!eventId) return false;
 
     try {
+      /* Fetch all DPP columns too */
       const { data: event, error } = await this._getDb()
         .from('events')
-        .select('*')
+        .select(`
+          *,
+          dpp_approval_number,
+          dpp_pillar,
+          dpp_category,
+          dpp_council_member
+        `)
         .eq('id', eventId)
         .single();
 
@@ -492,24 +616,18 @@ class EmailService {
         return false;
       }
 
-      const AVENUE_LABELS = {
-        club_service:               'Club Service',
-        community_service:          'Community Service',
-        professional_service:       'Professional Service',
-        international_service:      'International Service',
-        district_priority_projects: 'District Priority Projects'
-      };
-
       const avenueLabel = event.is_dpp
         ? 'District Priority Projects'
-        : (AVENUE_LABELS[event.avenue] || this._esc(event.avenue) || '—');
+        : (AVENUE_LABELS_EMAIL[event.avenue]
+            || this._esc(event.avenue)
+            || '—');
 
       const timeRange = event.start_time
         ? this._fmtTime(event.start_time)
           + (event.end_time ? ` to ${this._fmtTime(event.end_time)}` : '')
         : '—';
 
-      const subject  = `[Rotaract] New Event Approved: ${event.title}`;
+      const subject = `[Rotaract] New Event Approved: ${event.title}`;
 
       const bodyContent = `
         ${this._banner('#0055FF', '&#x1F4CB;', 'New Event Approved!',
@@ -519,22 +637,28 @@ class EmailService {
           ${this._esc(event.title)}
         </h3>
         ${this._table(
-          this._row('Date',            this._fmtDate(event.event_date))
-        + this._row('Time',            timeRange)
-        + this._row('Venue',           this._esc(event.venue) || '—')
-        + this._row('Event Chair',     this._esc(event.event_chair) || '—')
+          this._row('Date',         this._fmtDate(event.event_date))
+        + this._row('Time',         timeRange)
+        + this._row('Venue',        this._esc(event.venue) || '—')
+        + this._row('Event Chair',  this._esc(event.event_chair) || '—')
         + (event.event_secretary
             ? this._row('Event Secretary', this._esc(event.event_secretary))
             : '')
-        + this._row('Avenue',          avenueLabel)
+        + this._row('Avenue', avenueLabel)
         + this._row('Group',
             `Group ${this._esc(String(event.group_number || 1))}`, true)
         )}
+
+        <!-- DPP-specific details block (only for DPP events) -->
+        ${this._buildDPPInfoBlock(event)}
+
         ${event.description ? `
         <div style="background:#f9f9f9;padding:14px;border-radius:6px;
                     margin-bottom:20px;">
           <h4 style="margin:0 0 6px;font-size:13px;color:#333333;font-weight:700;
-                     font-family:Arial,Helvetica,sans-serif;">About This Event</h4>
+                     font-family:Arial,Helvetica,sans-serif;">
+            About This Event
+          </h4>
           <p style="margin:0;color:#666666;font-size:13px;line-height:1.7;
                     font-family:Arial,Helvetica,sans-serif;">
             ${this._esc(event.description)}
@@ -553,6 +677,7 @@ class EmailService {
 
   /* ============================================================
      2. EVENT REPORT NOTIFICATION
+        Includes DPP-specific fields block for DPP events.
      ============================================================ */
   async sendReportNotification(eventId) {
     if (!eventId) return false;
@@ -560,7 +685,22 @@ class EmailService {
     try {
       const { data: event, error } = await this._getDb()
         .from('events')
-        .select('*, event_reports(report_content, key_highlights, is_approved)')
+        .select(`
+          *,
+          dpp_approval_number,
+          dpp_pillar,
+          dpp_category,
+          dpp_council_member,
+          event_reports (
+            report_content,
+            key_highlights,
+            is_approved,
+            project_approval_number,
+            dpp_pillar,
+            dpp_category,
+            council_member_or_trainer
+          )
+        `)
         .eq('id', eventId)
         .single();
 
@@ -574,6 +714,19 @@ class EmailService {
         console.warn('[EmailService] no approved report found:', eventId);
         return false;
       }
+
+      /* Merge report-level DPP fields as fallback for event-level fields */
+      const mergedEventForDPP = {
+        ...event,
+        dpp_approval_number:
+          event.dpp_approval_number || report.project_approval_number || null,
+        dpp_pillar:
+          event.dpp_pillar || report.dpp_pillar || null,
+        dpp_category:
+          event.dpp_category || report.dpp_category || null,
+        dpp_council_member:
+          event.dpp_council_member || report.council_member_or_trainer || null
+      };
 
       const subject = `[Rotaract] Event Report Published: ${event.title}`;
 
@@ -595,10 +748,14 @@ class EmailService {
                 `${this._esc(String(event.service_hours))} hours`, true)
             : '')
         )}
+
+        <!-- DPP-specific details block (only for DPP events) -->
+        ${this._buildDPPInfoBlock(mergedEventForDPP)}
+
         ${report.key_highlights ? `
         <div style="background:#f0f7ff;padding:14px;border-radius:6px;margin-top:4px;">
-          <strong style="color:#0055FF;font-size:13px;display:block;margin-bottom:6px;
-                         font-family:Arial,Helvetica,sans-serif;">
+          <strong style="color:#0055FF;font-size:13px;display:block;
+                         margin-bottom:6px;font-family:Arial,Helvetica,sans-serif;">
             Key Highlights
           </strong>
           <p style="margin:0;color:#555555;font-size:13px;line-height:1.7;
@@ -625,10 +782,10 @@ class EmailService {
 
     try {
       const MEETING_LABELS = {
-        board_meeting:        'Board Meeting',
-        general_body_meeting: 'General Body Meeting',
-        special_meeting:      'Special Meeting',
-        emergency_meeting:    'Emergency Meeting'
+        board_meeting        : 'Board Meeting',
+        general_body_meeting : 'General Body Meeting',
+        special_meeting      : 'Special Meeting',
+        emergency_meeting    : 'Emergency Meeting'
       };
 
       const typeLabel = MEETING_LABELS[meeting.meeting_type]
@@ -644,15 +801,15 @@ class EmailService {
       const subject = `[Rotaract] Meeting Invitation: ${meeting.title}`;
 
       const bodyContent = `
-        <div style="background:#ede9fe;border-left:4px solid #6B46C1;padding:16px;
-                    border-radius:0 8px 8px 0;margin-bottom:20px;">
+        <div style="background:#ede9fe;border-left:4px solid #6B46C1;
+                    padding:16px;border-radius:0 8px 8px 0;margin-bottom:20px;">
           <h2 style="margin:0 0 8px;color:#6B46C1;font-size:16px;font-weight:700;
                      font-family:Arial,Helvetica,sans-serif;">
             &#x1F4C5;&nbsp;&nbsp;${this._esc(meeting.title)}
           </h2>
           <span style="display:inline-block;padding:3px 12px;border-radius:20px;
-                       background:#6B46C1;color:#ffffff;font-size:11px;font-weight:700;
-                       font-family:Arial,Helvetica,sans-serif;">
+                       background:#6B46C1;color:#ffffff;font-size:11px;
+                       font-weight:700;font-family:Arial,Helvetica,sans-serif;">
             ${typeLabel}
           </span>
         </div>
@@ -701,11 +858,12 @@ class EmailService {
      4a. SEND ATTENDANCE FORM LINK  ← NEW CORE METHOD
          Called by MeetingsAdminManager.sendAttendanceForm()
          after the HTML form page is uploaded to Supabase Storage.
-         Sends the clickable form URL to all members via group email.
      ============================================================ */
   async sendAttendanceFormLink(meeting, formUrl, token) {
     if (!meeting || !formUrl) {
-      console.warn('[EmailService] sendAttendanceFormLink: missing meeting or formUrl');
+      console.warn(
+        '[EmailService] sendAttendanceFormLink: missing meeting or formUrl'
+      );
       return false;
     }
 
@@ -736,7 +894,6 @@ class EmailService {
         console.log(
           `[EmailService] attendance form link sent for meeting: ${meeting.id}`
         );
-        /* Log it in Supabase so admins can see it in email logs */
         try {
           await this._getDb().from('email_logs').insert({
             email_type      : 'meeting_attendance_form',
@@ -749,7 +906,6 @@ class EmailService {
             metadata        : { form_url: formUrl, token }
           });
         } catch (logErr) {
-          /* Non-critical — ignore */
           console.warn('[EmailService] email log insert failed:', logErr);
         }
       }
@@ -764,9 +920,6 @@ class EmailService {
 
   /* ============================================================
      4b. MEETING ATTENDANCE FORM (legacy / fallback)
-         Called by the auto-timer when no form URL is stored yet.
-         Tries to generate the form first via MeetingsAdminManager,
-         then falls back to a plain reminder email.
      ============================================================ */
   async sendMeetingAttendanceForm(meetingId) {
     if (!meetingId) return false;
@@ -783,12 +936,11 @@ class EmailService {
         return false;
       }
 
-      /* ── If MeetingsAdminManager is available, generate + send the
-             real HTML form. This is the preferred path. ── */
+      /* Preferred path — generate + send real HTML form */
       if (window.meetingsAdmin) {
         try {
           const formUrl = await window.meetingsAdmin.sendAttendanceForm(
-            meetingId, true   /* silent = true so we control toasts here */
+            meetingId, true
           );
           if (formUrl) {
             console.log(
@@ -804,7 +956,7 @@ class EmailService {
         }
       }
 
-      /* ── Fallback: plain reminder email (no clickable form) ── */
+      /* Fallback: plain reminder */
       const subject = `[Rotaract ATTENDANCE] ${meeting.title} — Mark Now`;
 
       const bodyContent = `
@@ -831,7 +983,9 @@ class EmailService {
       `;
 
       const htmlBody = this._buildEmailWrapper(subject, bodyContent);
-      const result   = await this._sendToGroup(subject, htmlBody, 'meeting_attendance');
+      const result   = await this._sendToGroup(
+        subject, htmlBody, 'meeting_attendance'
+      );
 
       if (result) {
         try {
@@ -840,7 +994,9 @@ class EmailService {
             .update({ is_invitation_sent: true })
             .eq('id', meetingId);
         } catch (dbErr) {
-          console.warn('[EmailService] failed to update is_invitation_sent:', dbErr);
+          console.warn(
+            '[EmailService] failed to update is_invitation_sent:', dbErr
+          );
         }
       }
 
@@ -876,10 +1032,10 @@ class EmailService {
       }
 
       const MEETING_LABELS = {
-        board_meeting:        'Board Meeting',
-        general_body_meeting: 'General Body Meeting',
-        special_meeting:      'Special Meeting',
-        emergency_meeting:    'Emergency Meeting'
+        board_meeting        : 'Board Meeting',
+        general_body_meeting : 'General Body Meeting',
+        special_meeting      : 'Special Meeting',
+        emergency_meeting    : 'Emergency Meeting'
       };
 
       const minutes     = Array.isArray(meeting.minutes_content)
@@ -961,7 +1117,9 @@ class EmailService {
       `;
 
       const htmlBody = this._buildEmailWrapper(subject, bodyContent);
-      const result   = await this._sendToGroup(subject, htmlBody, 'meeting_minutes');
+      const result   = await this._sendToGroup(
+        subject, htmlBody, 'meeting_minutes'
+      );
 
       if (result) {
         try {
@@ -994,15 +1152,17 @@ class EmailService {
     try {
       const clubName   = this._getSetting('club_name',   CLUB_INFO.name);
       const clubId     = this._getSetting('club_id',     CLUB_INFO.clubId);
-      const parentClub = this._getSetting('parent_club',
-        CLUB_INFO.parentClub || 'Rotary Club of Coimbatore Meridian');
+      const parentClub = this._getSetting(
+        'parent_club',
+        CLUB_INFO.parentClub || 'Rotary Club of Coimbatore Meridian'
+      );
 
       const safeName   = this._esc(member.full_name || 'Rotaractor');
       const safeClub   = this._esc(clubName);
       const safeParent = this._esc(parentClub);
       const safeClubId = this._esc(clubId);
 
-      const subject  = `Happy Birthday ${member.full_name}! — ${clubName}`;
+      const subject = `Happy Birthday ${member.full_name}! — ${clubName}`;
 
       const htmlBody = `<!DOCTYPE html>
 <html lang="en">
@@ -1024,7 +1184,6 @@ class EmailService {
         <tr><td>
           <table width="100%" cellpadding="0" cellspacing="0" border="0"
                  style="background:#ffffff;border-radius:12px;overflow:hidden;">
-            <!-- Header -->
             <tr>
               <td style="background:linear-gradient(135deg,#f093fb,#f5576c);
                          padding:40px 28px;text-align:center;">
@@ -1042,7 +1201,6 @@ class EmailService {
                 </p>
               </td>
             </tr>
-            <!-- Body -->
             <tr>
               <td style="padding:32px 28px;text-align:center;
                          font-family:Arial,Helvetica,sans-serif;">
@@ -1085,7 +1243,6 @@ class EmailService {
                 </p>
               </td>
             </tr>
-            <!-- Footer -->
             <tr>
               <td style="background:#f7f8fa;padding:16px 28px;
                          border-top:1px solid #eeeeee;text-align:center;
@@ -1105,14 +1262,14 @@ class EmailService {
 </html>`;
 
       return this.sendEmail({
-        email_type:   'birthday_wish',
-        to_email:     member.email,
-        to_name:      member.full_name,
-        from_name:    clubName,
+        email_type   : 'birthday_wish',
+        to_email     : member.email,
+        to_name      : member.full_name,
+        from_name    : clubName,
         subject,
-        html_message: htmlBody,
-        message: `Happy Birthday ${member.full_name}! `
-               + `Wishing you a wonderful day from ${clubName}.`
+        html_message : htmlBody,
+        message      : `Happy Birthday ${member.full_name}! `
+                     + `Wishing you a wonderful day from ${clubName}.`
       });
 
     } catch (e) {
@@ -1186,7 +1343,8 @@ class EmailService {
 
       const bodyContent = `
         ${this._banner('#38A169', '&#x1F4B0;', 'Monthly Treasury Statement',
-          `${monthName} ${yearLabel} — ${transactions.length} transaction${transactions.length !== 1 ? 's' : ''}`
+          `${monthName} ${yearLabel} — ${transactions.length} transaction${
+            transactions.length !== 1 ? 's' : ''}`
         )}
         <table width="100%" cellpadding="0" cellspacing="0" border="0"
                style="margin-bottom:20px;">
@@ -1211,10 +1369,18 @@ class EmailService {
             <tr style="background:#2D3748;color:#ffffff;">
               <th style="padding:9px 8px;text-align:left;font-weight:600;">#</th>
               <th style="padding:9px 8px;text-align:left;font-weight:600;">Date</th>
-              <th style="padding:9px 8px;text-align:left;font-weight:600;">Particular</th>
-              <th style="padding:9px 8px;text-align:right;font-weight:600;">Income</th>
-              <th style="padding:9px 8px;text-align:right;font-weight:600;">Expense</th>
-              <th style="padding:9px 8px;text-align:right;font-weight:600;">Balance</th>
+              <th style="padding:9px 8px;text-align:left;font-weight:600;">
+                Particular
+              </th>
+              <th style="padding:9px 8px;text-align:right;font-weight:600;">
+                Income
+              </th>
+              <th style="padding:9px 8px;text-align:right;font-weight:600;">
+                Expense
+              </th>
+              <th style="padding:9px 8px;text-align:right;font-weight:600;">
+                Balance
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -1311,7 +1477,10 @@ class EmailService {
 
           const dob = new Date(member.date_of_birth);
           if (isNaN(dob.getTime())) continue;
-          if (dob.getMonth() + 1 !== todayMon || dob.getDate() !== todayDay) continue;
+          if (
+            dob.getMonth() + 1 !== todayMon ||
+            dob.getDate()      !== todayDay
+          ) continue;
 
           const sentKey = `bday_${member.id}_${thisYear}`;
           let alreadySent = false;
@@ -1340,8 +1509,7 @@ class EmailService {
     const scheduleNextMidnight = () => {
       const now      = new Date();
       const midnight = new Date(
-        now.getFullYear(), now.getMonth(), now.getDate() + 1,
-        0, 1, 0
+        now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 1, 0
       );
       const delay = midnight.getTime() - now.getTime();
 
@@ -1350,7 +1518,9 @@ class EmailService {
         scheduleNextMidnight();
       }, delay);
 
-      console.log(`[EmailService] birthday check in ${Math.round(delay / 60000)}m`);
+      console.log(
+        `[EmailService] birthday check in ${Math.round(delay / 60000)}m`
+      );
     };
 
     scheduleNextMidnight();
@@ -1387,9 +1557,6 @@ class EmailService {
 
   /* ============================================================
      SCHEDULER — TODAY'S MEETINGS
-     Fires at each meeting's start_time.
-     Calls sendAttendanceForm() on MeetingsAdminManager first
-     (generates real HTML form), then falls back to email reminder.
      ============================================================ */
   async _scheduleTodayMeetings() {
     try {
@@ -1408,11 +1575,11 @@ class EmailService {
       meetings.forEach(meeting => {
         if (!meeting.start_time) return;
 
-        const parts       = meeting.start_time.split(':').map(Number);
-        const h           = parts[0] ?? 0;
-        const m           = parts[1] ?? 0;
-        const todayDate   = new Date();
-        const meetingTs   = new Date(
+        const parts     = meeting.start_time.split(':').map(Number);
+        const h         = parts[0] ?? 0;
+        const m         = parts[1] ?? 0;
+        const todayDate = new Date();
+        const meetingTs = new Date(
           todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate(),
           h, m, 0
         ).getTime();
@@ -1425,7 +1592,9 @@ class EmailService {
         }
 
         this._meetingTimers[meeting.id] = setTimeout(async () => {
-          console.log(`[EmailService] auto-sending attendance for: ${meeting.title}`);
+          console.log(
+            `[EmailService] auto-sending attendance for: ${meeting.title}`
+          );
           await this.sendMeetingAttendanceForm(meeting.id);
           delete this._meetingTimers[meeting.id];
         }, delay);
@@ -1490,10 +1659,10 @@ class EmailService {
       }
 
       const STATUS_COLORS = {
-        sent:      'var(--success)',
-        failed:    'var(--danger)',
-        triggered: 'var(--warning)',
-        scheduled: 'var(--accent)'
+        sent      : 'var(--success)',
+        failed    : 'var(--danger)',
+        triggered : 'var(--warning)',
+        scheduled : 'var(--accent)'
       };
 
       container.innerHTML = logs.map(log => {
@@ -1512,17 +1681,18 @@ class EmailService {
             })
           : '—';
 
-        /* Show form URL for attendance_form emails */
         const formUrl = log.metadata?.form_url || '';
 
         return `
           <div style="display:flex;align-items:flex-start;gap:10px;
-                      padding:12px 20px;border-bottom:1px solid var(--border-color);">
+                      padding:12px 20px;
+                      border-bottom:1px solid var(--border-color);">
             <div style="width:8px;height:8px;border-radius:50%;flex-shrink:0;
                         background:${color};margin-top:5px;"></div>
             <div style="flex:1;overflow:hidden;min-width:0;">
-              <div style="font-size:0.82rem;font-weight:600;color:var(--text-heading);
-                          overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+              <div style="font-size:0.82rem;font-weight:600;
+                          color:var(--text-heading);overflow:hidden;
+                          text-overflow:ellipsis;white-space:nowrap;"
                    title="${safeSubj.replace(/"/g, '&quot;')}">
                 ${safeSubj.substring(0, 80)}
               </div>
@@ -1535,7 +1705,7 @@ class EmailService {
               <div style="font-size:0.68rem;color:var(--accent);margin-top:2px;">
                 <a href="${formUrl}" target="_blank"
                    style="color:inherit;text-decoration:underline;">
-                  View Form →
+                  View Form &rarr;
                 </a>
               </div>` : ''}
               ${log.error_message ? `
@@ -1546,8 +1716,8 @@ class EmailService {
               </div>` : ''}
             </div>
             <span style="font-size:0.68rem;font-weight:700;flex-shrink:0;
-                         color:${color};white-space:nowrap;
-                         padding:2px 8px;border-radius:var(--border-radius-full);
+                         color:${color};white-space:nowrap;padding:2px 8px;
+                         border-radius:var(--border-radius-full);
                          background:${color}20;">
               ${log.status || '—'}
             </span>
@@ -1572,16 +1742,16 @@ class EmailService {
 
     const automations = [
       {
-        key:  'birthday_email_enabled',
-        icon: 'cake',
-        label:'Birthday Wishes',
-        desc: 'Auto-send on each member\'s birthday'
+        key  : 'birthday_email_enabled',
+        icon : 'cake',
+        label: 'Birthday Wishes',
+        desc : "Auto-send on each member's birthday"
       },
       {
-        key:  'monthly_statement_email_enabled',
-        icon: 'indian-rupee',
-        label:'Monthly Treasury Statement',
-        desc: 'Auto-send on the 1st of each month at 9:00 AM'
+        key  : 'monthly_statement_email_enabled',
+        icon : 'indian-rupee',
+        label: 'Monthly Treasury Statement',
+        desc : 'Auto-send on the 1st of each month at 9:00 AM'
       }
     ];
 
@@ -1612,7 +1782,7 @@ class EmailService {
             </div>
             <div>
               <h3 style="font-size:0.95rem;font-weight:700;
-                          color:var(--text-heading);margin:0 0 2px;">
+                         color:var(--text-heading);margin:0 0 2px;">
                 Send Custom Email
               </h3>
               <p style="font-size:0.74rem;color:var(--text-muted);margin:0;">
@@ -1649,14 +1819,15 @@ class EmailService {
         <!-- Automation Controls -->
         <div class="admin-card neu-card" style="padding:24px;">
           <h3 style="font-size:0.95rem;font-weight:700;
-                      color:var(--text-heading);margin:0 0 16px;
-                      display:flex;align-items:center;gap:8px;">
+                     color:var(--text-heading);margin:0 0 16px;
+                     display:flex;align-items:center;gap:8px;">
             <i data-lucide="zap"
                style="width:18px;height:18px;color:var(--accent);"></i>
             Automated Emails
           </h3>
 
-          <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px;">
+          <div style="display:flex;flex-direction:column;gap:10px;
+                      margin-bottom:20px;">
             ${automations.map(item => `
               <div style="display:flex;justify-content:space-between;
                           align-items:center;padding:12px;
@@ -1690,7 +1861,8 @@ class EmailService {
 
           <div style="padding-top:16px;border-top:1px solid var(--border-color);">
             <h4 style="font-size:0.78rem;font-weight:700;color:var(--text-muted);
-                        margin:0 0 10px;text-transform:uppercase;letter-spacing:0.06em;">
+                       margin:0 0 10px;text-transform:uppercase;
+                       letter-spacing:0.06em;">
               Manual Triggers
             </h4>
             <div style="display:flex;flex-direction:column;gap:8px;">
@@ -1766,7 +1938,8 @@ class EmailService {
 
         if (btn) {
           btn.disabled  = true;
-          btn.innerHTML = '<i data-lucide="loader-2"></i><span>Sending&hellip;</span>';
+          btn.innerHTML =
+            '<i data-lucide="loader-2"></i><span>Sending&hellip;</span>';
           if (typeof lucide !== 'undefined') lucide.createIcons();
         }
         if (msgEl) { msgEl.textContent = ''; msgEl.className = 'form-message'; }
@@ -1778,7 +1951,8 @@ class EmailService {
              ${this._esc(subject)}
            </h2>
            <div style="font-size:14px;color:#444444;line-height:1.8;
-                       white-space:pre-wrap;font-family:Arial,Helvetica,sans-serif;">
+                       white-space:pre-wrap;
+                       font-family:Arial,Helvetica,sans-serif;">
              ${this._esc(message)}
            </div>`
         );
@@ -1789,7 +1963,8 @@ class EmailService {
 
         if (btn) {
           btn.disabled  = false;
-          btn.innerHTML = '<i data-lucide="send"></i><span>Send to All Members</span>';
+          btn.innerHTML =
+            '<i data-lucide="send"></i><span>Send to All Members</span>';
           if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
