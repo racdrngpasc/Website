@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meeting Attendance Form – Rotaract Club</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background: #f0f4f8;
+      color: #1a2b4a;
+      min-height: 100vh;
+      padding: 24px 16px 48px;
+    }
+    .wrapper      { max-width: 720px; margin: 0 auto; }
+
+    /* Banner */
+    .banner {
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      border-radius: 16px 16px 0 0;
+      padding: 32px 32px 24px;
+      text-align: center;
+      color: #fff;
+    }
+    .banner-logo {
+      width: 64px; height: 64px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 2rem;
+    }
+    .banner h1 { font-size: 1.4rem; font-weight: 800; margin-bottom: 6px; }
+    .banner p  { font-size: 0.88rem; opacity: 0.85; }
+
+    /* Info Card */
+    .info-card { background: #fff; padding: 24px 32px; border-left: 4px solid #2563eb; }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+    }
+    .info-item  { display: flex; flex-direction: column; gap: 2px; }
+    .info-label {
+      font-size: 0.68rem; font-weight: 700; color: #6b7280;
+      text-transform: uppercase; letter-spacing: 0.05em;
+    }
+    .info-value { font-size: 0.88rem; font-weight: 600; color: #1a2b4a; }
+
+    /* Agenda */
+    .agenda-strip { background: #eff6ff; padding: 16px 32px; border-left: 4px solid #93c5fd; }
+    .agenda-strip h3 {
+      font-size: 0.78rem; font-weight: 700; color: #1e40af;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px;
+    }
+    .agenda-strip ol { padding-left: 18px; }
+    .agenda-strip li { font-size: 0.83rem; color: #374151; margin-bottom: 4px; }
+
+    /* Form Card */
+    .form-card {
+      background: #fff; padding: 28px 32px;
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
+    .form-title {
+      font-size: 1rem; font-weight: 700; color: #1a2b4a;
+      margin-bottom: 20px; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Fields */
+    .field-group   { margin-bottom: 16px; }
+    .field-label   {
+      display: block; font-size: 0.75rem; font-weight: 700;
+      color: #374151; text-transform: uppercase;
+      letter-spacing: 0.04em; margin-bottom: 6px;
+    }
+    .field-label .req { color: #ef4444; margin-left: 2px; }
+    .field-input, .field-select {
+      width: 100%; padding: 11px 14px;
+      border: 2px solid #e5e7eb; border-radius: 10px;
+      font-size: 0.88rem; color: #1a2b4a;
+      background: #f9fafb; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      font-family: inherit;
+    }
+    .field-input:focus, .field-select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+      background: #fff;
+    }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    @media (max-width: 500px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* Signature */
+    .sign-wrap {
+      border: 2px dashed #d1d5db; border-radius: 10px;
+      padding: 8px; background: #f9fafb; cursor: crosshair;
+    }
+    .sign-canvas  { display: block; width: 100%; height: 130px; touch-action: none; }
+    .sign-actions { display: flex; justify-content: flex-end; margin-top: 6px; }
+    .btn-clear {
+      font-size: 0.75rem; font-weight: 600; color: #6b7280;
+      background: none; border: 1px solid #d1d5db;
+      border-radius: 6px; padding: 4px 12px; cursor: pointer;
+    }
+    .btn-clear:hover { background: #f3f4f6; }
+
+    /* Submit */
+    .btn-submit {
+      display: block; width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+      color: #fff; border: none; border-radius: 12px;
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      margin-top: 24px; letter-spacing: 0.02em;
+      box-shadow: 0 4px 14px rgba(37,99,235,0.35);
+      transition: opacity 0.2s, transform 0.1s;
+    }
+    .btn-submit:hover    { opacity: 0.92; transform: translateY(-1px); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* Alerts */
+    .alert {
+      display: none; padding: 16px 20px; border-radius: 12px;
+      font-weight: 600; font-size: 0.9rem; margin-top: 16px;
+      line-height: 1.5;
+    }
+    .alert-success { background: #dcfce7; color: #166534; border: 1.5px solid #bbf7d0; }
+    .alert-error   { background: #fee2e2; color: #991b1b; border: 1.5px solid #fecaca; }
+    .alert-info    { background: #dbeafe; color: #1e40af; border: 1.5px solid #bfdbfe; }
+
+    /* Loading skeleton */
+    .skeleton { background: #e5e7eb; border-radius: 8px; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.5; } }
+
+    /* Footer */
+    .footer {
+      text-align: center; margin-top: 24px;
+      font-size: 0.72rem; color: #9ca3af;
+    }
+
+    /* Expired / Error state */
+    .state-card {
+      background: #fff; padding: 48px 32px;
+      border-radius: 0 0 16px 16px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .state-icon { font-size: 3rem; margin-bottom: 16px; }
+    .state-title { font-size: 1.2rem; font-weight: 700; color: #1a2b4a; margin-bottom: 8px; }
+    .state-msg   { font-size: 0.88rem; color: #6b7280; }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <!-- Banner (always visible) -->
+  <div class="banner">
+    <div class="banner-logo">🔄</div>
+    <h1>Rotaract Club of Dr. N.G.P Arts &amp; Science College</h1>
+    <p>Official Meeting Attendance Form</p>
+  </div>
+
+  <!-- Dynamic content injected here -->
+  <div id="page-content">
+    <!-- Loading state -->
+    <div class="info-card">
+      <div class="info-grid">
+        ${[1,2,3,4,5,6].map(() => `
+          <div class="info-item">
+            <div class="skeleton" style="height:10px;width:60%;margin-bottom:6px;"></div>
+            <div class="skeleton" style="height:14px;width:90%;"></div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+    <div class="form-card">
+      <div class="skeleton" style="height:20px;width:40%;margin-bottom:20px;"></div>
+      ${[1,2,3].map(() => `
+        <div style="margin-bottom:16px;">
+          <div class="skeleton" style="height:10px;width:30%;margin-bottom:8px;"></div>
+          <div class="skeleton" style="height:44px;width:100%;border-radius:10px;"></div>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+/* ================================================================
+   CONFIG — reads from URL params, fetches meeting from Supabase
+   ================================================================ */
+
+// ── Read URL params ──
+var params     = new URLSearchParams(window.location.search);
+var MEETING_ID = params.get('meeting') || '';
+var TOKEN      = params.get('token')   || '';
+
+// ── Supabase credentials (hardcoded for this standalone page) ──
+// These are your PUBLIC anon key values — safe to include here.
+var SUPABASE_URL = 'https://itaewvrngvowimjgfawa.supabase.co';
+var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWV3dnJuZ3Zvd2ltamdmYXdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2OTA5ODQsImV4cCI6MjEwMDI2Njk4NH0.GrMILDmJEEbCLXXzUf5qw-pTqIW7NRydYkrMz70NUHY'; // ← replace this
+
+/* ================================================================
+   HELPER — safe Supabase REST fetch
+   ================================================================ */
+async function sbFetch(path, opts) {
+  var res = await fetch(SUPABASE_URL + path, Object.assign({
+    headers: {
+      'apikey'       : SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Content-Type' : 'application/json'
+    }
+  }, opts));
+  return res;
+}
+
+/* ================================================================
+   SHOW ERROR STATE
+   ================================================================ */
+function showError(title, msg) {
+  document.getElementById('page-content').innerHTML = `
+    <div class="state-card">
+      <div class="state-icon">⚠️</div>
+      <div class="state-title">${title}</div>
+      <div class="state-msg">${msg}</div>
+    </div>
+  `;
+}
+
+/* ================================================================
+   SHOW SUCCESS STATE
+   ================================================================ */
+function showSuccess() {
+  document.getElementById('page-content').innerHTML = `
+    <div class="state-card">
+      <div class="state-icon">🎉</div>
+      <div class="state-title">Attendance Recorded!</div>
+      <div class="state-msg">
+        Thank you for attending. Your attendance has been successfully marked.
+      </div>
+    </div>
+  `;
+}
+
+/* ================================================================
+   FORMAT HELPERS
+   ================================================================ */
+function fmtDate(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    return new Date(dateStr + 'T00:00:00').toLocaleDateString('en-IN', {
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+    });
+  } catch(_) { return dateStr; }
+}
+
+function fmtTime(timeStr) {
+  if (!timeStr) return '—';
+  try {
+    var [h, m]  = timeStr.split(':').map(Number);
+    var ampm    = h >= 12 ? 'PM' : 'AM';
+    var h12     = h % 12 || 12;
+    return h12 + ':' + String(m).padStart(2, '0') + ' ' + ampm;
+  } catch(_) { return timeStr; }
+}
+
+function safe(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+/* ================================================================
+   RENDER FORM
+   ================================================================ */
+function renderForm(meeting) {
+  var agenda    = Array.isArray(meeting.agenda) ? meeting.agenda : [];
+  var typeMap   = {
+    board_meeting       : 'Board Meeting',
+    general_body_meeting: 'General Body Meeting',
+    special_meeting     : 'Special Meeting',
+    emergency_meeting   : 'Emergency Meeting'
+  };
+  var typeLabel = typeMap[meeting.meeting_type] || meeting.meeting_type || 'Meeting';
+
+  document.getElementById('page-content').innerHTML = `
+
+    <!-- Meeting Info -->
+    <div class="info-card">
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Meeting</span>
+          <span class="info-value">${safe(meeting.title)}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Type</span>
+          <span class="info-value">${typeLabel}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Date</span>
+          <span class="info-value">${fmtDate(meeting.meeting_date)}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Time</span>
+          <span class="info-value">
+            ${fmtTime(meeting.start_time)}
+            ${meeting.end_time ? ' – ' + fmtTime(meeting.end_time) : ''}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Venue</span>
+          <span class="info-value">${safe(meeting.venue)}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Group</span>
+          <span class="info-value">Group ${safe(meeting.group_number || '1')}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agenda -->
+    ${agenda.length > 0 ? `
+    <div class="agenda-strip">
+      <h3>📋 Agenda</h3>
+      <ol>${agenda.map(function(item) {
+        return '<li>' + safe(item.text || item) + '</li>';
+      }).join('')}</ol>
+    </div>` : ''}
+
+    <!-- Attendance Form -->
+    <div class="form-card">
+      <div class="form-title">✏️ Mark Your Attendance</div>
+
+      <form id="att-form" novalidate>
+
+        <!-- Name -->
+        <div class="field-group">
+          <label class="field-label" for="f-name">
+            Full Name <span class="req">*</span>
+          </label>
+          <input type="text" id="f-name" class="field-input"
+                 placeholder="Enter your full name" required />
+        </div>
+
+        <div class="two-col">
+          <!-- RI ID -->
+          <div class="field-group">
+            <label class="field-label" for="f-riid">RI ID</label>
+            <input type="text" id="f-riid" class="field-input"
+                   placeholder="RAC/24-25/001" />
+          </div>
+          <!-- In Time -->
+          <div class="field-group">
+            <label class="field-label" for="f-time">
+              In Time <span class="req">*</span>
+            </label>
+            <input type="time" id="f-time" class="field-input" required />
+          </div>
+        </div>
+
+        <!-- Designation -->
+        <div class="field-group">
+          <label class="field-label" for="f-desig">Designation / Role</label>
+          <input type="text" id="f-desig" class="field-input"
+                 placeholder="President, Secretary, Member…" />
+        </div>
+
+        <!-- Email -->
+        <div class="field-group">
+          <label class="field-label" for="f-email">Email (optional)</label>
+          <input type="email" id="f-email" class="field-input"
+                 placeholder="you@example.com" />
+        </div>
+
+        <!-- E-Signature -->
+        <div class="field-group">
+          <label class="field-label">
+            Electronic Signature <span class="req">*</span>
+            <span style="font-weight:400;text-transform:none;
+                         color:#6b7280;font-size:0.68rem;margin-left:4px;">
+              (draw with mouse or finger)
+            </span>
+          </label>
+          <div class="sign-wrap">
+            <canvas id="sign-pad" class="sign-canvas"></canvas>
+          </div>
+          <div class="sign-actions">
+            <button type="button" class="btn-clear"
+                    onclick="clearPad()">↺ Clear</button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-submit" id="f-submit">
+          ✅ Submit Attendance
+        </button>
+
+        <div class="alert alert-error"   id="f-error"></div>
+        <div class="alert alert-info"    id="f-info"></div>
+
+      </form>
+    </div>
+
+    <div class="footer">
+      Rotaract Club of Dr. N.G.P Arts &amp; Science College •
+      Token: ${TOKEN.substring(0, 8)}…
+    </div>
+  `;
+
+  initSignaturePad();
+  initFormSubmit(meeting);
+}
+
+/* ================================================================
+   SIGNATURE PAD
+   ================================================================ */
+var _hasSigned = false;
+
+function initSignaturePad() {
+  var canvas  = document.getElementById('sign-pad');
+  if (!canvas) return;
+  var ctx     = canvas.getContext('2d');
+  var drawing = false;
+
+  function resize() {
+    var rect = canvas.parentElement.getBoundingClientRect();
+    var dpr  = window.devicePixelRatio || 1;
+    canvas.width        = rect.width * dpr;
+    canvas.height       = 130        * dpr;
+    canvas.style.width  = rect.width + 'px';
+    canvas.style.height = '130px';
+    ctx.scale(dpr, dpr);
+    ctx.strokeStyle = '#1a2b4a';
+    ctx.lineWidth   = 2.2;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+  }
+
+  resize();
+  window.addEventListener('resize', resize);
+
+  function pos(e) {
+    var r = canvas.getBoundingClientRect();
+    return e.touches
+      ? { x: e.touches[0].clientX - r.left, y: e.touches[0].clientY - r.top }
+      : { x: e.clientX - r.left,            y: e.clientY - r.top };
+  }
+
+  canvas.addEventListener('mousedown',  function(e) {
+    drawing = true;
+    var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+  });
+  canvas.addEventListener('mousemove',  function(e) {
+    if (!drawing) return;
+    var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); _hasSigned = true;
+  });
+  canvas.addEventListener('mouseup',    function() { drawing = false; });
+  canvas.addEventListener('mouseleave', function() { drawing = false; });
+  canvas.addEventListener('touchstart', function(e) {
+    e.preventDefault(); drawing = true;
+    var p = pos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y);
+  }, { passive: false });
+  canvas.addEventListener('touchmove',  function(e) {
+    e.preventDefault();
+    if (!drawing) return;
+    var p = pos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); _hasSigned = true;
+  }, { passive: false });
+  canvas.addEventListener('touchend',   function() { drawing = false; });
+}
+
+function clearPad() {
+  var canvas = document.getElementById('sign-pad');
+  if (!canvas) return;
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  _hasSigned = false;
+}
+
+function getSignatureBlob() {
+  return new Promise(function(resolve) {
+    if (!_hasSigned) { resolve(null); return; }
+    var canvas = document.getElementById('sign-pad');
+    canvas.toBlob(function(blob) { resolve(blob); }, 'image/png');
+  });
+}
+
+/* ================================================================
+   FORM SUBMISSION
+   ================================================================ */
+function initFormSubmit(meeting) {
+  var form = document.getElementById('att-form');
+  if (!form) return;
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    var errEl  = document.getElementById('f-error');
+    var infoEl = document.getElementById('f-info');
+    var btn    = document.getElementById('f-submit');
+
+    errEl.style.display  = 'none';
+    infoEl.style.display = 'none';
+
+    var name  = document.getElementById('f-name').value.trim();
+    var riId  = document.getElementById('f-riid').value.trim();
+    var time  = document.getElementById('f-time').value;
+    var desig = document.getElementById('f-desig').value.trim();
+    var email = document.getElementById('f-email').value.trim();
+
+    /* Validate */
+    if (!name) {
+      errEl.textContent  = '⚠️ Please enter your full name.';
+      errEl.style.display = 'block'; return;
+    }
+    if (!time) {
+      errEl.textContent  = '⚠️ Please enter your in-time.';
+      errEl.style.display = 'block'; return;
+    }
+    if (!_hasSigned) {
+      errEl.textContent  = '⚠️ Please provide your electronic signature.';
+      errEl.style.display = 'block'; return;
+    }
+
+    btn.disabled    = true;
+    btn.textContent = '⏳ Submitting…';
+
+    try {
+      /* 1. Upload signature */
+      var signBlob = await getSignatureBlob();
+      var eSignUrl = null;
+
+      if (signBlob) {
+        var sigName   = 'esign_' + meeting.id + '_' + Date.now() + '.png';
+        var uploadRes = await fetch(
+          SUPABASE_URL + '/storage/v1/object/meetings/' + sigName,
+          {
+            method : 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + SUPABASE_KEY,
+              'Content-Type' : 'image/png',
+              'x-upsert'     : 'true'
+            },
+            body: signBlob
+          }
+        );
+        if (uploadRes.ok) {
+          eSignUrl = SUPABASE_URL +
+            '/storage/v1/object/public/meetings/' + sigName;
+        }
+      }
+
+      /* 2. Insert attendance record */
+      var insertRes = await sbFetch('/rest/v1/meeting_attendance', {
+        method : 'POST',
+        headers: {
+          'apikey'       : SUPABASE_KEY,
+          'Authorization': 'Bearer ' + SUPABASE_KEY,
+          'Content-Type' : 'application/json',
+          'Prefer'       : 'return=minimal'
+        },
+        body: JSON.stringify({
+          meeting_id  : meeting.id,
+          form_token  : TOKEN,
+          member_name : name,
+          ri_id       : riId  || null,
+          designation : desig || null,
+          member_email: email || null,
+          in_time     : time,
+          e_sign_url  : eSignUrl,
+          submitted_at: new Date().toISOString()
+        })
+      });
+
+      if (!insertRes.ok) {
+        var body = {};
+        try { body = await insertRes.json(); } catch(_) {}
+        if (body.code === '23505') {
+          throw new Error('You have already submitted attendance for this meeting.');
+        }
+        throw new Error(body.message || 'Submission failed. Please try again.');
+      }
+
+      /* 3. Show success */
+      showSuccess();
+
+    } catch(err) {
+      errEl.textContent   = '❌ ' + (err.message || 'Something went wrong.');
+      errEl.style.display = 'block';
+      btn.disabled        = false;
+      btn.textContent     = '✅ Submit Attendance';
+    }
+  });
+}
+
+/* ================================================================
+   INIT — load meeting data from Supabase using URL params
+   ================================================================ */
+async function init() {
+  if (!MEETING_ID || !TOKEN) {
+    showError('Invalid Link', 'This attendance form link is invalid or expired.');
+    return;
+  }
+
+  if (!SUPABASE_URL || SUPABASE_KEY === 'YOUR_SUPABASE_ANON_KEY_HERE') {
+    showError('Configuration Error', 'Please contact the admin. (Config missing)');
+    return;
+  }
+
+  try {
+    /* Fetch meeting details */
+    var res = await sbFetch(
+      '/rest/v1/meetings?id=eq.' + encodeURIComponent(MEETING_ID) +
+      '&select=id,title,meeting_type,meeting_date,start_time,end_time,' +
+      'venue,group_number,agenda,attendance_form_token',
+      { method: 'GET' }
+    );
+
+    if (!res.ok) throw new Error('Failed to load meeting data.');
+
+    var rows = await res.json();
+    if (!rows || rows.length === 0) {
+      showError('Meeting Not Found', 'This meeting does not exist or has been removed.');
+      return;
+    }
+
+    var meeting = rows[0];
+
+    /* Validate token */
+    if (meeting.attendance_form_token !== TOKEN) {
+      showError('Invalid Token', 'This attendance form link is invalid.');
+      return;
+    }
+
+    renderForm(meeting);
+
+  } catch(err) {
+    showError('Error', err.message || 'Could not load the attendance form.');
+  }
+}
+
+init();
+</script>
+</body>
+</html>
