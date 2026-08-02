@@ -3,931 +3,1179 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meeting Attendance – Rotaract Club</title>
+  <title>Meeting Attendance – Rotaract Club of Dr. N.G.P</title>
+  <link rel="icon" type="image/png"
+        href="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Segoe UI', system-ui, -apple-system, Arial, sans-serif;
-      background: #f0f4f8;
-      color: #1a2b4a;
-      min-height: 100vh;
-      padding: 24px 16px 60px;
-      -webkit-font-smoothing: antialiased;
-    }
-    .wrapper { max-width: 720px; margin: 0 auto; }
+    /* ============================================================
+       VARIABLES & THEMING
+       ============================================================ */
+    :root {
+      /* Light / Neumorphic Base */
+      --bg       : #e0e0e0;
+      --bg-card  : #e0e0e0;
+      --shadow-lt: #ffffff;
+      --shadow-dk: #a3b1c6;
+      --text-1   : #2d3748;
+      --text-2   : #718096;
+      --text-3   : #a0aec0;
+      --accent   : #2563eb;
+      --accent-dk: #1e40af;
+      --accent-lt: rgba(37,99,235,0.12);
+      --success  : #16a34a;
+      --success-lt: #dcfce7;
+      --danger   : #dc2626;
+      --danger-lt: #fee2e2;
+      --warning  : #d97706;
+      --warning-lt:#fef3c7;
+      --radius   : 16px;
+      --radius-sm: 10px;
+      --radius-xs: 7px;
+      --font     : 'Inter', system-ui, -apple-system, sans-serif;
 
-    /* Banner */
-    .banner {
-      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-      border-radius: 16px 16px 0 0;
-      padding: 32px 32px 24px;
-      text-align: center;
-      color: #fff;
-      position: relative;
-      overflow: hidden;
+      /* Neu shadows */
+      --neu-out  : 6px 6px 12px var(--shadow-dk),
+                   -6px -6px 12px var(--shadow-lt);
+      --neu-out-sm: 3px 3px 6px var(--shadow-dk),
+                   -3px -3px 6px var(--shadow-lt);
+      --neu-in   : inset 3px 3px 6px var(--shadow-dk),
+                   inset -3px -3px 6px var(--shadow-lt);
+      --neu-flat : 0 0 0 transparent;
     }
-    .banner::after {
+
+    /* ── Dark Mode ── */
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg       : #1f1f1f;
+        --bg-card  : #1f1f1f;
+        --shadow-lt: #3a3a3a;
+        --shadow-dk: #0f0f0f;
+        --text-1   : #e0e0e0;
+        --text-2   : #a0aec0;
+        --text-3   : #718096;
+        --accent-lt: rgba(37,99,235,0.18);
+        --success-lt: rgba(22,163,74,0.15);
+        --danger-lt: rgba(220,38,38,0.15);
+        --warning-lt: rgba(217,119,6,0.15);
+      }
+    }
+
+    /* ============================================================
+       RESET & BASE
+       ============================================================ */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0; padding: 0;
+    }
+
+    body {
+      font-family: var(--font);
+      background : var(--bg);
+      color      : var(--text-1);
+      min-height : 100vh;
+      padding    : 32px 16px 64px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    ::selection {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    /* ============================================================
+       WRAPPER
+       ============================================================ */
+    .wrapper {
+      max-width: 660px;
+      margin: 0 auto;
+    }
+
+    /* ============================================================
+       HERO BANNER — Neumorphic Raised Card
+       ============================================================ */
+    .hero {
+      background : var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow : var(--neu-out);
+      padding    : 36px 28px 28px;
+      text-align : center;
+      margin-bottom: 24px;
+      position   : relative;
+      overflow   : hidden;
+    }
+
+    .hero::before {
       content: '';
       position: absolute;
-      top: -30%; right: -20%;
-      width: 260px; height: 260px;
-      background: rgba(255,255,255,0.06);
-      border-radius: 50%;
+      top: 0; left: 0; right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-dk), #7c3aed);
+      border-radius: var(--radius) var(--radius) 0 0;
     }
-    .banner-logo {
-      width: 64px; height: 64px;
-      background: rgba(255,255,255,0.18);
+
+    .hero-logo {
+      width: 72px; height: 72px;
       border-radius: 50%;
+      box-shadow: var(--neu-out-sm);
+      background: var(--bg-card);
       display: flex; align-items: center; justify-content: center;
       margin: 0 auto 16px;
-      position: relative; z-index: 1;
+      padding: 8px;
+      overflow: hidden;
     }
-    .banner-logo svg {
-      width: 32px; height: 32px; stroke: #fff; fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-    .banner h1 {
-      font-size: 1.3rem; font-weight: 800; margin-bottom: 6px;
-      position: relative; z-index: 1;
-    }
-    .banner p {
-      font-size: 0.85rem; opacity: 0.85; position: relative; z-index: 1;
+    .hero-logo img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      border-radius: 50%;
     }
 
-    /* Info Card */
-    .info-card {
-      background: #fff; padding: 24px 28px;
-      border-left: 4px solid #2563eb;
+    .hero h1 {
+      font-size  : 1.2rem;
+      font-weight: 800;
+      color      : var(--text-1);
+      line-height: 1.3;
+      margin-bottom: 6px;
     }
+    .hero p {
+      font-size: 0.8rem;
+      font-weight: 500;
+      color: var(--text-2);
+      letter-spacing: 0.03em;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 12px;
+      padding: 6px 16px;
+      border-radius: 99px;
+      background: var(--accent-lt);
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .hero-badge svg {
+      width: 13px; height: 13px;
+      stroke: var(--accent); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
+    /* ============================================================
+       NEU CARD (reusable)
+       ============================================================ */
+    .neu-card {
+      background   : var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow   : var(--neu-out);
+      margin-bottom: 20px;
+    }
+
+    /* ============================================================
+       MEETING INFO CARD
+       ============================================================ */
+    .info-section {
+      padding: 22px 24px;
+    }
+    .info-section-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.76rem; font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 1.5px solid var(--accent-lt);
+    }
+    .info-section-title svg {
+      width: 15px; height: 15px;
+      stroke: var(--accent); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+
     .info-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 14px;
     }
-    .info-item { display: flex; align-items: flex-start; gap: 10px; }
-    .info-icon {
-      width: 34px; height: 34px; flex-shrink: 0;
-      background: #eff6ff; border-radius: 8px;
+
+    .info-tile {
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .info-tile-icon {
+      width: 36px; height: 36px;
+      border-radius: var(--radius-xs);
+      background: var(--bg-card);
+      box-shadow: var(--neu-out-sm);
       display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
-    .info-icon svg {
-      width: 16px; height: 16px; stroke: #2563eb; fill: none;
+    .info-tile-icon svg {
+      width: 15px; height: 15px;
+      stroke: var(--accent); fill: none;
       stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
     }
-    .info-label {
-      font-size: 0.65rem; font-weight: 700; color: #6b7280;
-      text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px;
+    .info-tile-label {
+      font-size: 0.62rem; font-weight: 700;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 3px;
     }
-    .info-value { font-size: 0.86rem; font-weight: 600; color: #1a2b4a; }
-
-    /* Agenda */
-    .agenda-strip {
-      background: #eff6ff; padding: 16px 28px;
-      border-left: 4px solid #93c5fd;
-    }
-    .agenda-header {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
-    }
-    .agenda-header svg {
-      width: 15px; height: 15px; stroke: #1e40af; fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-    .agenda-header span {
-      font-size: 0.74rem; font-weight: 700; color: #1e40af;
-      text-transform: uppercase; letter-spacing: 0.06em;
-    }
-    .agenda-strip ol { padding-left: 20px; }
-    .agenda-strip li {
-      font-size: 0.83rem; color: #374151;
-      margin-bottom: 5px; line-height: 1.5;
+    .info-tile-value {
+      font-size: 0.82rem; font-weight: 600;
+      color: var(--text-1); line-height: 1.35;
     }
 
-    /* Form Card */
-    .form-card {
-      background: #fff; padding: 28px;
-      border-radius: 0 0 16px 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    /* ============================================================
+       AGENDA SECTION
+       ============================================================ */
+    .agenda-section {
+      padding: 16px 24px 18px;
+      border-top: 1.5px solid var(--accent-lt);
     }
-    .form-title {
-      font-size: 1rem; font-weight: 700; color: #1a2b4a;
-      margin-bottom: 22px;
-      display: flex; align-items: center; gap: 10px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid #f3f4f6;
-    }
-    .form-title svg {
-      width: 20px; height: 20px; stroke: #2563eb; fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-
-    /* Fields */
-    .field-group { margin-bottom: 18px; }
-    .field-label {
-      display: flex; align-items: center; gap: 6px;
-      font-size: 0.72rem; font-weight: 700; color: #374151;
-      text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 7px;
-    }
-    .field-label svg {
-      width: 13px; height: 13px; stroke: #6b7280; fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-    .field-label .req { color: #ef4444; margin-left: 1px; }
-    .field-input {
-      width: 100%; padding: 12px 14px;
-      border: 2px solid #e5e7eb; border-radius: 10px;
-      font-size: 0.88rem; color: #1a2b4a;
-      background: #f9fafb; outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
-      font-family: inherit;
-      -webkit-appearance: none;
-    }
-    .field-input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
-      background: #fff;
-    }
-    .field-input::placeholder { color: #9ca3af; }
-
-    /* E-Signature Upload Area */
-    .esign-upload-wrap {
-      border: 2px dashed #d1d5db;
-      border-radius: 12px;
-      padding: 32px 20px;
-      background: #f9fafb;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color 0.2s, background 0.2s;
-      position: relative;
-    }
-    .esign-upload-wrap:hover {
-      border-color: #2563eb;
-      background: #eff6ff;
-    }
-    .esign-upload-wrap.has-file {
-      border-color: #16a34a;
-      background: #f0fdf4;
-      padding: 16px 20px;
-    }
-    .esign-upload-input {
-      position: absolute; inset: 0;
-      width: 100%; height: 100%;
-      opacity: 0; cursor: pointer; z-index: 2;
-    }
-    .esign-upload-icon svg {
-      width: 40px; height: 40px; stroke: #9ca3af; fill: none;
-      stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+    .agenda-title {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 0.72rem; font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
       margin-bottom: 10px;
     }
-    .esign-upload-wrap.has-file .esign-upload-icon svg { stroke: #16a34a; }
-    .esign-upload-title {
-      font-size: 0.88rem; font-weight: 600; color: #374151;
-      margin-bottom: 4px;
+    .agenda-title svg {
+      width: 14px; height: 14px;
+      stroke: var(--accent); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
     }
-    .esign-upload-wrap.has-file .esign-upload-title { color: #16a34a; }
-    .esign-upload-hint {
-      font-size: 0.75rem; color: #9ca3af;
+    .agenda-list {
+      padding-left: 20px;
+      margin: 0;
     }
-    .esign-preview-wrap {
-      display: none; margin-top: 12px;
-      border-radius: 10px; overflow: hidden;
-      border: 2px solid #e5e7eb;
-      background: #fff;
+    .agenda-list li {
+      font-size: 0.81rem; color: var(--text-2);
+      margin-bottom: 5px; line-height: 1.55;
+      font-weight: 500;
     }
-    .esign-preview-wrap img {
-      display: block; width: 100%;
-      max-height: 180px; object-fit: contain;
-      padding: 8px;
+    .agenda-list li::marker {
+      color: var(--accent);
+      font-weight: 700;
     }
-    .esign-change-btn {
-      display: inline-flex; align-items: center; gap: 5px;
-      margin-top: 8px; padding: 5px 14px;
-      background: none; border: 1px solid #d1d5db;
-      border-radius: 6px; font-size: 0.75rem;
-      font-weight: 600; color: #6b7280;
-      cursor: pointer; font-family: inherit;
-      transition: background 0.2s;
+
+    /* ============================================================
+       ATTENDANCE FORM CARD
+       ============================================================ */
+    .form-section {
+      padding: 24px;
     }
-    .esign-change-btn:hover { background: #f3f4f6; }
-    .esign-change-btn svg {
-      width: 13px; height: 13px; stroke: currentColor; fill: none;
+    .form-header {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 0.95rem; font-weight: 700;
+      color: var(--text-1);
+      margin-bottom: 20px;
+      padding-bottom: 14px;
+      border-bottom: 1.5px solid var(--accent-lt);
+    }
+    .form-header svg {
+      width: 19px; height: 19px;
+      stroke: var(--accent); fill: none;
       stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
     }
 
-    /* Two-col */
-    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media (max-width: 520px) { .two-col { grid-template-columns: 1fr; } }
-
-    /* Submit Button */
-    .btn-submit {
-      display: flex; align-items: center; justify-content: center;
-      gap: 10px; width: 100%; padding: 15px;
-      background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-      color: #fff; border: none; border-radius: 12px;
-      font-size: 1rem; font-weight: 700; cursor: pointer;
-      margin-top: 24px; letter-spacing: 0.02em;
-      box-shadow: 0 4px 16px rgba(37,99,235,0.28);
-      transition: opacity 0.2s, transform 0.1s;
-      font-family: inherit;
+    /* ── Field ── */
+    .field {
+      margin-bottom: 18px;
     }
-    .btn-submit:hover { opacity: 0.92; transform: translateY(-1px); }
-    .btn-submit:active { transform: translateY(0); }
-    .btn-submit:disabled {
-      opacity: 0.55; cursor: not-allowed; transform: none;
+    .field-lbl {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 0.69rem; font-weight: 700;
+      color: var(--text-2);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+    .field-lbl svg {
+      width: 13px; height: 13px;
+      stroke: var(--text-3); fill: none;
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .field-lbl .req {
+      color: var(--danger);
+      margin-left: 1px;
+    }
+
+    /* ── Neumorphic Inset Input ── */
+    .neu-input {
+      width: 100%;
+      padding: 12px 14px;
+      border: none;
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      box-shadow: var(--neu-in);
+      font-size: 0.86rem;
+      font-weight: 500;
+      color: var(--text-1);
+      font-family: var(--font);
+      outline: none;
+      transition: box-shadow 0.25s, color 0.2s;
+      -webkit-appearance: none;
+    }
+    .neu-input::placeholder {
+      color: var(--text-3);
+      font-weight: 400;
+    }
+    .neu-input:focus {
+      box-shadow: var(--neu-in),
+                  0 0 0 3px var(--accent-lt);
+    }
+
+    /* ── Two Column ── */
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 480px) {
+      .two-col { grid-template-columns: 1fr; }
+    }
+
+    /* ============================================================
+       E-SIGNATURE UPLOAD — Neumorphic Inset Area
+       ============================================================ */
+    .esign-area {
+      border-radius: var(--radius-sm);
+      background: var(--bg-card);
+      box-shadow: var(--neu-in);
+      padding: 28px 20px;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+      transition: box-shadow 0.25s;
+    }
+    .esign-area:hover {
+      box-shadow: var(--neu-in),
+                  0 0 0 3px var(--accent-lt);
+    }
+    .esign-area.filled {
+      box-shadow: var(--neu-in),
+                  0 0 0 3px rgba(22,163,74,0.18);
+      padding: 16px 20px;
+    }
+
+    .esign-file {
+      position: absolute;
+      inset: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer; z-index: 3;
+    }
+
+    .esign-ph { pointer-events: none; }
+    .esign-ph-icon {
+      width: 50px; height: 50px;
+      margin: 0 auto 12px;
+      border-radius: var(--radius-xs);
+      background: var(--bg-card);
+      box-shadow: var(--neu-out-sm);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .esign-ph-icon svg {
+      width: 22px; height: 22px;
+      stroke: var(--text-3); fill: none;
+      stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+    }
+    .esign-area.filled .esign-ph-icon svg {
+      stroke: var(--success);
+    }
+    .esign-ph-title {
+      font-size: 0.84rem; font-weight: 600;
+      color: var(--text-2); margin-bottom: 4px;
+    }
+    .esign-area.filled .esign-ph-title {
+      color: var(--success);
+    }
+    .esign-ph-hint {
+      font-size: 0.71rem; color: var(--text-3);
+      line-height: 1.4; font-weight: 500;
+    }
+
+    /* Preview */
+    .esign-preview {
+      display: none;
+      margin-top: 12px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      background: var(--bg-card);
+      box-shadow: var(--neu-out-sm);
+    }
+    .esign-preview img {
+      display: block; width: 100%;
+      max-height: 150px; object-fit: contain;
+      padding: 10px;
+    }
+    .esign-preview-bar {
+      display: flex; align-items: center;
+      justify-content: space-between;
+      padding: 8px 14px;
+      border-top: 1px solid var(--accent-lt);
+    }
+    .esign-fname {
+      font-size: 0.72rem; font-weight: 600;
+      color: var(--success);
+      white-space: nowrap; overflow: hidden;
+      text-overflow: ellipsis; max-width: 220px;
+    }
+    .esign-rm-btn {
+      flex-shrink: 0;
+      background: var(--bg-card);
+      box-shadow: var(--neu-out-sm);
+      border: none; border-radius: var(--radius-xs);
+      padding: 5px 12px;
+      font-size: 0.7rem; font-weight: 700;
+      color: var(--danger); cursor: pointer;
+      font-family: var(--font);
+      transition: box-shadow 0.2s;
+    }
+    .esign-rm-btn:hover {
+      box-shadow: var(--neu-in);
+    }
+
+    /* Progress */
+    .prog {
+      display: none;
+      height: 4px;
+      background: var(--bg-card);
+      box-shadow: var(--neu-in);
+      border-radius: 99px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    .prog-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-dk));
+      border-radius: 99px;
+      width: 0%;
+      transition: width 0.35s ease;
+    }
+
+    /* ============================================================
+       SUBMIT BUTTON — Neumorphic Raised
+       ============================================================ */
+    .btn-submit {
+      display: flex; align-items: center;
+      justify-content: center; gap: 10px;
+      width: 100%; padding: 15px;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dk) 100%);
+      color: #fff; border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem; font-weight: 700;
+      cursor: pointer; margin-top: 24px;
+      letter-spacing: 0.02em;
+      font-family: var(--font);
+      box-shadow: 4px 4px 10px var(--shadow-dk),
+                  -2px -2px 6px var(--shadow-lt),
+                  inset 0 1px 0 rgba(255,255,255,0.15);
+      transition: opacity 0.2s, transform 0.12s, box-shadow 0.2s;
     }
     .btn-submit svg {
-      width: 20px; height: 20px; stroke: currentColor; fill: none;
-      stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round;
+      width: 19px; height: 19px;
+      stroke: currentColor; fill: none;
+      stroke-width: 2.5; stroke-linecap: round;
+      stroke-linejoin: round; flex-shrink: 0;
+    }
+    .btn-submit:hover {
+      opacity: 0.93;
+      transform: translateY(-1px);
+      box-shadow: 6px 6px 14px var(--shadow-dk),
+                  -3px -3px 8px var(--shadow-lt);
+    }
+    .btn-submit:active {
+      transform: translateY(0);
+      box-shadow: var(--neu-in);
+    }
+    .btn-submit:disabled {
+      opacity: 0.5; cursor: not-allowed; transform: none;
+      box-shadow: var(--neu-flat);
     }
 
-    /* Spinner */
+    /* ── Spinner ── */
     .spinner {
-      width: 20px; height: 20px;
-      border: 2.5px solid rgba(255,255,255,0.3);
-      border-top-color: #fff; border-radius: 50%;
-      animation: spin 0.7s linear infinite; flex-shrink: 0;
+      width: 18px; height: 18px; flex-shrink: 0;
+      border: 2.5px solid rgba(255,255,255,0.25);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.65s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Alerts */
+    /* ============================================================
+       ALERTS — Neumorphic Inset
+       ============================================================ */
     .alert {
-      display: none; padding: 14px 18px; border-radius: 10px;
-      font-size: 0.87rem; margin-top: 16px; line-height: 1.5;
+      display: none;
+      padding: 14px 16px;
+      border-radius: var(--radius-sm);
+      margin-top: 16px;
+      font-size: 0.84rem;
+      font-weight: 500;
+      line-height: 1.5;
     }
     .alert-row {
-      display: flex; align-items: flex-start; gap: 10px;
+      display: flex; align-items: flex-start; gap: 9px;
     }
     .alert-row svg {
-      width: 18px; height: 18px; flex-shrink: 0; margin-top: 1px;
+      width: 17px; height: 17px; flex-shrink: 0; margin-top: 1px;
       stroke: currentColor; fill: none;
       stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
     }
     .alert-error {
-      background: #fef2f2; color: #991b1b;
-      border: 1.5px solid #fecaca;
+      background: var(--danger-lt);
+      color: var(--danger);
+      box-shadow: var(--neu-in);
     }
     .alert-success {
-      background: #f0fdf4; color: #166534;
-      border: 1.5px solid #bbf7d0;
+      background: var(--success-lt);
+      color: var(--success);
+      box-shadow: var(--neu-in);
     }
 
-    /* State Card */
+    /* ============================================================
+       STATE CARD (full-page error / success)
+       ============================================================ */
     .state-card {
-      background: #fff; padding: 56px 32px;
-      border-radius: 0 0 16px 16px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+      padding: 56px 28px;
       text-align: center;
     }
     .state-icon {
-      width: 72px; height: 72px; margin: 0 auto 20px;
+      width: 72px; height: 72px;
+      margin: 0 auto 20px;
       border-radius: 50%;
+      background: var(--bg-card);
+      box-shadow: var(--neu-out);
       display: flex; align-items: center; justify-content: center;
     }
-    .state-icon.info    { background: #eff6ff; }
-    .state-icon.info    svg { stroke: #2563eb; }
-    .state-icon.error   { background: #fef2f2; }
-    .state-icon.error   svg { stroke: #dc2626; }
-    .state-icon.success { background: #f0fdf4; }
-    .state-icon.success svg { stroke: #16a34a; }
     .state-icon svg {
-      width: 36px; height: 36px; fill: none;
+      width: 34px; height: 34px; fill: none;
       stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
     }
+    .state-icon.si-err svg { stroke: var(--danger); }
+    .state-icon.si-ok  svg { stroke: var(--success); }
     .state-title {
-      font-size: 1.15rem; font-weight: 700; color: #1a2b4a; margin-bottom: 8px;
+      font-size: 1.1rem; font-weight: 800;
+      color: var(--text-1); margin-bottom: 8px;
     }
     .state-msg {
-      font-size: 0.88rem; color: #6b7280;
-      line-height: 1.6; max-width: 400px; margin: 0 auto;
+      font-size: 0.85rem; color: var(--text-2);
+      line-height: 1.65; max-width: 380px; margin: 0 auto;
     }
+    .state-msg strong { color: var(--text-1); }
 
-    /* Skeleton */
-    .skeleton {
-      background: linear-gradient(90deg, #e5e7eb 25%, #f3f4f6 50%, #e5e7eb 75%);
+    /* ============================================================
+       SKELETON LOADING
+       ============================================================ */
+    .sk {
+      background: linear-gradient(
+        90deg,
+        var(--shadow-dk) 25%,
+        var(--bg-card) 50%,
+        var(--shadow-dk) 75%
+      );
       background-size: 200% 100%;
-      border-radius: 8px;
-      animation: shimmer 1.5s infinite;
+      border-radius: var(--radius-xs);
+      animation: shim 1.5s ease infinite;
     }
-    @keyframes shimmer {
+    @keyframes shim {
       0%   { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
 
-    /* Footer */
+    /* ============================================================
+       FOOTER
+       ============================================================ */
     .footer {
-      text-align: center; margin-top: 24px;
-      font-size: 0.72rem; color: #9ca3af;
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.69rem;
+      color: var(--text-3);
+      font-weight: 500;
       display: flex; align-items: center;
       justify-content: center; gap: 6px;
     }
-    .footer svg {
-      width: 12px; height: 12px; stroke: #9ca3af; fill: none;
-      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
-    }
-
-    /* Progress bar */
-    .upload-progress {
-      display: none; margin-top: 10px;
-      height: 4px; background: #e5e7eb; border-radius: 99px; overflow: hidden;
-    }
-    .upload-progress-bar {
-      height: 100%; background: #2563eb; border-radius: 99px;
-      transition: width 0.3s ease;
-      width: 0%;
+    .footer img {
+      width: 14px; height: 14px;
+      object-fit: contain;
+      opacity: 0.5;
     }
   </style>
 </head>
 <body>
-
 <div class="wrapper">
 
-  <!-- Banner -->
-  <div class="banner">
-    <div class="banner-logo">
-      <svg viewBox="0 0 24 24">
-        <polyline points="23 4 23 10 17 10"></polyline>
-        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-      </svg>
+  <!-- ════════════ HERO BANNER ════════════ -->
+  <div class="hero">
+    <div class="hero-logo">
+      <img src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
+           alt="Rotaract Club Logo"
+           onerror="this.src='https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_blackAsset_3_2x-8_l4l8fi.png'" />
     </div>
-    <h1>Rotaract Club of Dr. N.G.P Arts &amp; Science College</h1>
+    <h1>Rotaract Club of Dr. N.G.P<br>Arts &amp; Science College</h1>
     <p>Official Meeting Attendance Form</p>
+    <div class="hero-badge">
+      <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+      Verified &amp; Secure
+    </div>
   </div>
 
-  <!-- Dynamic Content -->
-  <div id="page-content">
-    <!-- Loading Skeleton -->
-    <div class="info-card">
-      <div class="info-grid">
-        ${[1,2,3,4,5,6].map(() => `
+  <!-- ════════════ DYNAMIC CONTENT ════════════ -->
+  <div id="root">
+
+    <!-- Skeleton Loading -->
+    <div class="neu-card">
+      <div class="info-section">
+        <div class="sk" style="height:13px;width:30%;margin-bottom:16px;"></div>
+        <div class="info-grid">
           <div style="display:flex;flex-direction:column;gap:6px;">
-            <div class="skeleton" style="height:9px;width:55%;"></div>
-            <div class="skeleton" style="height:15px;width:90%;"></div>
-          </div>`).join('')}
+            <div class="sk" style="height:8px;width:50%;"></div>
+            <div class="sk" style="height:14px;width:90%;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div class="sk" style="height:8px;width:40%;"></div>
+            <div class="sk" style="height:14px;width:75%;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div class="sk" style="height:8px;width:45%;"></div>
+            <div class="sk" style="height:14px;width:85%;"></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div class="sk" style="height:8px;width:35%;"></div>
+            <div class="sk" style="height:14px;width:60%;"></div>
+          </div>
+        </div>
       </div>
     </div>
-    <div class="form-card">
-      <div class="skeleton" style="height:20px;width:45%;margin-bottom:22px;"></div>
-      ${[1,2,3].map(() => `
-        <div style="margin-bottom:18px;">
-          <div class="skeleton" style="height:10px;width:30%;margin-bottom:8px;"></div>
-          <div class="skeleton" style="height:46px;border-radius:10px;"></div>
-        </div>`).join('')}
-      <div style="margin-bottom:18px;">
-        <div class="skeleton" style="height:10px;width:35%;margin-bottom:8px;"></div>
-        <div class="skeleton" style="height:120px;border-radius:12px;"></div>
-      </div>
-      <div class="skeleton" style="height:52px;border-radius:12px;margin-top:24px;"></div>
-    </div>
-  </div>
 
-</div>
+    <div class="neu-card">
+      <div class="form-section">
+        <div class="sk" style="height:18px;width:42%;margin-bottom:20px;"></div>
+        <div style="margin-bottom:18px;">
+          <div class="sk" style="height:8px;width:28%;margin-bottom:8px;"></div>
+          <div class="sk" style="height:44px;border-radius:10px;"></div>
+        </div>
+        <div class="two-col" style="margin-bottom:18px;">
+          <div>
+            <div class="sk" style="height:8px;width:30%;margin-bottom:8px;"></div>
+            <div class="sk" style="height:44px;border-radius:10px;"></div>
+          </div>
+          <div>
+            <div class="sk" style="height:8px;width:35%;margin-bottom:8px;"></div>
+            <div class="sk" style="height:44px;border-radius:10px;"></div>
+          </div>
+        </div>
+        <div style="margin-bottom:18px;">
+          <div class="sk" style="height:8px;width:34%;margin-bottom:8px;"></div>
+          <div class="sk" style="height:100px;border-radius:10px;"></div>
+        </div>
+        <div class="sk" style="height:50px;border-radius:10px;margin-top:22px;"></div>
+      </div>
+    </div>
+
+  </div><!-- /#root -->
+
+</div><!-- /.wrapper -->
 
 <script>
 /* ================================================================
-   CONFIG
+   CONFIGURATION
    ================================================================ */
-var params     = new URLSearchParams(window.location.search);
-var MEETING_ID = (params.get('meeting') || '').trim();
-var TOKEN      = (params.get('token')   || '').trim();
+var P          = new URLSearchParams(window.location.search);
+var MEETING_ID = (P.get('meeting') || '').trim();
+var TOKEN      = (P.get('token')   || '').trim();
 
-var SUPABASE_URL = 'https://itaewvrngvowimjgfawa.supabase.co';
-var SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWV3dnJuZ3Zvd2ltamdmYXdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2OTA5ODQsImV4cCI6MjEwMDI2Njk4NH0.GrMILDmJEEbCLXXzUf5qw-pTqIW7NRydYkrMz70NUHY';
+var SB_URL = 'https://itaewvrngvowimjgfawa.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml0YWV3dnJuZ3Zvd2ltamdmYXdhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ2OTA5ODQsImV4cCI6MjEwMDI2Njk4NH0.GrMILDmJEEbCLXXzUf5qw-pTqIW7NRydYkrMz70NUHY';
+
+/* Logos */
+var LOGO_CLR = 'https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png';
+var LOGO_BLK = 'https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_blackAsset_3_2x-8_l4l8fi.png';
 
 /* ================================================================
-   SVG ICONS
+   INLINE SVG ICONS
    ================================================================ */
 var IC = {
-  calendar    : '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
-  clock       : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
-  mapPin      : '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>',
-  tag         : '<svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>',
-  hash        : '<svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>',
-  user        : '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
-  mail        : '<svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>',
-  badge       : '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line></svg>',
-  upload      : '<svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path></svg>',
-  image       : '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>',
-  check       : '<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
-  send        : '<svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>',
-  alert       : '<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
-  xCircle     : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
-  alertCircle : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
-  list        : '<svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>',
-  refresh     : '<svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>',
-  shield      : '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>',
-  edit        : '<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
-  changeImg   : '<svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg>'
+  calendar: '<svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>',
+  clock   : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>',
+  pin     : '<svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>',
+  tag     : '<svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>',
+  hash    : '<svg viewBox="0 0 24 24"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg>',
+  user    : '<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>',
+  mail    : '<svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>',
+  badge   : '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="13" x2="15" y2="13"></line></svg>',
+  upload  : '<svg viewBox="0 0 24 24"><polyline points="16 16 12 12 8 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"></path></svg>',
+  image   : '<svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>',
+  edit    : '<svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>',
+  send    : '<svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>',
+  ok      : '<svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>',
+  warn    : '<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>',
+  x       : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>',
+  errC    : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>',
+  list    : '<svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>',
+  info    : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+  shield  : '<svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>'
 };
 
 /* ================================================================
    HELPERS
    ================================================================ */
-function safe(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                  .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function fmtDate(d) {
-  if (!d) return '—';
+  if (!d) return '-';
   try {
     return new Date(d + 'T00:00:00').toLocaleDateString('en-IN', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      weekday:'long', year:'numeric', month:'long', day:'numeric'
     });
-  } catch (_) { return d; }
+  } catch(_) { return d; }
 }
 
 function fmtTime(t) {
-  if (!t) return '—';
+  if (!t) return '-';
   try {
     var p = t.split(':').map(Number);
-    var h = p[0], m = p[1];
-    return (h % 12 || 12) + ':' + String(m).padStart(2,'0') +
-           (h >= 12 ? ' PM' : ' AM');
-  } catch (_) { return t; }
+    return (p[0] % 12 || 12) + ':' +
+           String(p[1]).padStart(2,'0') +
+           (p[0] >= 12 ? ' PM' : ' AM');
+  } catch(_) { return t; }
 }
 
-/* ── Core Supabase REST fetch ── */
-async function sbFetch(path, opts) {
-  opts         = opts || {};
+async function sbRest(path, opts) {
+  opts = opts || {};
   opts.headers = Object.assign({
-    'apikey'        : SUPABASE_KEY,
-    'Authorization' : 'Bearer ' + SUPABASE_KEY,
-    'Content-Type'  : 'application/json',
-    'Accept'        : 'application/json'
+    'apikey'       : SB_KEY,
+    'Authorization': 'Bearer ' + SB_KEY,
+    'Content-Type' : 'application/json',
+    'Accept'       : 'application/json'
   }, opts.headers || {});
-
-  var url = path.startsWith('http') ? path : SUPABASE_URL + path;
-  var res = await fetch(url, opts);
-  return res;
+  return fetch((path.startsWith('http') ? '' : SB_URL) + path, opts);
 }
 
-/* ================================================================
-   STATE SCREENS
-   ================================================================ */
 function showState(type, title, msg) {
-  var iconMap = {
-    error  : IC.alertCircle,
-    success: IC.check,
-    info   : IC.alert
-  };
-  document.getElementById('page-content').innerHTML =
-    '<div class="state-card">' +
-      '<div class="state-icon ' + type + '">' +
-        (iconMap[type] || IC.alert) +
-      '</div>' +
+  var cls = type === 'success' ? 'si-ok' : 'si-err';
+  var ico = type === 'success' ? IC.ok : IC.errC;
+  document.getElementById('root').innerHTML =
+    '<div class="neu-card"><div class="state-card">' +
+      '<div class="state-icon ' + cls + '">' + ico + '</div>' +
       '<div class="state-title">' + title + '</div>' +
-      '<div class="state-msg">'  + msg   + '</div>' +
+      '<div class="state-msg">' + msg + '</div>' +
+    '</div></div>' +
+    '<div class="footer">' +
+      '<img src="' + LOGO_BLK + '" alt="" />' +
+      'Rotaract Club of Dr. N.G.P Arts &amp; Science College' +
     '</div>';
 }
 
+function showAlert(id, ico, msg) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = '<div class="alert-row">' + ico +
+    '<span>' + msg + '</span></div>';
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior:'smooth', block:'nearest' });
+}
+
 /* ================================================================
-   SELECTED ESIGN FILE (module-level)
+   ESIGN STATE
    ================================================================ */
-var _eSignFile = null;
+var _sf = null;
 
 /* ================================================================
    RENDER FORM
    ================================================================ */
-function renderForm(meeting) {
-  var typeMap = {
+function renderForm(m) {
+  var TM = {
     board_meeting        : 'Board Meeting',
     general_body_meeting : 'General Body Meeting',
     special_meeting      : 'Special Meeting',
     emergency_meeting    : 'Emergency Meeting'
   };
-  var typeLabel = typeMap[meeting.meeting_type] || meeting.meeting_type || 'Meeting';
-  var agenda    = Array.isArray(meeting.agenda) ? meeting.agenda : [];
+  var tl = TM[m.meeting_type] || m.meeting_type || 'Meeting';
+  var ag = Array.isArray(m.agenda) ? m.agenda : [];
 
-  var infoItems = [
-    { icon: IC.list,      label: 'Meeting', value: safe(meeting.title) },
-    { icon: IC.tag,       label: 'Type',    value: typeLabel },
-    { icon: IC.calendar,  label: 'Date',    value: fmtDate(meeting.meeting_date) },
+  var tiles = [
+    { ic: IC.list,     lb: 'Meeting', vl: esc(m.title) },
+    { ic: IC.tag,      lb: 'Type',    vl: tl },
+    { ic: IC.calendar, lb: 'Date',    vl: fmtDate(m.meeting_date) },
     {
-      icon  : IC.clock,
-      label : 'Time',
-      value : fmtTime(meeting.start_time) +
-              (meeting.end_time ? ' &ndash; ' + fmtTime(meeting.end_time) : '')
+      ic: IC.clock, lb: 'Time',
+      vl: fmtTime(m.start_time) +
+          (m.end_time ? ' &ndash; ' + fmtTime(m.end_time) : '')
     },
-    { icon: IC.mapPin, label: 'Venue', value: safe(meeting.venue) },
-    { icon: IC.hash,   label: 'Group', value: 'Group ' + safe(meeting.group_number || '1') }
+    { ic: IC.pin,  lb: 'Venue', vl: esc(m.venue) },
+    { ic: IC.hash, lb: 'Group', vl: 'Group ' + esc(m.group_number || '1') }
   ];
 
-  var html = '';
+  var h = '';
 
-  /* Info Card */
-  html += '<div class="info-card"><div class="info-grid">';
-  infoItems.forEach(function(it) {
-    html +=
-      '<div class="info-item">' +
-        '<div class="info-icon">' + it.icon + '</div>' +
+  /* ── Info Card ── */
+  h += '<div class="neu-card">';
+  h += '<div class="info-section">';
+  h += '<div class="info-section-title">' + IC.info + 'Meeting Details</div>';
+  h += '<div class="info-grid">';
+  tiles.forEach(function(t) {
+    h +=
+      '<div class="info-tile">' +
+        '<div class="info-tile-icon">' + t.ic + '</div>' +
         '<div>' +
-          '<div class="info-label">' + it.label + '</div>' +
-          '<div class="info-value">'  + it.value + '</div>' +
+          '<div class="info-tile-label">' + t.lb + '</div>' +
+          '<div class="info-tile-value">' + t.vl + '</div>' +
         '</div>' +
       '</div>';
   });
-  html += '</div></div>';
+  h += '</div></div>';
 
   /* Agenda */
-  if (agenda.length > 0) {
-    html += '<div class="agenda-strip">';
-    html += '<div class="agenda-header">' + IC.list + '<span>Agenda</span></div>';
-    html += '<ol>';
-    agenda.forEach(function(item) {
-      html += '<li>' + safe(item.text || item) + '</li>';
+  if (ag.length > 0) {
+    h += '<div class="agenda-section">';
+    h += '<div class="agenda-title">' + IC.list + '<span>Agenda</span></div>';
+    h += '<ol class="agenda-list">';
+    ag.forEach(function(item) {
+      h += '<li>' + esc(item.text || item) + '</li>';
     });
-    html += '</ol></div>';
+    h += '</ol></div>';
   }
+  h += '</div>';
 
-  /* Attendance Form */
-  html +=
-    '<div class="form-card">' +
-      '<div class="form-title">' + IC.edit + 'Mark Your Attendance</div>' +
-      '<form id="att-form" novalidate>' +
+  /* ── Form Card ── */
+  h += '<div class="neu-card"><div class="form-section">';
 
-        /* Full Name */
-        '<div class="field-group">' +
-          '<label class="field-label" for="f-name">' +
-            IC.user + 'Full Name <span class="req">*</span>' +
-          '</label>' +
-          '<input type="text" id="f-name" class="field-input" ' +
-                 'placeholder="Enter your full name" ' +
-                 'autocomplete="name" required />' +
-        '</div>' +
+  h += '<div class="form-header">' + IC.edit + 'Mark Your Attendance</div>';
 
-        /* RI ID + In Time */
-        '<div class="two-col">' +
-          '<div class="field-group">' +
-            '<label class="field-label" for="f-riid">' +
-              IC.hash + 'RI ID' +
-            '</label>' +
-            '<input type="text" id="f-riid" class="field-input" ' +
-                   'placeholder="RAC/24-25/001" />' +
+  h += '<form id="att-form" novalidate>';
+
+  /* Full Name */
+  h +=
+    '<div class="field">' +
+      '<label class="field-lbl" for="f-name">' +
+        IC.user + 'Full Name <span class="req">*</span>' +
+      '</label>' +
+      '<input type="text" id="f-name" class="neu-input" ' +
+             'placeholder="Enter your full name" ' +
+             'autocomplete="name" required />' +
+    '</div>';
+
+  /* RI ID + In Time */
+  h +=
+    '<div class="two-col">' +
+      '<div class="field">' +
+        '<label class="field-lbl" for="f-riid">' +
+          IC.hash + 'RI ID' +
+        '</label>' +
+        '<input type="text" id="f-riid" class="neu-input" ' +
+               'placeholder="RAC/24-25/001" />' +
+      '</div>' +
+      '<div class="field">' +
+        '<label class="field-lbl" for="f-time">' +
+          IC.clock + 'In Time <span class="req">*</span>' +
+        '</label>' +
+        '<input type="time" id="f-time" class="neu-input" required />' +
+      '</div>' +
+    '</div>';
+
+  /* Designation */
+  h +=
+    '<div class="field">' +
+      '<label class="field-lbl" for="f-desig">' +
+        IC.badge + 'Designation / Role' +
+      '</label>' +
+      '<input type="text" id="f-desig" class="neu-input" ' +
+             'placeholder="President, Secretary, Member..." />' +
+    '</div>';
+
+  /* Email */
+  h +=
+    '<div class="field">' +
+      '<label class="field-lbl" for="f-email">' +
+        IC.mail + 'Email (optional)' +
+      '</label>' +
+      '<input type="email" id="f-email" class="neu-input" ' +
+             'placeholder="you@example.com" autocomplete="email" />' +
+    '</div>';
+
+  /* E-Signature Upload */
+  h +=
+    '<div class="field">' +
+      '<label class="field-lbl">' +
+        IC.image + 'Signature Image <span class="req">*</span>' +
+      '</label>' +
+
+      '<div class="esign-area" id="esign-area">' +
+        '<input type="file" class="esign-file" id="esign-file" ' +
+               'accept="image/jpeg,image/png,image/webp,image/gif" />' +
+        '<div class="esign-ph" id="esign-ph">' +
+          '<div class="esign-ph-icon">' + IC.upload + '</div>' +
+          '<div class="esign-ph-title" id="esign-ph-title">' +
+            'Click or tap to upload your signature' +
           '</div>' +
-          '<div class="field-group">' +
-            '<label class="field-label" for="f-time">' +
-              IC.clock + 'In Time <span class="req">*</span>' +
-            '</label>' +
-            '<input type="time" id="f-time" class="field-input" required />' +
-          '</div>' +
-        '</div>' +
-
-        /* Designation */
-        '<div class="field-group">' +
-          '<label class="field-label" for="f-desig">' +
-            IC.badge + 'Designation / Role' +
-          '</label>' +
-          '<input type="text" id="f-desig" class="field-input" ' +
-                 'placeholder="President, Secretary, Member..." />' +
-        '</div>' +
-
-        /* Email */
-        '<div class="field-group">' +
-          '<label class="field-label" for="f-email">' +
-            IC.mail + 'Email (optional)' +
-          '</label>' +
-          '<input type="email" id="f-email" class="field-input" ' +
-                 'placeholder="you@example.com" autocomplete="email" />' +
-        '</div>' +
-
-        /* E-Signature Image Upload */
-        '<div class="field-group">' +
-          '<label class="field-label">' +
-            IC.image + 'Signature Image <span class="req">*</span>' +
-          '</label>' +
-          '<div class="esign-upload-wrap" id="esign-wrap">' +
-            '<input type="file" class="esign-upload-input" id="esign-input" ' +
-                   'accept="image/jpeg,image/png,image/webp,image/gif" />' +
-            '<div class="esign-upload-icon" id="esign-icon">' + IC.upload + '</div>' +
-            '<div class="esign-upload-title" id="esign-title">' +
-              'Click or tap to upload your signature image' +
-            '</div>' +
-            '<div class="esign-upload-hint" id="esign-hint">' +
-              'JPG, PNG, WebP &bull; Max 2MB &bull; Clear signature on white/light background' +
-            '</div>' +
-          '</div>' +
-          '<div class="esign-preview-wrap" id="esign-preview-wrap">' +
-            '<img id="esign-preview-img" src="" alt="Signature preview" />' +
-          '</div>' +
-          '<button type="button" class="esign-change-btn" ' +
-                  'id="esign-change-btn" style="display:none;"' +
-                  'onclick="resetEsign()">' +
-            IC.changeImg + ' Change Image' +
-          '</button>' +
-          '<div class="upload-progress" id="esign-progress">' +
-            '<div class="upload-progress-bar" id="esign-progress-bar"></div>' +
+          '<div class="esign-ph-hint">' +
+            'JPG, PNG, WebP &bull; Max 2 MB' +
           '</div>' +
         '</div>' +
+      '</div>' +
 
-        /* Submit */
-        '<button type="submit" class="btn-submit" id="f-submit">' +
-          IC.send + '<span>Submit Attendance</span>' +
-        '</button>' +
+      '<div class="esign-preview" id="esign-preview">' +
+        '<img id="esign-img" src="" alt="Signature preview" />' +
+        '<div class="esign-preview-bar">' +
+          '<span class="esign-fname" id="esign-fname"></span>' +
+          '<button type="button" class="esign-rm-btn" ' +
+                  'onclick="rmSign()">Remove</button>' +
+        '</div>' +
+      '</div>' +
 
-        '<div class="alert alert-error"   id="f-error"></div>' +
-        '<div class="alert alert-success" id="f-success"></div>' +
+      '<div class="prog" id="prog">' +
+        '<div class="prog-fill" id="prog-fill"></div>' +
+      '</div>' +
 
-      '</form>' +
-    '</div>' +
+    '</div>';
 
+  /* Submit */
+  h +=
+    '<button type="submit" class="btn-submit" id="f-btn">' +
+      IC.send + '<span>Submit Attendance</span>' +
+    '</button>';
+
+  h +=
+    '<div class="alert alert-error"   id="f-err"></div>' +
+    '<div class="alert alert-success" id="f-ok"></div>';
+
+  h += '</form></div></div>';
+
+  /* Footer */
+  h +=
     '<div class="footer">' +
-      IC.shield +
+      '<img src="' + LOGO_BLK + '" alt="" />' +
       'Rotaract Club of Dr. N.G.P Arts &amp; Science College' +
     '</div>';
 
-  document.getElementById('page-content').innerHTML = html;
+  document.getElementById('root').innerHTML = h;
 
-  initEsignUpload();
-  initFormSubmit(meeting);
+  /* Wire events */
+  document.getElementById('esign-file')
+    .addEventListener('change', onFileChange);
 
-  /* Auto-fill current time */
   var now  = new Date();
   var tinp = document.getElementById('f-time');
-  if (tinp) {
+  if (tinp)
     tinp.value =
       String(now.getHours()).padStart(2,'0') + ':' +
       String(now.getMinutes()).padStart(2,'0');
+
+  document.getElementById('att-form')
+    .addEventListener('submit', function(e) {
+      e.preventDefault();
+      doSubmit(m);
+    });
+}
+
+/* ================================================================
+   ESIGN FILE HANDLERS
+   ================================================================ */
+function onFileChange(e) {
+  var f = e.target.files[0];
+  if (!f) return;
+
+  var errEl = document.getElementById('f-err');
+  if (errEl) errEl.style.display = 'none';
+
+  var ok = ['image/jpeg','image/png','image/webp','image/gif'];
+  if (ok.indexOf(f.type) === -1) {
+    showAlert('f-err', IC.warn,
+      'Invalid file type. Please upload JPG, PNG, or WebP.');
+    e.target.value = '';
+    return;
+  }
+  if (f.size > 2 * 1024 * 1024) {
+    showAlert('f-err', IC.warn,
+      'File too large. Maximum 2 MB allowed.');
+    e.target.value = '';
+    return;
+  }
+
+  _sf = f;
+
+  var reader = new FileReader();
+  reader.onload = function(ev) {
+    var area    = document.getElementById('esign-area');
+    var preview = document.getElementById('esign-preview');
+    var img     = document.getElementById('esign-img');
+    var phTitle = document.getElementById('esign-ph-title');
+    var fname   = document.getElementById('esign-fname');
+
+    if (area)    area.classList.add('filled');
+    if (phTitle) phTitle.textContent = f.name;
+    if (img)     img.src = ev.target.result;
+    if (preview) preview.style.display = 'block';
+    if (fname)   fname.textContent = f.name +
+      ' (' + (f.size / 1024).toFixed(0) + ' KB)';
+  };
+  reader.readAsDataURL(f);
+}
+
+function rmSign() {
+  _sf = null;
+  var inp  = document.getElementById('esign-file');
+  var area = document.getElementById('esign-area');
+  var prev = document.getElementById('esign-preview');
+  var pht  = document.getElementById('esign-ph-title');
+  if (inp)  inp.value = '';
+  if (area) area.classList.remove('filled');
+  if (prev) prev.style.display = 'none';
+  if (pht)  pht.textContent =
+    'Click or tap to upload your signature';
+}
+
+/* ================================================================
+   SUBMIT
+   ================================================================ */
+async function doSubmit(m) {
+  var errEl = document.getElementById('f-err');
+  var btn   = document.getElementById('f-btn');
+  if (errEl) errEl.style.display = 'none';
+
+  var name  = document.getElementById('f-name').value.trim();
+  var riId  = document.getElementById('f-riid').value.trim();
+  var time  = document.getElementById('f-time').value;
+  var desig = document.getElementById('f-desig').value.trim();
+  var email = document.getElementById('f-email').value.trim();
+
+  if (!name) { showAlert('f-err', IC.warn, 'Please enter your full name.'); return; }
+  if (!time) { showAlert('f-err', IC.warn, 'Please enter your in-time.');   return; }
+  if (!_sf)  { showAlert('f-err', IC.warn, 'Please upload your signature image.'); return; }
+
+  btn.disabled  = true;
+  btn.innerHTML = '<div class="spinner"></div><span>Submitting...</span>';
+
+  try {
+    /* 1. Upload e-sign image */
+    var eSignUrl = null;
+    var ext = (_sf.name.split('.').pop() || 'png').toLowerCase();
+    var sigName = 'esign_' + m.id + '_' + Date.now() + '.' + ext;
+
+    var pw = document.getElementById('prog');
+    var pb = document.getElementById('prog-fill');
+    if (pw) pw.style.display = 'block';
+    if (pb) pb.style.width   = '30%';
+
+    var upRes = await fetch(
+      SB_URL + '/storage/v1/object/meetings/' + sigName,
+      {
+        method : 'POST',
+        headers: {
+          'apikey'       : SB_KEY,
+          'Authorization': 'Bearer ' + SB_KEY,
+          'Content-Type' : _sf.type || 'image/png',
+          'x-upsert'     : 'true'
+        },
+        body: _sf
+      }
+    );
+
+    if (pb) pb.style.width = '70%';
+
+    if (upRes.ok) {
+      eSignUrl = SB_URL +
+        '/storage/v1/object/public/meetings/' + sigName;
+      if (pb) pb.style.width = '100%';
+    } else {
+      var ue = {};
+      try { ue = await upRes.json(); } catch(_) {}
+      console.warn('Sig upload failed:', upRes.status, ue);
+    }
+
+    if (pw) setTimeout(function() { pw.style.display = 'none'; }, 800);
+
+    /* 2. Insert attendance */
+    var insRes = await fetch(
+      SB_URL + '/rest/v1/meeting_attendance',
+      {
+        method : 'POST',
+        headers: {
+          'apikey'       : SB_KEY,
+          'Authorization': 'Bearer ' + SB_KEY,
+          'Content-Type' : 'application/json',
+          'Accept'       : 'application/json',
+          'Prefer'       : 'return=minimal'
+        },
+        body: JSON.stringify({
+          meeting_id  : m.id,
+          form_token  : TOKEN,
+          member_name : name,
+          ri_id       : riId  || null,
+          designation : desig || null,
+          member_email: email || null,
+          in_time     : time,
+          e_sign_url  : eSignUrl,
+          submitted_at: new Date().toISOString()
+        })
+      }
+    );
+
+    if (!insRes.ok) {
+      var ie = {};
+      try { ie = await insRes.json(); } catch(_) {}
+      console.error('Insert failed:', insRes.status, ie);
+
+      if (ie.code === '23505' ||
+          (ie.message && ie.message.toLowerCase().includes('unique'))) {
+        throw new Error(
+          'You have already submitted attendance for this meeting.');
+      }
+      if (insRes.status === 401 || insRes.status === 403) {
+        throw new Error(
+          'Permission denied (' + insRes.status + '). Contact admin.');
+      }
+      throw new Error(
+        ie.message || ie.error ||
+        'Failed (HTTP ' + insRes.status + '). Try again.');
+    }
+
+    /* 3. Success */
+    showState('success', 'Attendance Recorded!',
+      'Thank you, <strong>' + esc(name) + '</strong>!<br>' +
+      'Your attendance has been successfully marked' +
+      (eSignUrl ? ' with your uploaded signature.' : '.') +
+      '<br><br>' +
+      '<span style="font-size:0.78rem;color:var(--text-3);">' +
+        'You may now close this page.' +
+      '</span>'
+    );
+
+  } catch (err) {
+    console.error('Submit error:', err);
+    showAlert('f-err', IC.x,
+      err.message || 'Something went wrong. Please try again.');
+    btn.disabled  = false;
+    btn.innerHTML = IC.send + '<span>Submit Attendance</span>';
   }
 }
 
 /* ================================================================
-   E-SIGN UPLOAD HANDLER
-   ================================================================ */
-function initEsignUpload() {
-  _eSignFile = null;
-  var input   = document.getElementById('esign-input');
-  if (!input) return;
-
-  input.addEventListener('change', function(e) {
-    var file = e.target.files[0];
-    if (!file) return;
-
-    /* Validate type */
-    var allowed = ['image/jpeg','image/png','image/webp','image/gif'];
-    if (!allowed.includes(file.type)) {
-      showAlertEl('f-error', IC.alert,
-        'Invalid file type. Please upload a JPG, PNG, or WebP image.');
-      input.value = '';
-      return;
-    }
-
-    /* Validate size — 2MB max */
-    if (file.size > 2 * 1024 * 1024) {
-      showAlertEl('f-error', IC.alert,
-        'File is too large. Maximum allowed size is 2MB.');
-      input.value = '';
-      return;
-    }
-
-    _eSignFile = file;
-
-    /* Preview */
-    var reader = new FileReader();
-    reader.onload = function(ev) {
-      var wrap    = document.getElementById('esign-wrap');
-      var preview = document.getElementById('esign-preview-wrap');
-      var img     = document.getElementById('esign-preview-img');
-      var title   = document.getElementById('esign-title');
-      var hint    = document.getElementById('esign-hint');
-      var changeBtn = document.getElementById('esign-change-btn');
-
-      if (wrap)    wrap.classList.add('has-file');
-      if (img)     img.src = ev.target.result;
-      if (preview) preview.style.display = 'block';
-      if (title)   title.textContent     = file.name;
-      if (hint)    hint.textContent      = (file.size / 1024).toFixed(0) + ' KB';
-      if (changeBtn) changeBtn.style.display = 'inline-flex';
-
-      /* Hide error if shown */
-      var errEl = document.getElementById('f-error');
-      if (errEl) errEl.style.display = 'none';
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function resetEsign() {
-  _eSignFile = null;
-  var input     = document.getElementById('esign-input');
-  var wrap      = document.getElementById('esign-wrap');
-  var preview   = document.getElementById('esign-preview-wrap');
-  var title     = document.getElementById('esign-title');
-  var hint      = document.getElementById('esign-hint');
-  var changeBtn = document.getElementById('esign-change-btn');
-
-  if (input)     { input.value = ''; }
-  if (wrap)      wrap.classList.remove('has-file');
-  if (preview)   preview.style.display = 'none';
-  if (title)     title.textContent = 'Click or tap to upload your signature image';
-  if (hint)      hint.innerHTML =
-    'JPG, PNG, WebP &bull; Max 2MB &bull; Clear signature on white/light background';
-  if (changeBtn) changeBtn.style.display = 'none';
-}
-
-/* ================================================================
-   FORM SUBMISSION
-   ================================================================ */
-function initFormSubmit(meeting) {
-  var form = document.getElementById('att-form');
-  if (!form) return;
-
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    var errEl  = document.getElementById('f-error');
-    var sucEl  = document.getElementById('f-success');
-    var btn    = document.getElementById('f-submit');
-
-    if (errEl) errEl.style.display = 'none';
-    if (sucEl) sucEl.style.display = 'none';
-
-    var name  = document.getElementById('f-name').value.trim();
-    var riId  = document.getElementById('f-riid').value.trim();
-    var time  = document.getElementById('f-time').value;
-    var desig = document.getElementById('f-desig').value.trim();
-    var email = document.getElementById('f-email').value.trim();
-
-    /* Validate */
-    if (!name) {
-      showAlertEl('f-error', IC.alert, 'Please enter your full name.');
-      return;
-    }
-    if (!time) {
-      showAlertEl('f-error', IC.alert, 'Please enter your in-time.');
-      return;
-    }
-    if (!_eSignFile) {
-      showAlertEl('f-error', IC.alert,
-        'Please upload your signature image before submitting.');
-      return;
-    }
-
-    btn.disabled   = true;
-    btn.innerHTML  = '<div class="spinner"></div><span>Submitting...</span>';
-
-    try {
-      /* ── Step 1: Upload signature image to Supabase Storage ── */
-      var eSignUrl = null;
-
-      try {
-        var ext     = _eSignFile.name.split('.').pop() || 'png';
-        var sigName = 'esign_' + meeting.id + '_' + Date.now() + '.' + ext;
-
-        /* Show progress bar */
-        var progressWrap = document.getElementById('esign-progress');
-        var progressBar  = document.getElementById('esign-progress-bar');
-        if (progressWrap) progressWrap.style.display = 'block';
-        if (progressBar)  progressBar.style.width = '30%';
-
-        var uploadRes = await fetch(
-          SUPABASE_URL + '/storage/v1/object/meetings/' + sigName + '?upsert=true',
-          {
-            method : 'POST',
-            headers: {
-              'Authorization': 'Bearer ' + SUPABASE_KEY,
-              'apikey'       : SUPABASE_KEY,
-              'Content-Type' : _eSignFile.type || 'image/png',
-              'x-upsert'     : 'true'
-            },
-            body: _eSignFile
-          }
-        );
-
-        if (progressBar) progressBar.style.width = '70%';
-
-        if (uploadRes.ok) {
-          eSignUrl = SUPABASE_URL +
-            '/storage/v1/object/public/meetings/' + sigName;
-          if (progressBar) progressBar.style.width = '100%';
-        } else {
-          var upBody = {};
-          try { upBody = await uploadRes.json(); } catch (_) {}
-          console.warn('Signature upload failed:',
-            uploadRes.status, upBody);
-          /* Don't throw — submit attendance without signature */
-        }
-
-        if (progressWrap) {
-          setTimeout(function() {
-            progressWrap.style.display = 'none';
-          }, 800);
-        }
-      } catch (uploadErr) {
-        console.warn('Signature upload error:', uploadErr);
-        /* Continue without signature */
-      }
-
-      /* ── Step 2: Insert attendance record ── */
-      var payload = JSON.stringify({
-        meeting_id  : meeting.id,
-        form_token  : TOKEN,
-        member_name : name,
-        ri_id       : riId  || null,
-        designation : desig || null,
-        member_email: email || null,
-        in_time     : time,
-        e_sign_url  : eSignUrl,
-        submitted_at: new Date().toISOString()
-      });
-
-      var insertRes = await fetch(
-        SUPABASE_URL + '/rest/v1/meeting_attendance',
-        {
-          method : 'POST',
-          headers: {
-            'apikey'        : SUPABASE_KEY,
-            'Authorization' : 'Bearer ' + SUPABASE_KEY,
-            'Content-Type'  : 'application/json',
-            'Accept'        : 'application/json',
-            'Prefer'        : 'return=minimal'
-          },
-          body: payload
-        }
-      );
-
-      /* Handle errors */
-      if (!insertRes.ok) {
-        var errBody = {};
-        try { errBody = await insertRes.json(); } catch (_) {}
-
-        console.error('Insert failed:', insertRes.status, errBody);
-
-        /* Duplicate entry */
-        if (errBody.code === '23505' ||
-            (errBody.message && errBody.message.includes('unique'))) {
-          throw new Error(
-            'You have already submitted attendance for this meeting.'
-          );
-        }
-
-        /* Auth error */
-        if (insertRes.status === 401) {
-          throw new Error(
-            'Authentication error (401). ' +
-            'Please ask the admin to check the Supabase RLS policies.'
-          );
-        }
-
-        throw new Error(
-          errBody.message || errBody.error ||
-          'Submission failed (status ' + insertRes.status + '). ' +
-          'Please try again.'
-        );
-      }
-
-      /* ── Step 3: Show success ── */
-      document.getElementById('page-content').innerHTML =
-        '<div class="state-card">' +
-          '<div class="state-icon success">' + IC.check + '</div>' +
-          '<div class="state-title">Attendance Recorded!</div>' +
-          '<div class="state-msg">' +
-            'Thank you, <strong>' + safe(name) + '</strong>. ' +
-            'Your attendance has been successfully recorded' +
-            (eSignUrl ? ' along with your signature image.' : '.') +
-          '</div>' +
-        '</div>' +
-        '<div class="footer">' + IC.shield +
-          'Rotaract Club of Dr. N.G.P Arts &amp; Science College' +
-        '</div>';
-
-    } catch (err) {
-      console.error('Submission error:', err);
-      showAlertEl('f-error', IC.xCircle,
-        err.message || 'Something went wrong. Please try again.');
-      btn.disabled  = false;
-      btn.innerHTML = IC.send + '<span>Submit Attendance</span>';
-    }
-  });
-}
-
-/* ================================================================
-   SHOW ALERT INSIDE FORM
-   ================================================================ */
-function showAlertEl(elId, iconSvg, msg) {
-  var el = document.getElementById(elId);
-  if (!el) return;
-  el.innerHTML =
-    '<div class="alert-row">' + iconSvg + '<span>' + msg + '</span></div>';
-  el.style.display = 'block';
-  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-/* ================================================================
-   INIT — Validate params → fetch meeting → render form
+   INIT
    ================================================================ */
 async function init() {
-
   if (!MEETING_ID || !TOKEN) {
     showState('error', 'Invalid Link',
-      'This attendance form link is invalid or missing required parameters. ' +
-      'Please contact the meeting organizer for a valid link.');
+      'This attendance form link is invalid or missing required ' +
+      'parameters. Please contact the organizer for a valid link.');
     return;
   }
 
   try {
-    /* Fetch meeting — use explicit column list */
-    var res = await sbFetch(
+    var res = await sbRest(
       '/rest/v1/meetings' +
       '?id=eq.' + encodeURIComponent(MEETING_ID) +
       '&select=id,title,meeting_type,meeting_date,' +
@@ -937,13 +1185,10 @@ async function init() {
     );
 
     if (!res.ok) {
-      var errJson = {};
-      try { errJson = await res.json(); } catch (_) {}
-      console.error('Meeting fetch failed:', res.status, errJson);
-      throw new Error(
-        'Server returned ' + res.status +
-        (errJson.message ? ': ' + errJson.message : '')
-      );
+      var ej = {};
+      try { ej = await res.json(); } catch(_) {}
+      throw new Error('HTTP ' + res.status +
+        (ej.message ? ': ' + ej.message : ''));
     }
 
     var rows = await res.json();
@@ -954,24 +1199,25 @@ async function init() {
       return;
     }
 
-    var meeting = rows[0];
+    var mtg = rows[0];
 
-    /* Validate token */
-    if (meeting.attendance_form_token !== TOKEN) {
+    if (mtg.attendance_form_token !== TOKEN) {
       showState('error', 'Invalid Token',
-        'This attendance form link is no longer valid. ' +
-        'Please request a new link from the organizer.');
+        'This link is no longer valid. ' +
+        'Please request a new attendance form link from the organizer.');
       return;
     }
 
-    renderForm(meeting);
+    renderForm(mtg);
 
   } catch (err) {
     console.error('Init error:', err);
-    showState('error', 'Loading Failed',
-      'Could not load the attendance form. <br>' +
-      '<small style="color:#9ca3af;">' + safe(err.message) + '</small><br><br>' +
-      'Please check your connection and refresh the page.');
+    showState('error', 'Could Not Load Form',
+      'Failed to load the attendance form.<br>' +
+      '<small style="color:var(--text-3);font-size:0.76rem;">' +
+        esc(err.message) +
+      '</small><br><br>' +
+      'Check your internet connection and refresh the page.');
   }
 }
 
