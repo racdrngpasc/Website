@@ -8,19 +8,19 @@
 
 class DocumentGenerator {
   constructor() {
-    this.db = getSupabaseClient();
+    this.db      = getSupabaseClient();
     this.baseUrl = `${SUPABASE_URL}/functions/v1`;
     this.headers = {
-      'Content-Type': 'application/json',
+      'Content-Type' : 'application/json',
       'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'apikey': SUPABASE_ANON_KEY
+      'apikey'       : SUPABASE_ANON_KEY
     };
-    this._settings = {};
+    this._settings       = {};
     this._settingsLoaded = false;
   }
 
   /* ============================================================
-     LOAD SETTINGS (cached)
+     LOAD SETTINGS  (cached)
      ============================================================ */
   async loadSettings() {
     if (this._settingsLoaded) return this._settings;
@@ -29,9 +29,7 @@ class DocumentGenerator {
         .from('club_settings')
         .select('key, value');
       if (data) {
-        data.forEach(s => {
-          this._settings[s.key] = s.value;
-        });
+        data.forEach(s => { this._settings[s.key] = s.value; });
       }
       this._settingsLoaded = true;
     } catch (e) {
@@ -53,9 +51,9 @@ class DocumentGenerator {
     let response;
     try {
       response = await fetch(url, {
-        method: 'POST',
-        headers: this.headers,
-        body: JSON.stringify(payload)
+        method  : 'POST',
+        headers : this.headers,
+        body    : JSON.stringify(payload)
       });
     } catch (networkError) {
       throw new Error(
@@ -70,9 +68,7 @@ class DocumentGenerator {
       try {
         const errorData = await response.json();
         errorMessage = errorData.error || errorMessage;
-      } catch (e) {
-        // could not parse error response
-      }
+      } catch (e) { /* could not parse error response */ }
       throw new Error(errorMessage);
     }
 
@@ -80,21 +76,15 @@ class DocumentGenerator {
     const contentType = response.headers.get('Content-Type') || '';
     if (!contentType.includes('wordprocessingml') &&
         !contentType.includes('octet-stream')) {
-      // Maybe it returned JSON error even with 200
       try {
         const maybeError = await response.json();
-        if (maybeError.error) {
-          throw new Error(maybeError.error);
-        }
+        if (maybeError.error) throw new Error(maybeError.error);
       } catch (e) {
-        if (e.message && !e.message.includes('JSON')) {
-          throw e;
-        }
+        if (e.message && !e.message.includes('JSON')) throw e;
       }
     }
 
     const blob = await response.blob();
-
     if (!blob || blob.size === 0) {
       throw new Error('Edge function returned empty file');
     }
@@ -103,11 +93,8 @@ class DocumentGenerator {
     const contentDisposition = response.headers.get('Content-Disposition') || '';
     let filename = fallbackFilename;
     const match = contentDisposition.match(/filename="([^"]+)"/);
-    if (match && match[1]) {
-      filename = match[1];
-    }
+    if (match && match[1]) filename = match[1];
 
-    // Download using FileSaver or fallback
     this._downloadBlob(blob, filename);
     return true;
   }
@@ -120,8 +107,8 @@ class DocumentGenerator {
       saveAs(blob, filename);
     } else {
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
+      const a   = document.createElement('a');
+      a.href     = url;
       a.download = filename;
       a.style.display = 'none';
       document.body.appendChild(a);
@@ -134,12 +121,12 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     SHOW PROGRESS TOAST
+     TOAST HELPERS
      ============================================================ */
   _showProgress(message) {
-    if (window.adminDashboard && window.adminDashboard.showToast) {
+    if (window.adminDashboard?.showToast) {
       window.adminDashboard.showToast(message, 'info', 3000);
-    } else if (window.app && window.app.showToast) {
+    } else if (window.app?.showToast) {
       window.app.showToast(message, 'info', 3000);
     } else {
       console.log(message);
@@ -147,23 +134,23 @@ class DocumentGenerator {
   }
 
   _showSuccess(message) {
-    if (window.adminDashboard && window.adminDashboard.showToast) {
+    if (window.adminDashboard?.showToast) {
       window.adminDashboard.showToast(message, 'success');
-    } else if (window.app && window.app.showToast) {
+    } else if (window.app?.showToast) {
       window.app.showToast(message, 'success');
     }
   }
 
   _showError(message) {
-    if (window.adminDashboard && window.adminDashboard.showToast) {
+    if (window.adminDashboard?.showToast) {
       window.adminDashboard.showToast(message, 'error');
-    } else if (window.app && window.app.showToast) {
+    } else if (window.app?.showToast) {
       window.app.showToast(message, 'error');
     }
   }
 
   /* ============================================================
-     1. GENERATE EVENT REPORT (.docx)
+     1.  GENERATE EVENT REPORT  (.docx)
      ============================================================ */
   async generateEventReport(eventId) {
     if (!eventId) throw new Error('eventId is required');
@@ -186,22 +173,29 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     2. GENERATE MONTHLY REPORT (.docx)
+     2.  GENERATE MONTHLY REPORT  (.docx)
      ============================================================ */
   async generateMonthlyReport(month, year) {
     if (!month || !year) throw new Error('month and year are required');
 
     await this.loadSettings();
-    const monthName = DateUtils.getMonthName(parseInt(String(month)));
-    this._showProgress(`Generating monthly report for ${monthName} ${year}...`);
+    const monthName = this._getMonthName(month);
+    this._showProgress(
+      `Generating monthly report for ${monthName} ${year}...`
+    );
 
     try {
       await this._callEdgeFunction(
         'generate-monthly-report',
-        { month: parseInt(String(month)), year: parseInt(String(year)) },
+        {
+          month: parseInt(String(month)),
+          year : parseInt(String(year))
+        },
         `Monthly_Report_${monthName}_${year}.docx`
       );
-      this._showSuccess(`Monthly report for ${monthName} ${year} downloaded!`);
+      this._showSuccess(
+        `Monthly report for ${monthName} ${year} downloaded!`
+      );
       return true;
     } catch (err) {
       console.error('generateMonthlyReport error:', err);
@@ -211,19 +205,56 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     3. GENERATE DPP REPORT (.docx)
+     3.  GENERATE DPP REPORT  (.docx)
+         Sends full DPP metadata so the edge function can render
+         Approval Number, Pillar, Category, Council Member fields.
      ============================================================ */
   async generateDPPReport(month, year) {
     if (!month || !year) throw new Error('month and year are required');
 
     await this.loadSettings();
-    const monthName = DateUtils.getMonthName(parseInt(String(month)));
-    this._showProgress(`Generating DPP report for ${monthName} ${year}...`);
+    const monthName = this._getMonthName(month);
+    this._showProgress(
+      `Generating DPP report for ${monthName} ${year}...`
+    );
 
     try {
+      /* Fetch all DPP events for the requested month so we can pass
+         the extra metadata to the edge function as a hint.
+         The edge function queries the DB itself, but we also send
+         the pillar / category labels so it can render them without
+         needing to know the JS constants.                          */
+      const { data: dppEvents } = await this.db
+        .from('events')
+        .select(`
+          id, title, event_date, venue, event_chair,
+          actual_attendance, service_hours, beneficiaries,
+          dpp_approval_number, dpp_pillar, dpp_category, dpp_council_member,
+          event_reports(id, is_approved, report_content)
+        `)
+        .eq('is_dpp', true)
+        .gte('event_date', `${year}-${String(month).padStart(2, '0')}-01`)
+        .lte('event_date', `${year}-${String(month).padStart(2, '0')}-31`)
+        .order('event_date', { ascending: true });
+
+      /* Build a lightweight metadata map to attach to the payload */
+      const dppMeta = (dppEvents || []).map(e => ({
+        id                 : e.id,
+        dpp_approval_number: e.dpp_approval_number || null,
+        dpp_pillar         : e.dpp_pillar || null,
+        dpp_pillar_label   : DPP_PILLARS[e.dpp_pillar]?.label    || null,
+        dpp_category       : e.dpp_category || null,
+        dpp_category_label : DPP_CATEGORIES[e.dpp_category]?.label || null,
+        dpp_council_member : e.dpp_council_member || null
+      }));
+
       await this._callEdgeFunction(
         'generate-dpp-report',
-        { month: parseInt(String(month)), year: parseInt(String(year)) },
+        {
+          month    : parseInt(String(month)),
+          year     : parseInt(String(year)),
+          dpp_meta : dppMeta          // extra hint for the edge function
+        },
         `DPP_Report_${monthName}_${year}.docx`
       );
       this._showSuccess(`DPP report for ${monthName} ${year} downloaded!`);
@@ -236,7 +267,7 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     4. GENERATE AVENUE REPORT (.docx)
+     4.  GENERATE AVENUE REPORT  (.docx)
      ============================================================ */
   async generateAvenueReport(avenue, month, year) {
     if (!avenue || !month || !year) {
@@ -244,12 +275,14 @@ class DocumentGenerator {
     }
 
     await this.loadSettings();
-    const monthName = DateUtils.getMonthName(parseInt(String(month)));
+    const monthName   = this._getMonthName(month);
     const avenueLabel = (typeof AVENUES !== 'undefined' && AVENUES[avenue])
       ? AVENUES[avenue].label
       : avenue.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 
-    this._showProgress(`Generating ${avenueLabel} report for ${monthName} ${year}...`);
+    this._showProgress(
+      `Generating ${avenueLabel} report for ${monthName} ${year}...`
+    );
 
     try {
       await this._callEdgeFunction(
@@ -257,7 +290,7 @@ class DocumentGenerator {
         {
           avenue,
           month: parseInt(String(month)),
-          year: parseInt(String(year))
+          year : parseInt(String(year))
         },
         `${avenueLabel.replace(/\s+/g, '_')}_Report_${monthName}_${year}.docx`
       );
@@ -271,7 +304,7 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     5. GENERATE MEETING AGENDA (.docx)
+     5.  GENERATE MEETING AGENDA  (.docx)
      ============================================================ */
   async generateMeetingAgenda(meetingId) {
     if (!meetingId) throw new Error('meetingId is required');
@@ -294,7 +327,7 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     6. GENERATE MEETING MINUTES (.docx)
+     6.  GENERATE MEETING MINUTES  (.docx)
      ============================================================ */
   async generateMeetingMinutes(meetingId) {
     if (!meetingId) throw new Error('meetingId is required');
@@ -317,7 +350,7 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     7. GENERATE ATTENDANCE SHEET (.docx)
+     7.  GENERATE ATTENDANCE SHEET  (.docx)
      ============================================================ */
   async generateAttendanceSheet(meetingId) {
     if (!meetingId) throw new Error('meetingId is required');
@@ -340,10 +373,10 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     8. GENERATE TREASURY STATEMENT (.xlsx) — Client Side
-        (No edge function needed — uses SheetJS directly)
+     8.  GENERATE TREASURY STATEMENT  (.xlsx)  — client-side
+         Uses SheetJS (XLSX) directly — no edge function needed.
      ============================================================ */
-  async generateTreasuryStatement(fromDate, toDate, format = 'excel') {
+  async generateTreasuryStatement(fromDate, toDate) {
     if (!fromDate || !toDate) {
       throw new Error('fromDate and toDate are required');
     }
@@ -357,7 +390,7 @@ class DocumentGenerator {
         .gte('transaction_date', fromDate)
         .lte('transaction_date', toDate)
         .order('transaction_date', { ascending: true })
-        .order('created_at', { ascending: true });
+        .order('created_at',      { ascending: true });
 
       if (error) throw new Error(error.message);
 
@@ -376,12 +409,12 @@ class DocumentGenerator {
 
       // Build rows
       const rows = transactions.map((t, i) => ({
-        'S.No': i + 1,
-        'Date': t.transaction_date,
-        'Particular': t.particular || '',
-        'Category': t.category || '',
-        'Voucher No': t.voucher_number || '',
-        'Income (Rs.)': t.transaction_type === 'income'
+        'S.No'         : i + 1,
+        'Date'         : t.transaction_date,
+        'Particular'   : t.particular   || '',
+        'Category'     : t.category     || '',
+        'Voucher No'   : t.voucher_number || '',
+        'Income (Rs.)' : t.transaction_type === 'income'
           ? parseFloat(t.amount || 0).toFixed(2) : '',
         'Expense (Rs.)': t.transaction_type === 'expense'
           ? parseFloat(t.amount || 0).toFixed(2) : '',
@@ -390,22 +423,20 @@ class DocumentGenerator {
 
       // Totals row
       rows.push({
-        'S.No': '',
-        'Date': '',
-        'Particular': 'TOTAL',
-        'Category': '',
-        'Voucher No': '',
-        'Income (Rs.)': totalIncome.toFixed(2),
+        'S.No'         : '',
+        'Date'         : '',
+        'Particular'   : 'TOTAL',
+        'Category'     : '',
+        'Voucher No'   : '',
+        'Income (Rs.)' : totalIncome.toFixed(2),
         'Expense (Rs.)': totalExpense.toFixed(2),
         'Balance (Rs.)': (totalIncome - totalExpense).toFixed(2)
       });
 
       if (typeof XLSX !== 'undefined') {
         const ws = XLSX.utils.json_to_sheet(rows);
-
-        // Column widths
         ws['!cols'] = [
-          { width: 6 },
+          { width: 6  },
           { width: 14 },
           { width: 35 },
           { width: 20 },
@@ -418,7 +449,8 @@ class DocumentGenerator {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, 'Treasury Statement');
 
-        const filename = `Treasury_Statement_${fromDate}_to_${toDate}.xlsx`;
+        const filename =
+          `Treasury_Statement_${fromDate}_to_${toDate}.xlsx`;
         XLSX.writeFile(wb, filename);
         this._showSuccess('Treasury statement downloaded!');
       } else {
@@ -434,8 +466,10 @@ class DocumentGenerator {
         ].join('\n');
 
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
-        const filename = `Treasury_Statement_${fromDate}_to_${toDate}.csv`;
-        this._downloadBlob(blob, filename);
+        this._downloadBlob(
+          blob,
+          `Treasury_Statement_${fromDate}_to_${toDate}.csv`
+        );
         this._showSuccess('Treasury statement (CSV) downloaded!');
       }
 
@@ -448,22 +482,24 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     QUICK TREASURY STATEMENT SHORTCUTS
+     QUICK TREASURY SHORTCUTS
      ============================================================ */
   async downloadCurrentMonthStatement() {
-    const now = new Date();
-    const fromDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-    const toDate = now.toISOString().split('T')[0];
+    const now      = new Date();
+    const fromDate = `${now.getFullYear()}-${
+      String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    const toDate   = now.toISOString().split('T')[0];
     return await this.generateTreasuryStatement(fromDate, toDate);
   }
 
   async downloadLastMonthStatement() {
-    const now = new Date();
-    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    const now          = new Date();
+    const lastMonth    = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
-    const fromDate = lastMonth.toISOString().split('T')[0];
-    const toDate = lastMonthEnd.toISOString().split('T')[0];
-    return await this.generateTreasuryStatement(fromDate, toDate);
+    return await this.generateTreasuryStatement(
+      lastMonth.toISOString().split('T')[0],
+      lastMonthEnd.toISOString().split('T')[0]
+    );
   }
 
   async downloadCurrentYearStatement() {
@@ -472,14 +508,17 @@ class DocumentGenerator {
     const rotaryYearStart = now.getMonth() >= 6
       ? `${now.getFullYear()}-07-01`
       : `${now.getFullYear() - 1}-07-01`;
-    const toDate = now.toISOString().split('T')[0];
-    return await this.generateTreasuryStatement(rotaryYearStart, toDate);
+    return await this.generateTreasuryStatement(
+      rotaryYearStart,
+      now.toISOString().split('T')[0]
+    );
   }
 
   async downloadAllTransactionsStatement() {
-    const fromDate = '2019-01-01';
-    const toDate = new Date().toISOString().split('T')[0];
-    return await this.generateTreasuryStatement(fromDate, toDate);
+    return await this.generateTreasuryStatement(
+      '2019-01-01',
+      new Date().toISOString().split('T')[0]
+    );
   }
 
   /* ============================================================
@@ -497,11 +536,10 @@ class DocumentGenerator {
     ];
 
     const results = {};
-
     for (const fn of functions) {
       try {
         const response = await fetch(`${this.baseUrl}/${fn}`, {
-          method: 'OPTIONS',
+          method : 'OPTIONS',
           headers: this.headers
         });
         results[fn] = response.ok || response.status === 200;
@@ -509,13 +547,11 @@ class DocumentGenerator {
         results[fn] = false;
       }
     }
-
     return results;
   }
 
   /* ============================================================
      GENERATE COMBINED MEETING DOCUMENT
-     (Attendance + Agenda + Minutes in one call)
      ============================================================ */
   async generateCombinedMeetingDoc(meetingId, type = 'minutes') {
     if (!meetingId) throw new Error('meetingId is required');
@@ -532,7 +568,7 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     HELPER: Get safe filename
+     HELPER: safe filename
      ============================================================ */
   _safeFilename(name, extension = 'docx') {
     const safe = (name || 'document')
@@ -543,17 +579,41 @@ class DocumentGenerator {
   }
 
   /* ============================================================
-     HELPER: Format month name
+     HELPER: month name
      ============================================================ */
   _getMonthName(month) {
     if (typeof DateUtils !== 'undefined') {
       return DateUtils.getMonthName(month);
     }
     const names = [
-      '', 'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      '', 'January', 'February', 'March',    'April',   'May',      'June',
+          'July',    'August',   'September', 'October', 'November', 'December'
     ];
     return names[parseInt(String(month))] || '';
+  }
+
+  /* ============================================================
+     HELPER: resolve DPP pillar label from key
+     ============================================================ */
+  _getDPPPillarLabel(key) {
+    if (typeof DPP_PILLARS !== 'undefined' && DPP_PILLARS[key]) {
+      return DPP_PILLARS[key].label;
+    }
+    return key
+      ? key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+      : '';
+  }
+
+  /* ============================================================
+     HELPER: resolve DPP category label from key
+     ============================================================ */
+  _getDPPCategoryLabel(key) {
+    if (typeof DPP_CATEGORIES !== 'undefined' && DPP_CATEGORIES[key]) {
+      return DPP_CATEGORIES[key].label;
+    }
+    return key
+      ? key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+      : '';
   }
 }
 
@@ -564,15 +624,21 @@ const docGenerator = new DocumentGenerator();
 window.docGenerator = docGenerator;
 
 /* ============================================================
-   VERIFY SUPABASE URL IS SET
+   VERIFY SUPABASE CONFIG IS SET
    ============================================================ */
 (function verifyDocGenerator() {
   if (typeof SUPABASE_URL === 'undefined' || !SUPABASE_URL) {
-    console.error('DocumentGenerator: SUPABASE_URL is not defined. Make sure config.js is loaded first.');
+    console.error(
+      'DocumentGenerator: SUPABASE_URL is not defined. ' +
+      'Make sure config.js is loaded first.'
+    );
     return;
   }
   if (typeof SUPABASE_ANON_KEY === 'undefined' || !SUPABASE_ANON_KEY) {
-    console.error('DocumentGenerator: SUPABASE_ANON_KEY is not defined. Make sure config.js is loaded first.');
+    console.error(
+      'DocumentGenerator: SUPABASE_ANON_KEY is not defined. ' +
+      'Make sure config.js is loaded first.'
+    );
     return;
   }
   console.log(
