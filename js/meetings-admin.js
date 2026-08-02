@@ -18,7 +18,6 @@ class MeetingsAdminManager {
     this._meetingTimers = {};
     this._pendingPoster = null;
 
-    /* Supabase public config — used inside attendance.html */
     this._supabaseUrl = 'https://itaewvrngvowimjgfawa.supabase.co';
     this._supabaseKey =
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.' +
@@ -62,7 +61,8 @@ class MeetingsAdminManager {
         </div>
         <div class="admin-section-actions">
           ${this.auth.can('CREATE_MEETING') ? `
-          <button class="btn btn-primary" onclick="meetingsAdmin.showMeetingForm()">
+          <button class="btn btn-primary"
+                  onclick="meetingsAdmin.showMeetingForm()">
             <i data-lucide="plus-circle"></i>
             <span>Schedule Meeting</span>
           </button>` : ''}
@@ -84,20 +84,19 @@ class MeetingsAdminManager {
               <div class="neu-card"
                    style="padding:16px;text-align:center;cursor:pointer;"
                    onclick="meetingsAdmin.filterByType('${key}')">
-                <div style="width:40px;height:40px;border-radius:var(--border-radius-sm);
-                            background:var(--accent-light);display:flex;align-items:center;
-                            justify-content:center;margin:0 auto 8px;">
+                <div style="width:40px;height:40px;
+                            border-radius:var(--border-radius-sm);
+                            background:var(--accent-light);display:flex;
+                            align-items:center;justify-content:center;
+                            margin:0 auto 8px;">
                   <i data-lucide="${icons[key] || 'users'}"
                      style="width:20px;height:20px;color:var(--accent);"></i>
                 </div>
-                <div style="font-size:1.4rem;font-weight:800;color:var(--text-heading);">
-                  ${count}
-                </div>
-                <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">
-                  ${label}
-                </div>
-              </div>
-            `;
+                <div style="font-size:1.4rem;font-weight:800;
+                            color:var(--text-heading);">${count}</div>
+                <div style="font-size:0.72rem;color:var(--text-muted);
+                            font-weight:600;">${label}</div>
+              </div>`;
           }).join('')}
         </div>
       </div>
@@ -107,7 +106,8 @@ class MeetingsAdminManager {
         <div class="admin-filters-row">
           <div class="input-wrap neu-inset" style="flex:1;max-width:300px;">
             <i data-lucide="search"
-               style="width:16px;height:16px;color:var(--text-muted);flex-shrink:0;"></i>
+               style="width:16px;height:16px;color:var(--text-muted);
+                      flex-shrink:0;"></i>
             <input type="text" id="mtg-search" class="form-input"
                    placeholder="Search meetings..."
                    oninput="meetingsAdmin.applyFilters()" />
@@ -126,7 +126,9 @@ class MeetingsAdminManager {
             <select id="mtg-year-filter" class="form-select"
                     onchange="meetingsAdmin.applyFilters()">
               <option value="">All Years</option>
-              ${ROTARY_YEARS.map(y => `<option value="${y}">${y}</option>`).join('')}
+              ${ROTARY_YEARS.map(y =>
+                `<option value="${y}">${y}</option>`
+              ).join('')}
             </select>
             <i data-lucide="chevron-down" class="select-arrow"></i>
           </div>
@@ -188,8 +190,7 @@ class MeetingsAdminManager {
             <i data-lucide="calendar-x"></i>
             <span>No meetings scheduled</span>
           </td>
-        </tr>
-      `;
+        </tr>`;
     }
 
     const today = new Date().toISOString().split('T')[0];
@@ -202,17 +203,14 @@ class MeetingsAdminManager {
       const statusBadge = isToday
         ? `<span class="admin-status-badge"
                 style="background:var(--success-light);color:var(--success);">
-            Today
-           </span>`
+            Today</span>`
         : isPast
           ? `<span class="admin-status-badge"
                   style="background:var(--bg-secondary);color:var(--text-muted);">
-              Past
-             </span>`
+              Past</span>`
           : `<span class="admin-status-badge"
                   style="background:var(--accent-light);color:var(--accent);">
-              Upcoming
-             </span>`;
+              Upcoming</span>`;
 
       return `
         <tr data-meeting-id="${meeting.id}"
@@ -260,30 +258,34 @@ class MeetingsAdminManager {
           <td>
             ${meeting.is_invitation_sent
               ? `<div style="display:flex;align-items:center;gap:4px;
-                             color:var(--success);font-size:0.78rem;font-weight:600;">
-                  <i data-lucide="check-circle" style="width:13px;height:13px;"></i>
-                  Sent
+                             color:var(--success);font-size:0.78rem;
+                             font-weight:600;">
+                  <i data-lucide="check-circle"
+                     style="width:13px;height:13px;"></i> Sent
                 </div>`
               : `<div style="display:flex;align-items:center;gap:4px;
                              color:var(--text-muted);font-size:0.78rem;">
-                  <i data-lucide="clock" style="width:13px;height:13px;"></i>
-                  Pending
+                  <i data-lucide="clock"
+                     style="width:13px;height:13px;"></i> Pending
                 </div>`}
           </td>
           <td>
             ${meeting.minutes_finalized
               ? `<div style="display:flex;align-items:center;gap:4px;
-                             color:var(--success);font-size:0.78rem;font-weight:600;">
-                  <i data-lucide="file-check" style="width:13px;height:13px;"></i>
-                  Ready
+                             color:var(--success);font-size:0.78rem;
+                             font-weight:600;">
+                  <i data-lucide="file-check"
+                     style="width:13px;height:13px;"></i> Ready
                 </div>`
               : isPast
                 ? `<div style="display:flex;align-items:center;gap:4px;
-                               color:var(--warning);font-size:0.78rem;font-weight:600;">
-                    <i data-lucide="file-edit" style="width:13px;height:13px;"></i>
-                    Pending
+                               color:var(--warning);font-size:0.78rem;
+                               font-weight:600;">
+                    <i data-lucide="file-edit"
+                       style="width:13px;height:13px;"></i> Pending
                   </div>`
-                : `<div style="color:var(--text-muted);font-size:0.78rem;">—</div>`}
+                : `<div style="color:var(--text-muted);font-size:0.78rem;">
+                    —</div>`}
           </td>
           <td>
             <div class="admin-table-actions">
@@ -330,8 +332,7 @@ class MeetingsAdminManager {
               </button>` : ''}
             </div>
           </td>
-        </tr>
-      `;
+        </tr>`;
     }).join('');
   }
 
@@ -374,7 +375,10 @@ class MeetingsAdminManager {
 
   resetFilters() {
     ['mtg-search','mtg-type-filter','mtg-year-filter','mtg-status-filter']
-      .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      .forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+      });
     this.applyFilters();
   }
 
@@ -382,7 +386,8 @@ class MeetingsAdminManager {
      TOKEN GENERATOR
      ============================================================ */
   generateFormToken() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let t = '';
     for (let i = 0; i < 32; i++)
       t += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -391,13 +396,10 @@ class MeetingsAdminManager {
 
   /* ============================================================
      BUILD ATTENDANCE FORM URL
-     Points to /attendance.html?meeting=xxx&token=xxx
-     No file upload needed — avoids all MIME-type issues
      ============================================================ */
   buildAttendanceFormUrl(meetingId, formToken) {
     const origin   = window.location.origin;
     const pathname = window.location.pathname;
-    /* Works whether app is at root or /subpath/ */
     const base     = pathname.includes('/')
       ? pathname.substring(0, pathname.lastIndexOf('/'))
       : '';
@@ -408,7 +410,6 @@ class MeetingsAdminManager {
 
   /* ============================================================
      SETUP MEETING TIMERS
-     Auto-sends attendance form at meeting start time (today only)
      ============================================================ */
   setupMeetingTimers(meetings) {
     const now   = new Date();
@@ -437,15 +438,17 @@ class MeetingsAdminManager {
         const endDelay   = meetingEnd - now;
         if (endDelay > 0) {
           setTimeout(() => {
-            const row = document.querySelector(
+            const row  = document.querySelector(
               `tr[data-meeting-id="${meeting.id}"]`
             );
             const cell = row?.querySelector('td:nth-child(7)');
             if (cell && !meeting.minutes_finalized) {
               cell.innerHTML = `
                 <div style="display:flex;align-items:center;gap:4px;
-                            color:var(--warning);font-size:0.78rem;font-weight:600;">
-                  <i data-lucide="file-edit" style="width:13px;height:13px;"></i>
+                            color:var(--warning);font-size:0.78rem;
+                            font-weight:600;">
+                  <i data-lucide="file-edit"
+                     style="width:13px;height:13px;"></i>
                   Prepare Now
                 </div>`;
               lucide.createIcons();
@@ -457,15 +460,11 @@ class MeetingsAdminManager {
   }
 
   /* ============================================================
-     SEND ATTENDANCE FORM  ← CORE FEATURE
-     Generates a URL pointing to attendance.html,
-     saves it to the meeting record, and emails members.
-     NO file upload / NO HTML storage required.
+     SEND ATTENDANCE FORM
      ============================================================ */
   async sendAttendanceForm(meetingId, silent = false) {
     const dashboard = this._currentDashboard;
     try {
-      /* 1. Fetch meeting */
       const { data: meeting, error: meetingErr } = await this.db
         .from('meetings')
         .select('*')
@@ -477,16 +476,14 @@ class MeetingsAdminManager {
         return;
       }
 
-      if (!silent) dashboard?.showToast('Generating attendance form link…', 'info');
+      if (!silent)
+        dashboard?.showToast('Generating attendance form link…', 'info');
 
-      /* 2. Generate or reuse token */
       let formToken = meeting.attendance_form_token;
       if (!formToken) formToken = this.generateFormToken();
 
-      /* 3. Build URL — no upload, just a URL with query params */
       const formUrl = this.buildAttendanceFormUrl(meetingId, formToken);
 
-      /* 4. Persist token + URL to meetings table */
       const { error: updateErr } = await this.db
         .from('meetings')
         .update({
@@ -498,7 +495,6 @@ class MeetingsAdminManager {
 
       if (updateErr) throw updateErr;
 
-      /* 5. Send email with form link */
       if (window.emailService) {
         await window.emailService.sendAttendanceFormLink(
           meeting, formUrl, formToken
@@ -507,7 +503,6 @@ class MeetingsAdminManager {
         console.info('[MeetingsAdmin] Attendance form URL:', formUrl);
       }
 
-      /* 6. Log activity */
       const admin = this.auth.getAdmin();
       if (admin) {
         await this.auth.logActivity(
@@ -533,20 +528,19 @@ class MeetingsAdminManager {
       console.error('sendAttendanceForm error:', err);
       if (!silent) {
         dashboard?.showToast(
-          `Failed to send attendance form: ${err.message}`,
-          'error'
+          `Failed to send attendance form: ${err.message}`, 'error'
         );
       }
     }
   }
 
   /* ============================================================
-     PREVIEW ATTENDANCE FORM (open attendance.html in new tab)
+     PREVIEW ATTENDANCE FORM
      ============================================================ */
   async previewAttendanceForm(meetingId) {
     const { data: meeting } = await this.db
       .from('meetings')
-      .select('id, title, attendance_form_token, attendance_form_url')
+      .select('id, attendance_form_token, attendance_form_url')
       .eq('id', meetingId)
       .single();
 
@@ -555,13 +549,11 @@ class MeetingsAdminManager {
       return;
     }
 
-    /* Use existing URL if already generated */
     if (meeting.attendance_form_url) {
       window.open(meeting.attendance_form_url, '_blank');
       return;
     }
 
-    /* Generate a preview URL on the fly */
     const token = meeting.attendance_form_token || this.generateFormToken();
     const url   = this.buildAttendanceFormUrl(meetingId, token);
     window.open(url, '_blank');
@@ -589,8 +581,7 @@ class MeetingsAdminManager {
     if (!content) return;
 
     this._agendaItems = Array.isArray(meetingData?.agenda)
-      ? meetingData.agenda
-      : [];
+      ? meetingData.agenda : [];
 
     content.innerHTML = `
       <div class="admin-section-header">
@@ -613,7 +604,6 @@ class MeetingsAdminManager {
         <form id="mtg-form" novalidate>
           <div class="admin-form-grid">
 
-            <!-- Title -->
             <div class="form-group admin-form-full">
               <label class="form-label">
                 <i data-lucide="type"></i> Meeting Title *
@@ -621,12 +611,12 @@ class MeetingsAdminManager {
               <div class="input-wrap neu-inset">
                 <input type="text" name="title" class="form-input"
                        placeholder="e.g., Regular Board Meeting – July 2025"
-                       value="${isEdit ? StringUtils.sanitize(meetingData.title) : ''}"
+                       value="${isEdit
+                         ? StringUtils.sanitize(meetingData.title) : ''}"
                        required />
               </div>
             </div>
 
-            <!-- Meeting Type -->
             <div class="form-group">
               <label class="form-label">
                 <i data-lucide="tag"></i> Meeting Type *
@@ -635,16 +625,14 @@ class MeetingsAdminManager {
                 <select name="meeting_type" class="form-select" required>
                   ${Object.entries(MEETING_TYPES).map(([k, v]) => `
                     <option value="${k}"
-                      ${isEdit && meetingData.meeting_type === k ? 'selected' : ''}>
-                      ${v}
-                    </option>
-                  `).join('')}
+                      ${isEdit && meetingData.meeting_type === k
+                        ? 'selected' : ''}>${v}</option>`
+                  ).join('')}
                 </select>
                 <i data-lucide="chevron-down" class="select-arrow"></i>
               </div>
             </div>
 
-            <!-- Group Number -->
             <div class="form-group">
               <label class="form-label">
                 <i data-lucide="hash"></i> Group Number *
@@ -657,14 +645,12 @@ class MeetingsAdminManager {
                         ? 'selected'
                         : !isEdit && g === '1' ? 'selected' : ''}>
                       Group ${g}
-                    </option>
-                  `).join('')}
+                    </option>`).join('')}
                 </select>
                 <i data-lucide="chevron-down" class="select-arrow"></i>
               </div>
             </div>
 
-            <!-- Date -->
             <div class="form-group">
               <label class="form-label">
                 <i data-lucide="calendar"></i> Meeting Date *
@@ -676,7 +662,6 @@ class MeetingsAdminManager {
               </div>
             </div>
 
-            <!-- Start Time -->
             <div class="form-group">
               <label class="form-label">
                 <i data-lucide="clock"></i> Start Time *
@@ -688,18 +673,17 @@ class MeetingsAdminManager {
               </div>
             </div>
 
-            <!-- End Time -->
             <div class="form-group">
               <label class="form-label">
                 <i data-lucide="clock-8"></i> Expected End Time
               </label>
               <div class="input-wrap neu-inset">
                 <input type="time" name="end_time" class="form-input"
-                       value="${isEdit ? (meetingData.end_time || '') : ''}" />
+                       value="${isEdit
+                         ? (meetingData.end_time || '') : ''}" />
               </div>
             </div>
 
-            <!-- Venue -->
             <div class="form-group admin-form-full">
               <label class="form-label">
                 <i data-lucide="map-pin"></i> Venue *
@@ -707,26 +691,28 @@ class MeetingsAdminManager {
               <div class="input-wrap neu-inset">
                 <input type="text" name="venue" class="form-input"
                        placeholder="Full venue name and address"
-                       value="${isEdit ? StringUtils.sanitize(meetingData.venue || '') : ''}"
+                       value="${isEdit
+                         ? StringUtils.sanitize(meetingData.venue || '')
+                         : ''}"
                        required />
               </div>
             </div>
 
-            <!-- Minutes Prepared By -->
             <div class="form-group">
               <label class="form-label">
                 <i data-lucide="user"></i> Minutes Prepared By
               </label>
               <div class="input-wrap neu-inset">
-                <input type="text" name="minutes_prepared_by" class="form-input"
+                <input type="text" name="minutes_prepared_by"
+                       class="form-input"
                        placeholder="Name of person preparing minutes"
                        value="${isEdit
-                         ? StringUtils.sanitize(meetingData.minutes_prepared_by || '')
+                         ? StringUtils.sanitize(
+                             meetingData.minutes_prepared_by || '')
                          : ''}" />
               </div>
             </div>
 
-            <!-- Sergeant at Arms -->
             <div class="form-group">
               <label class="form-label">
                 <i data-lucide="shield"></i> Sergeant at Arms
@@ -735,12 +721,12 @@ class MeetingsAdminManager {
                 <input type="text" name="sergeant_at_arms" class="form-input"
                        placeholder="Sergeant at Arms name"
                        value="${isEdit
-                         ? StringUtils.sanitize(meetingData.sergeant_at_arms || '')
+                         ? StringUtils.sanitize(
+                             meetingData.sergeant_at_arms || '')
                          : ''}" />
               </div>
             </div>
 
-            <!-- Description -->
             <div class="form-group admin-form-full">
               <label class="form-label">
                 <i data-lucide="file-text"></i> Meeting Description / Purpose
@@ -754,7 +740,6 @@ class MeetingsAdminManager {
               </div>
             </div>
 
-            <!-- Poster -->
             <div class="form-group admin-form-full">
               <label class="form-label">
                 <i data-lucide="image"></i> Meeting Poster / Invitation Image
@@ -781,7 +766,8 @@ class MeetingsAdminManager {
                             border-radius:var(--border-radius-sm);
                             box-shadow:var(--neu-shadow-sm);" />
               </div>` : ''}
-              <div id="mtg-poster-preview" style="display:none;margin-top:8px;"></div>
+              <div id="mtg-poster-preview"
+                   style="display:none;margin-top:8px;"></div>
             </div>
 
           </div>
@@ -861,12 +847,13 @@ class MeetingsAdminManager {
   renderAgendaItemRow(item, index) {
     return `
       <div class="agenda-item-row" id="agenda-item-${index}"
-           style="display:flex;align-items:center;gap:10px;margin-bottom:8px;
-                  padding:10px;background:var(--bg-secondary);
+           style="display:flex;align-items:center;gap:10px;
+                  margin-bottom:8px;padding:10px;
+                  background:var(--bg-secondary);
                   border-radius:var(--border-radius-sm);">
         <div style="width:24px;height:24px;border-radius:50%;
-                    background:var(--accent);color:#fff;display:flex;
-                    align-items:center;justify-content:center;
+                    background:var(--accent);color:#fff;
+                    display:flex;align-items:center;justify-content:center;
                     font-size:0.72rem;font-weight:700;flex-shrink:0;">
           ${index + 1}
         </div>
@@ -882,11 +869,11 @@ class MeetingsAdminManager {
                 style="width:28px;height:28px;border-radius:50%;
                        background:var(--danger-light);color:var(--danger);
                        border:none;cursor:pointer;display:flex;
-                       align-items:center;justify-content:center;flex-shrink:0;">
+                       align-items:center;justify-content:center;
+                       flex-shrink:0;">
           <i data-lucide="x" style="width:13px;height:13px;"></i>
         </button>
-      </div>
-    `;
+      </div>`;
   }
 
   addAgendaItem() {
@@ -956,7 +943,9 @@ class MeetingsAdminManager {
     if (form) {
       form.addEventListener('submit', async e => {
         e.preventDefault();
-        await this.submitMeetingForm(isEdit, isEdit ? this._editingMeetingId : null);
+        await this.submitMeetingForm(
+          isEdit, isEdit ? this._editingMeetingId : null
+        );
       });
     }
   }
@@ -973,7 +962,6 @@ class MeetingsAdminManager {
     const data  = Object.fromEntries(new FormData(form).entries());
     const admin = this.auth.getAdmin();
 
-    /* Validate required fields */
     const required = [
       { key: 'title',        label: 'Meeting Title' },
       { key: 'meeting_type', label: 'Meeting Type'  },
@@ -990,18 +978,19 @@ class MeetingsAdminManager {
 
     if (submitBtn) {
       submitBtn.disabled  = true;
-      submitBtn.innerHTML = '<i data-lucide="loader-2"></i><span>Saving...</span>';
+      submitBtn.innerHTML =
+        '<i data-lucide="loader-2"></i><span>Saving...</span>';
       lucide.createIcons();
     }
 
     try {
-      /* Collect agenda from DOM */
       const agendaItems = Array.from(
-        document.querySelectorAll('#agenda-items-container input[type="text"]')
+        document.querySelectorAll(
+          '#agenda-items-container input[type="text"]'
+        )
       ).map((inp, i) => ({ text: inp.value.trim(), order: i + 1 }))
        .filter(a => a.text);
 
-      /* Upload poster if changed */
       let posterUrl = null;
       if (this._pendingPoster) {
         try {
@@ -1027,7 +1016,7 @@ class MeetingsAdminManager {
         meeting_type       : data.meeting_type,
         meeting_date       : data.meeting_date,
         start_time         : data.start_time,
-        end_time           : data.end_time           || null,
+        end_time           : data.end_time || null,
         venue              : data.venue.trim(),
         description        : data.description?.trim()         || null,
         minutes_prepared_by: data.minutes_prepared_by?.trim() || null,
@@ -1057,12 +1046,12 @@ class MeetingsAdminManager {
         );
       }
 
-      /* Auto-send invitation for new meetings */
       if (!isEdit && savedId) await this.sendInvitation(savedId, true);
 
       this._currentDashboard?.showToast(
-        isEdit ? 'Meeting updated successfully!'
-               : 'Meeting scheduled! Invitation will be sent.',
+        isEdit
+          ? 'Meeting updated successfully!'
+          : 'Meeting scheduled! Invitation will be sent.',
         'success'
       );
       await this.renderMeetingsList(
@@ -1072,7 +1061,9 @@ class MeetingsAdminManager {
 
     } catch (err) {
       console.error('Meeting form error:', err);
-      this.showFormMsg(msgEl, `Failed to save meeting: ${err.message}`, 'error');
+      this.showFormMsg(
+        msgEl, `Failed to save meeting: ${err.message}`, 'error'
+      );
     } finally {
       if (submitBtn) {
         submitBtn.disabled  = false;
@@ -1092,7 +1083,8 @@ class MeetingsAdminManager {
         .from('meetings').select('*').eq('id', meetingId).single();
 
       if (!meeting) {
-        if (!silent) this._currentDashboard?.showToast('Meeting not found','error');
+        if (!silent)
+          this._currentDashboard?.showToast('Meeting not found', 'error');
         return;
       }
 
@@ -1116,7 +1108,9 @@ class MeetingsAdminManager {
     } catch (e) {
       console.error('Send invitation error:', e);
       if (!silent)
-        this._currentDashboard?.showToast('Failed to send invitation','error');
+        this._currentDashboard?.showToast(
+          'Failed to send invitation', 'error'
+        );
     }
   }
 
@@ -1154,7 +1148,9 @@ class MeetingsAdminManager {
                         font-weight:600;margin-bottom:6px;">
               ${typeLabel} • Group ${meeting.group_number || '1'}
             </div>
-            <h2 class="modal-title">${StringUtils.sanitize(meeting.title)}</h2>
+            <h2 class="modal-title">
+              ${StringUtils.sanitize(meeting.title)}
+            </h2>
           </div>
           <button class="modal-close neu-btn"
                   onclick="document.getElementById('mtg-detail-modal').remove();
@@ -1245,9 +1241,11 @@ class MeetingsAdminManager {
             <h4 style="display:flex;align-items:center;gap:8px;
                         font-size:0.9rem;font-weight:700;
                         color:var(--text-heading);margin-bottom:12px;">
-              <i data-lucide="list"></i> Agenda (${agenda.length} items)
+              <i data-lucide="list"></i>
+              Agenda (${agenda.length} items)
             </h4>
-            <ol style="padding-left:20px;display:flex;flex-direction:column;gap:8px;">
+            <ol style="padding-left:20px;display:flex;
+                        flex-direction:column;gap:8px;">
               ${agenda.map(item => `
                 <li style="font-size:0.84rem;color:var(--text-secondary);
                            line-height:1.5;">
@@ -1258,7 +1256,10 @@ class MeetingsAdminManager {
 
           ${photos.length > 0 ? `
           <div class="modal-photos-section" style="margin-bottom:20px;">
-            <h4><i data-lucide="camera"></i> Photos (${photos.length})</h4>
+            <h4>
+              <i data-lucide="camera"></i>
+              Photos (${photos.length})
+            </h4>
             <div class="modal-photos-grid">
               ${photos.map(p => `
                 <div class="modal-photo-item">
@@ -1269,20 +1270,22 @@ class MeetingsAdminManager {
             </div>
           </div>` : ''}
 
-          <!-- Status Badges -->
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
             <span class="admin-status-badge"
                   style="${meeting.is_invitation_sent
                     ? 'background:var(--success-light);color:var(--success);'
                     : 'background:var(--warning-light);color:var(--warning);'}">
               <i data-lucide="${meeting.is_invitation_sent
-                ? 'check-circle' : 'clock'}" style="width:12px;height:12px;"></i>
-              ${meeting.is_invitation_sent ? 'Invitation Sent' : 'Invitation Pending'}
+                ? 'check-circle' : 'clock'}"
+                 style="width:12px;height:12px;"></i>
+              ${meeting.is_invitation_sent
+                ? 'Invitation Sent' : 'Invitation Pending'}
             </span>
             ${meeting.attendance_form_url ? `
             <span class="admin-status-badge"
                   style="background:var(--success-light);color:var(--success);">
-              <i data-lucide="clipboard-check" style="width:12px;height:12px;"></i>
+              <i data-lucide="clipboard-check"
+                 style="width:12px;height:12px;"></i>
               Attendance Form Sent
             </span>` : ''}
             ${meeting.minutes_finalized ? `
@@ -1299,7 +1302,6 @@ class MeetingsAdminManager {
             </span>` : ''}
           </div>
 
-          <!-- Attendance Form Link -->
           ${meeting.attendance_form_url ? `
           <div style="margin-bottom:20px;padding:14px 16px;
                       background:var(--accent-light);
@@ -1329,7 +1331,6 @@ class MeetingsAdminManager {
             </div>
           </div>` : ''}
 
-          <!-- Modal Actions -->
           <div class="modal-actions" style="flex-wrap:wrap;">
             ${this.auth.can('MANAGE_MEETING') ? `
             <button class="btn btn-outline btn-sm"
@@ -1338,7 +1339,8 @@ class MeetingsAdminManager {
                              document.body.style.overflow='';">
               <i data-lucide="pencil"></i><span>Edit</span>
             </button>` : ''}
-            ${!meeting.is_invitation_sent && this.auth.can('MANAGE_MEETING') ? `
+            ${!meeting.is_invitation_sent &&
+              this.auth.can('MANAGE_MEETING') ? `
             <button class="btn btn-primary btn-sm"
                     onclick="meetingsAdmin.sendInvitation('${meetingId}');
                              document.getElementById('mtg-detail-modal').remove();
@@ -1355,7 +1357,8 @@ class MeetingsAdminManager {
                 ? 'Resend Form' : 'Send Attendance Form'}</span>
             </button>
             <button class="btn btn-outline btn-sm"
-                    onclick="meetingsAdmin.previewAttendanceForm('${meetingId}')">
+                    onclick="meetingsAdmin.previewAttendanceForm(
+                      '${meetingId}')">
               <i data-lucide="eye"></i><span>Preview Form</span>
             </button>` : ''}
             ${this.auth.can('VIEW_MEETING_ATTENDANCE') ? `
@@ -1363,29 +1366,32 @@ class MeetingsAdminManager {
                     onclick="meetingsAdmin.viewAttendance('${meetingId}');
                              document.getElementById('mtg-detail-modal').remove();
                              document.body.style.overflow='';">
-              <i data-lucide="check-square"></i><span>View Attendance</span>
+              <i data-lucide="check-square"></i>
+              <span>View Attendance</span>
             </button>` : ''}
             ${this.auth.can('GENERATE_MINUTES') && isPast ? `
             <button class="btn btn-outline btn-sm"
                     onclick="meetingsAdmin.showMinutesForm('${meetingId}');
                              document.getElementById('mtg-detail-modal').remove();
                              document.body.style.overflow='';">
-              <i data-lucide="file-text"></i><span>Meeting Minutes</span>
+              <i data-lucide="file-text"></i>
+              <span>Meeting Minutes</span>
             </button>` : ''}
             ${this.auth.can('MANAGE_MEETING') ? `
             <button class="btn btn-outline btn-sm"
                     onclick="meetingsAdmin.downloadAgenda('${meetingId}')">
-              <i data-lucide="download"></i><span>Download Agenda</span>
+              <i data-lucide="download"></i>
+              <span>Download Agenda</span>
             </button>` : ''}
             ${meeting.minutes_finalized ? `
             <button class="btn btn-outline btn-sm"
                     onclick="meetingsAdmin.downloadMeetingDocs('${meetingId}')">
-              <i data-lucide="file-down"></i><span>Download All Docs</span>
+              <i data-lucide="file-down"></i>
+              <span>Download All Docs</span>
             </button>` : ''}
           </div>
         </div>
-      </div>
-    `;
+      </div>`;
 
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
@@ -1428,8 +1434,7 @@ class MeetingsAdminManager {
     }
 
     this._minutesEntries = Array.isArray(meeting.minutes_content)
-      ? meeting.minutes_content
-      : [];
+      ? meeting.minutes_content : [];
 
     content.innerHTML = `
       <div class="admin-section-header">
@@ -1459,7 +1464,6 @@ class MeetingsAdminManager {
         </div>
       </div>
 
-      <!-- Meeting Info Summary -->
       <div class="admin-card neu-card" style="margin-bottom:20px;">
         <div class="admin-card-header">
           <h3><i data-lucide="info"></i> Meeting Information</h3>
@@ -1470,7 +1474,7 @@ class MeetingsAdminManager {
             <div>
               <span class="modal-detail-label">Date</span>
               <span class="modal-detail-value">
-                ${DateUtils.format(meeting.meeting_date,'long')}
+                ${DateUtils.format(meeting.meeting_date, 'long')}
               </span>
             </div>
           </div>
@@ -1506,7 +1510,6 @@ class MeetingsAdminManager {
         </div>
       </div>
 
-      <!-- Minutes Form -->
       <div class="admin-card neu-card">
         <div class="admin-card-header">
           <h3><i data-lucide="file-text"></i> Minutes Content</h3>
@@ -1525,7 +1528,8 @@ class MeetingsAdminManager {
               </label>
               <div class="input-wrap neu-inset">
                 <input type="time" name="actual_start_time" class="form-input"
-                       value="${meeting.actual_start_time || meeting.start_time || ''}"
+                       value="${meeting.actual_start_time
+                         || meeting.start_time || ''}"
                        required />
               </div>
             </div>
@@ -1535,7 +1539,8 @@ class MeetingsAdminManager {
               </label>
               <div class="input-wrap neu-inset">
                 <input type="time" name="actual_end_time" class="form-input"
-                       value="${meeting.actual_end_time || meeting.end_time || ''}" />
+                       value="${meeting.actual_end_time
+                         || meeting.end_time || ''}" />
               </div>
             </div>
             <div class="form-group">
@@ -1543,11 +1548,11 @@ class MeetingsAdminManager {
                 <i data-lucide="user"></i> Minutes Prepared By
               </label>
               <div class="input-wrap neu-inset">
-                <input type="text" name="minutes_prepared_by" class="form-input"
+                <input type="text" name="minutes_prepared_by"
+                       class="form-input"
                        placeholder="Name of secretary/member"
                        value="${StringUtils.sanitize(
-                         meeting.minutes_prepared_by || ''
-                       )}" />
+                         meeting.minutes_prepared_by || '')}" />
               </div>
             </div>
             <div class="form-group">
@@ -1558,8 +1563,7 @@ class MeetingsAdminManager {
                 <input type="text" name="sergeant_at_arms" class="form-input"
                        placeholder="Sergeant at Arms name"
                        value="${StringUtils.sanitize(
-                         meeting.sergeant_at_arms || ''
-                       )}" />
+                         meeting.sergeant_at_arms || '')}" />
               </div>
             </div>
           </div>
@@ -1608,7 +1612,8 @@ class MeetingsAdminManager {
                 ${meeting.meeting_photos.map(p => `
                   <div style="width:80px;height:80px;
                               border-radius:var(--border-radius-sm);
-                              overflow:hidden;box-shadow:var(--neu-shadow-sm);">
+                              overflow:hidden;
+                              box-shadow:var(--neu-shadow-sm);">
                     <img src="${StringUtils.sanitize(p.photo_url)}"
                          style="width:100%;height:100%;object-fit:cover;"
                          onerror="this.parentElement.style.display='none'" />
@@ -1620,11 +1625,14 @@ class MeetingsAdminManager {
                      accept="image/jpeg,image/png,image/webp" multiple />
               <div class="file-upload-ui">
                 <i data-lucide="upload-cloud"></i>
-                <span id="minutes-photos-label">Upload meeting photographs</span>
+                <span id="minutes-photos-label">
+                  Upload meeting photographs
+                </span>
               </div>
             </div>
             <div id="minutes-photo-previews"
-                 style="margin-top:8px;display:none;flex-wrap:wrap;gap:8px;"></div>
+                 style="margin-top:8px;display:none;
+                        flex-wrap:wrap;gap:8px;"></div>
           </div>
 
           <!-- Finalize Toggle -->
@@ -1639,8 +1647,10 @@ class MeetingsAdminManager {
               </label>
               <div>
                 <strong style="color:var(--accent);">Finalize Minutes</strong>
-                <p style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
-                  Once finalized, minutes will be sent to all relevant members as PDF.
+                <p style="font-size:0.78rem;color:var(--text-muted);
+                           margin-top:2px;">
+                  Once finalized, minutes will be sent to all relevant
+                  members as PDF.
                 </p>
               </div>
             </div>
@@ -1653,7 +1663,8 @@ class MeetingsAdminManager {
                       meetingsAdmin._currentDashboard)">
               <i data-lucide="x"></i><span>Cancel</span>
             </button>
-            <button type="submit" class="btn btn-primary" id="minutes-submit-btn">
+            <button type="submit" class="btn btn-primary"
+                    id="minutes-submit-btn">
               <i data-lucide="save"></i><span>Save Minutes</span>
             </button>
           </div>
@@ -1680,9 +1691,8 @@ class MeetingsAdminManager {
         <div style="display:flex;gap:10px;margin-bottom:8px;">
           <div style="flex:0 0 120px;">
             <label style="font-size:0.72rem;font-weight:600;
-                           color:var(--text-muted);display:block;margin-bottom:4px;">
-              TIME
-            </label>
+                           color:var(--text-muted);display:block;
+                           margin-bottom:4px;">TIME</label>
             <div class="input-wrap neu-inset" style="padding:8px 10px;">
               <input type="time" class="form-input"
                      value="${entry.time || ''}"
@@ -1693,9 +1703,8 @@ class MeetingsAdminManager {
           </div>
           <div style="flex:1;">
             <label style="font-size:0.72rem;font-weight:600;
-                           color:var(--text-muted);display:block;margin-bottom:4px;">
-              HEADING
-            </label>
+                           color:var(--text-muted);display:block;
+                           margin-bottom:4px;">HEADING</label>
             <div class="input-wrap neu-inset" style="padding:8px 10px;">
               <input type="text" class="form-input"
                      placeholder="Agenda item / topic heading"
@@ -1707,18 +1716,18 @@ class MeetingsAdminManager {
           </div>
           <button type="button"
                   onclick="meetingsAdmin.removeMinutesEntry(${index})"
-                  style="width:30px;height:30px;border-radius:50%;margin-top:20px;
-                         background:var(--danger-light);color:var(--danger);
-                         border:none;cursor:pointer;display:flex;flex-shrink:0;
+                  style="width:30px;height:30px;border-radius:50%;
+                         margin-top:20px;background:var(--danger-light);
+                         color:var(--danger);border:none;cursor:pointer;
+                         display:flex;flex-shrink:0;
                          align-items:center;justify-content:center;">
             <i data-lucide="x" style="width:13px;height:13px;"></i>
           </button>
         </div>
         <div>
           <label style="font-size:0.72rem;font-weight:600;
-                         color:var(--text-muted);display:block;margin-bottom:4px;">
-            DETAILS
-          </label>
+                         color:var(--text-muted);display:block;
+                         margin-bottom:4px;">DETAILS</label>
           <div class="input-wrap neu-inset" style="padding:8px 10px;">
             <textarea class="form-textarea" rows="3"
                       placeholder="Detailed minutes for this agenda item…"
@@ -1728,8 +1737,7 @@ class MeetingsAdminManager {
             >${StringUtils.sanitize(entry.details || '')}</textarea>
           </div>
         </div>
-      </div>
-    `;
+      </div>`;
   }
 
   addMinutesEntry() {
@@ -1743,7 +1751,8 @@ class MeetingsAdminManager {
   }
 
   updateMinutesEntry(index, field, value) {
-    if (this._minutesEntries[index]) this._minutesEntries[index][field] = value;
+    if (this._minutesEntries[index])
+      this._minutesEntries[index][field] = value;
   }
 
   refreshMinutesContainer() {
@@ -1821,12 +1830,12 @@ class MeetingsAdminManager {
 
     if (btn) {
       btn.disabled  = true;
-      btn.innerHTML = '<i data-lucide="loader-2"></i><span>Saving...</span>';
+      btn.innerHTML =
+        '<i data-lucide="loader-2"></i><span>Saving...</span>';
       lucide.createIcons();
     }
 
     try {
-      /* Collect entries from DOM */
       const timeInputs    = document.querySelectorAll(
         '#minutes-entries-container input[type="time"]'
       );
@@ -1848,13 +1857,15 @@ class MeetingsAdminManager {
 
       const finalize = !!data.finalize_minutes;
 
-      /* Upload photos */
       if (this._pendingMeetingPhotos?.length > 0) {
         for (let i = 0; i < this._pendingMeetingPhotos.length; i++) {
           const file = this._pendingMeetingPhotos[i];
           try {
-            const compressed = await ImageUtils.compress(file, 1280, 960, 0.82);
-            const filename   = `meeting_photo_${meetingId}_${Date.now()}_${i}.jpg`;
+            const compressed = await ImageUtils.compress(
+              file, 1280, 960, 0.82
+            );
+            const filename =
+              `meeting_photo_${meetingId}_${Date.now()}_${i}.jpg`;
             const { data: upData, error: upErr } = await this.db.storage
               .from(STORAGE_BUCKETS.MEETINGS)
               .upload(filename, compressed, {
@@ -1918,18 +1929,21 @@ class MeetingsAdminManager {
 
     } catch (err) {
       console.error('Save minutes error:', err);
-      this.showFormMsg(msgEl, `Failed to save minutes: ${err.message}`, 'error');
+      this.showFormMsg(
+        msgEl, `Failed to save minutes: ${err.message}`, 'error'
+      );
     } finally {
       if (btn) {
         btn.disabled  = false;
-        btn.innerHTML = '<i data-lucide="save"></i><span>Save Minutes</span>';
+        btn.innerHTML =
+          '<i data-lucide="save"></i><span>Save Minutes</span>';
         lucide.createIcons();
       }
     }
   }
 
   /* ============================================================
-     RENDER ATTENDANCE (main page)
+     RENDER ATTENDANCE PAGE
      ============================================================ */
   async renderAttendance(container, dashboard) {
     this._currentDashboard = dashboard;
@@ -1957,7 +1971,8 @@ class MeetingsAdminManager {
             </label>
             <div class="select-wrap neu-inset">
               <select id="attendance-meeting-select" class="form-select"
-                      onchange="meetingsAdmin.loadAttendanceForMeeting(this.value)">
+                      onchange="meetingsAdmin.loadAttendanceForMeeting(
+                        this.value)">
                 <option value="">Select a meeting...</option>
                 ${meetings?.map(m => `
                   <option value="${m.id}">
@@ -1992,7 +2007,10 @@ class MeetingsAdminManager {
     );
     setTimeout(() => {
       const sel = document.getElementById('attendance-meeting-select');
-      if (sel) { sel.value = meetingId; this.loadAttendanceForMeeting(meetingId); }
+      if (sel) {
+        sel.value = meetingId;
+        this.loadAttendanceForMeeting(meetingId);
+      }
     }, 200);
   }
 
@@ -2015,7 +2033,7 @@ class MeetingsAdminManager {
         this.db.from('meetings').select('*').eq('id', meetingId).single(),
         this.db.from('meeting_attendance').select('*')
                .eq('meeting_id', meetingId)
-               .order('in_time', { ascending: true })
+               .order('submitted_at', { ascending: true })
       ]);
 
       const meeting    = mRes.data;
@@ -2026,23 +2044,27 @@ class MeetingsAdminManager {
           <div class="admin-card-header">
             <div>
               <h3>${StringUtils.sanitize(meeting?.title || 'Meeting')}</h3>
-              <p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">
+              <p style="font-size:0.78rem;color:var(--text-muted);
+                         margin-top:4px;">
                 ${DateUtils.format(meeting?.meeting_date, 'long')} •
                 ${DateUtils.formatTime(meeting?.start_time)}
                 ${meeting?.venue
                   ? ' • ' + StringUtils.sanitize(meeting.venue) : ''}
               </p>
             </div>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <div style="display:flex;gap:8px;align-items:center;
+                        flex-wrap:wrap;">
               <span style="padding:6px 14px;
                            border-radius:var(--border-radius-full);
-                           background:var(--accent-light);color:var(--accent);
+                           background:var(--accent-light);
+                           color:var(--accent);
                            font-size:0.82rem;font-weight:700;">
                 ${attendance.length} Present
               </span>
               ${this.auth.can('MANAGE_MEETING') ? `
               <button class="btn btn-outline btn-sm"
-                      onclick="meetingsAdmin.sendAttendanceForm('${meetingId}')">
+                      onclick="meetingsAdmin.sendAttendanceForm(
+                        '${meetingId}')">
                 <i data-lucide="clipboard-list"></i>
                 <span>${meeting?.attendance_form_url
                   ? 'Resend Form' : 'Send Attendance Form'}</span>
@@ -2055,7 +2077,8 @@ class MeetingsAdminManager {
               </a>` : ''}
               ${this.auth.can('VIEW_MEETING_ATTENDANCE') ? `
               <button class="btn btn-outline btn-sm"
-                      onclick="meetingsAdmin.downloadAttendance('${meetingId}')">
+                      onclick="meetingsAdmin.downloadAttendance(
+                        '${meetingId}')">
                 <i data-lucide="download"></i>
                 <span>Download .docx</span>
               </button>` : ''}
@@ -2068,7 +2091,8 @@ class MeetingsAdminManager {
                style="width:36px;height:36px;opacity:0.4;"></i>
             <p>No attendance records found</p>
             ${meeting?.attendance_form_url ? `
-            <p style="font-size:0.78rem;color:var(--text-muted);margin-top:4px;">
+            <p style="font-size:0.78rem;color:var(--text-muted);
+                       margin-top:4px;">
               Form sent. Waiting for members to submit.
             </p>
             <a href="${StringUtils.sanitize(meeting.attendance_form_url)}"
@@ -2087,7 +2111,8 @@ class MeetingsAdminManager {
                   <th>RI ID</th>
                   <th>Designation</th>
                   <th>In Time</th>
-                  <th>E-Sign</th>
+                  <th>E-Signature</th>
+                  <th>Submitted</th>
                 </tr>
               </thead>
               <tbody>
@@ -2112,19 +2137,37 @@ class MeetingsAdminManager {
                       ${StringUtils.sanitize(rec.designation || '—')}
                     </td>
                     <td style="font-size:0.82rem;white-space:nowrap;">
-                      ${rec.in_time ? DateUtils.formatTime(rec.in_time) : '—'}
+                      ${rec.in_time
+                        ? DateUtils.formatTime(rec.in_time) : '—'}
                     </td>
                     <td>
-                      ${rec.e_sign_url ? `
-                      <img src="${StringUtils.sanitize(rec.e_sign_url)}"
-                           style="height:40px;width:auto;max-width:120px;
-                                  object-fit:contain;border-radius:4px;
-                                  border:1px solid var(--border-color);
-                                  background:#fff;padding:2px;"
-                           loading="lazy"
-                           onerror="this.style.display='none'" />` :
-                        `<span style="color:var(--text-muted);
-                                      font-size:0.75rem;">—</span>`}
+                      ${rec.e_sign_url
+                        ? `<a href="${StringUtils.sanitize(rec.e_sign_url)}"
+                              target="_blank"
+                              title="View full signature image">
+                            <img src="${StringUtils.sanitize(rec.e_sign_url)}"
+                                 style="height:48px;width:auto;max-width:140px;
+                                        object-fit:contain;border-radius:6px;
+                                        border:1px solid var(--border-color);
+                                        background:#fff;padding:3px;
+                                        cursor:pointer;
+                                        transition:box-shadow 0.2s;"
+                                 loading="lazy"
+                                 onerror="this.parentElement.innerHTML=
+                                   '<span style=\'color:var(--text-muted);font-size:0.75rem;\'>Failed to load</span>'"
+                            />
+                          </a>`
+                        : `<span style="color:var(--text-muted);
+                                        font-size:0.75rem;">—</span>`}
+                    </td>
+                    <td style="font-size:0.75rem;color:var(--text-muted);
+                               white-space:nowrap;">
+                      ${rec.submitted_at
+                        ? new Date(rec.submitted_at).toLocaleString('en-IN',{
+                            day:'2-digit',month:'short',
+                            hour:'2-digit',minute:'2-digit'
+                          })
+                        : '—'}
                     </td>
                   </tr>`).join('')}
               </tbody>
@@ -2150,7 +2193,9 @@ class MeetingsAdminManager {
      ============================================================ */
   async downloadMeetingDocs(meetingId) {
     if (!window.docGenerator) {
-      this._currentDashboard?.showToast('Document generator not available','error');
+      this._currentDashboard?.showToast(
+        'Document generator not available', 'error'
+      );
       return;
     }
     const modal     = document.createElement('div');
@@ -2163,7 +2208,8 @@ class MeetingsAdminManager {
             <i data-lucide="download"></i> Download Meeting Documents
           </h2>
           <button class="modal-close neu-btn"
-                  onclick="document.getElementById('download-docs-modal').remove();
+                  onclick="document.getElementById(
+                    'download-docs-modal').remove();
                            document.body.style.overflow='';">
             <i data-lucide="x"></i>
           </button>
@@ -2172,21 +2218,24 @@ class MeetingsAdminManager {
              style="display:flex;flex-direction:column;gap:10px;">
           <button class="btn btn-outline"
                   onclick="meetingsAdmin.downloadAgenda('${meetingId}');
-                           document.getElementById('download-docs-modal').remove();
+                           document.getElementById(
+                             'download-docs-modal').remove();
                            document.body.style.overflow='';">
             <i data-lucide="list"></i>
             <span>Download Agenda (.docx)</span>
           </button>
           <button class="btn btn-outline"
                   onclick="meetingsAdmin.downloadAttendance('${meetingId}');
-                           document.getElementById('download-docs-modal').remove();
+                           document.getElementById(
+                             'download-docs-modal').remove();
                            document.body.style.overflow='';">
             <i data-lucide="check-square"></i>
             <span>Download Attendance (.docx)</span>
           </button>
           <button class="btn btn-primary"
                   onclick="meetingsAdmin.downloadMinutes('${meetingId}');
-                           document.getElementById('download-docs-modal').remove();
+                           document.getElementById(
+                             'download-docs-modal').remove();
                            document.body.style.overflow='';">
             <i data-lucide="file-text"></i>
             <span>Download Full Minutes (.docx)</span>
@@ -2196,53 +2245,74 @@ class MeetingsAdminManager {
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
     modal.addEventListener('click', e => {
-      if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; }
+      if (e.target === modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+      }
     });
     lucide.createIcons();
   }
 
   async downloadAgenda(meetingId) {
     if (!window.docGenerator) {
-      this._currentDashboard?.showToast('Document generator not available','error');
+      this._currentDashboard?.showToast(
+        'Document generator not available', 'error'
+      );
       return;
     }
-    this._currentDashboard?.showToast('Generating agenda...','info');
+    this._currentDashboard?.showToast('Generating agenda...', 'info');
     try {
       await window.docGenerator.generateMeetingAgenda(meetingId);
-      this._currentDashboard?.showToast('Agenda downloaded!','success');
+      this._currentDashboard?.showToast('Agenda downloaded!', 'success');
     } catch (e) {
       console.error('Download agenda error:', e);
-      this._currentDashboard?.showToast('Failed to generate agenda','error');
+      this._currentDashboard?.showToast(
+        'Failed to generate agenda', 'error'
+      );
     }
   }
 
   async downloadAttendance(meetingId) {
     if (!window.docGenerator) {
-      this._currentDashboard?.showToast('Document generator not available','error');
+      this._currentDashboard?.showToast(
+        'Document generator not available', 'error'
+      );
       return;
     }
-    this._currentDashboard?.showToast('Generating attendance sheet...','info');
+    this._currentDashboard?.showToast(
+      'Generating attendance sheet...', 'info'
+    );
     try {
       await window.docGenerator.generateAttendanceSheet(meetingId);
-      this._currentDashboard?.showToast('Attendance sheet downloaded!','success');
+      this._currentDashboard?.showToast(
+        'Attendance sheet downloaded!', 'success'
+      );
     } catch (e) {
       console.error('Download attendance error:', e);
-      this._currentDashboard?.showToast('Failed to generate attendance sheet','error');
+      this._currentDashboard?.showToast(
+        'Failed to generate attendance sheet', 'error'
+      );
     }
   }
 
   async downloadMinutes(meetingId) {
     if (!window.docGenerator) {
-      this._currentDashboard?.showToast('Document generator not available','error');
+      this._currentDashboard?.showToast(
+        'Document generator not available', 'error'
+      );
       return;
     }
-    this._currentDashboard?.showToast('Generating meeting minutes...','info');
+    this._currentDashboard?.showToast(
+      'Generating meeting minutes...', 'info'
+    );
     try {
       await window.docGenerator.generateMeetingMinutes(meetingId);
-      this._currentDashboard?.showToast('Minutes downloaded!','success');
+      this._currentDashboard?.showToast('Minutes downloaded!', 'success');
     } catch (e) {
       console.error('Download minutes error:', e);
-      this._currentDashboard?.showToast('Failed to generate minutes','error');
+      this._currentDashboard?.showToast(
+        'Failed to generate minutes', 'error'
+      );
     }
   }
 
