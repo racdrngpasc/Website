@@ -231,11 +231,11 @@ class EventsAdminManager {
     }
 
     return events.map(event => {
-      const avenue             = AVENUES[event.avenue] || {};
-      const status             = EVENT_STATUS[event.status] || {};
-      const hasApprovedReport  = event.event_reports?.some(r => r.is_approved);
-      const hasPendingReport   = event.event_reports?.some(r => !r.is_approved);
-      const posterUrl          = event.event_photos
+      const avenue            = AVENUES[event.avenue] || {};
+      const status            = EVENT_STATUS[event.status] || {};
+      const hasApprovedReport = event.event_reports?.some(r => r.is_approved);
+      const hasPendingReport  = event.event_reports?.some(r => !r.is_approved);
+      const posterUrl         = event.event_photos
         ?.find(p => !p.is_action_photo)?.photo_url || null;
 
       return `
@@ -316,13 +316,16 @@ class EventsAdminManager {
             ${hasApprovedReport
               ? `<div style="display:flex;align-items:center;gap:4px;
                              color:var(--success);font-size:0.78rem;font-weight:600;">
-                   <i data-lucide="check-circle" style="width:13px;height:13px;"></i>
+                   <i data-lucide="check-circle"
+                      style="width:13px;height:13px;"></i>
                    Approved
                  </div>`
               : hasPendingReport
                 ? `<div style="display:flex;align-items:center;gap:4px;
-                               color:var(--warning);font-size:0.78rem;font-weight:600;">
-                     <i data-lucide="clock" style="width:13px;height:13px;"></i>
+                               color:var(--warning);font-size:0.78rem;
+                               font-weight:600;">
+                     <i data-lucide="clock"
+                        style="width:13px;height:13px;"></i>
                      Pending
                    </div>`
                 : `<div style="color:var(--text-muted);font-size:0.78rem;">
@@ -387,30 +390,30 @@ class EventsAdminManager {
      FILTER & SEARCH
      ============================================================ */
   applyFilters() {
-    const search    = document.getElementById('ev-search')?.value?.toLowerCase() || '';
+    const search    = document.getElementById('ev-search')
+      ?.value?.toLowerCase() || '';
     const avenue    = document.getElementById('ev-avenue-filter')?.value || '';
     const status    = document.getElementById('ev-status-filter')?.value || '';
-    const dppFilter = document.getElementById('ev-dpp-filter')?.value || '';
+    const dppFilter = document.getElementById('ev-dpp-filter')?.value    || '';
 
-    const rows = document.querySelectorAll('#ev-table-body tr[data-event-id]');
+    document.querySelectorAll('#ev-table-body tr[data-event-id]')
+      .forEach(row => {
+        const title     = row.querySelector('td:nth-child(2)')
+          ?.textContent?.toLowerCase() || '';
+        const rowAvenue = row.getAttribute('data-avenue') || '';
+        const rowStatus = row.getAttribute('data-status') || '';
+        const isDPP     = row.getAttribute('data-is-dpp') === 'true';
 
-    rows.forEach(row => {
-      const title     = row.querySelector('td:nth-child(2)')
-        ?.textContent?.toLowerCase() || '';
-      const rowAvenue = row.getAttribute('data-avenue') || '';
-      const rowStatus = row.getAttribute('data-status') || '';
-      const isDPP     = row.getAttribute('data-is-dpp') === 'true';
+        const matchSearch = !search || title.includes(search);
+        const matchAvenue = !avenue || rowAvenue === avenue;
+        const matchStatus = !status || rowStatus === status;
+        const matchDPP    = !dppFilter
+          || (dppFilter === 'dpp'     && isDPP)
+          || (dppFilter === 'regular' && !isDPP);
 
-      const matchSearch = !search || title.includes(search);
-      const matchAvenue = !avenue || rowAvenue === avenue;
-      const matchStatus = !status || rowStatus === status;
-      const matchDPP    = !dppFilter
-        || (dppFilter === 'dpp'     && isDPP)
-        || (dppFilter === 'regular' && !isDPP);
-
-      row.style.display =
-        (matchSearch && matchAvenue && matchStatus && matchDPP) ? '' : 'none';
-    });
+        row.style.display =
+          (matchSearch && matchAvenue && matchStatus && matchDPP) ? '' : 'none';
+      });
   }
 
   filterByAvenue(avenue) {
@@ -441,19 +444,21 @@ class EventsAdminManager {
     const bulkBar  = document.getElementById('ev-bulk-actions');
     const countEl  = document.getElementById('ev-selected-count');
     if (bulkBar) bulkBar.style.display = selected.length > 0 ? 'flex' : 'none';
-    if (countEl) countEl.textContent = `${selected.length} selected`;
+    if (countEl) countEl.textContent   = `${selected.length} selected`;
   }
 
   clearSelection() {
-    document.querySelectorAll('.ev-row-check').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.ev-row-check')
+      .forEach(cb => cb.checked = false);
     const allCheck = document.getElementById('ev-select-all');
     if (allCheck) allCheck.checked = false;
     this.handleRowSelect();
   }
 
   getSelectedIds() {
-    return Array.from(document.querySelectorAll('.ev-row-check:checked'))
-      .map(cb => cb.value);
+    return Array.from(
+      document.querySelectorAll('.ev-row-check:checked')
+    ).map(cb => cb.value);
   }
 
   /* ============================================================
@@ -486,7 +491,8 @@ class EventsAdminManager {
     );
     this.clearSelection();
     await this.renderEventsList(
-      document.getElementById('admin-content'), this._currentDashboard
+      document.getElementById('admin-content'),
+      this._currentDashboard
     );
   }
 
@@ -511,7 +517,8 @@ class EventsAdminManager {
       `${successCount} event(s) deleted`, 'success'
     );
     await this.renderEventsList(
-      document.getElementById('admin-content'), this._currentDashboard
+      document.getElementById('admin-content'),
+      this._currentDashboard
     );
   }
 
@@ -531,13 +538,13 @@ class EventsAdminManager {
       eventData = data;
     }
 
-    const isEdit             = !!eventData;
-    const content            = document.getElementById('admin-content');
+    const isEdit            = !!eventData;
+    const content           = document.getElementById('admin-content');
     if (!content) return;
 
-    const accessibleAvenues  = this.auth.getAccessibleAvenues();
-    const isDPPEvent         = isEdit && eventData.is_dpp;
-    const isDPPAvenue        = isEdit &&
+    const accessibleAvenues = this.auth.getAccessibleAvenues();
+    const isDPPEvent        = isEdit && !!eventData.is_dpp;
+    const isDPPAvenue       = isEdit &&
       eventData.avenue === 'district_priority_projects';
 
     content.innerHTML = `
@@ -547,7 +554,8 @@ class EventsAdminManager {
             <i data-lucide="${isEdit ? 'pencil' : 'plus-circle'}"></i>
             ${isEdit ? 'Edit Event' : 'Add New Event'}
           </h1>
-          ${isEdit ? `<p class="admin-section-subtitle">
+          ${isEdit ? `
+          <p class="admin-section-subtitle">
             ${StringUtils.sanitize(eventData.title || '')}
           </p>` : ''}
         </div>
@@ -590,7 +598,8 @@ class EventsAdminManager {
                   <option value="">Select Avenue</option>
                   ${accessibleAvenues.map(a => `
                     <option value="${a}"
-                            ${isEdit && eventData.avenue === a ? 'selected' : ''}>
+                            ${isEdit && eventData.avenue === a
+                              ? 'selected' : ''}>
                       ${AVENUES[a]?.label || StringUtils.snakeToTitle(a)}
                     </option>
                   `).join('')}
@@ -693,7 +702,8 @@ class EventsAdminManager {
                 <input type="text" name="event_secretary" class="form-input"
                        placeholder="Name of event secretary"
                        value="${isEdit
-                         ? StringUtils.sanitize(eventData.event_secretary || '')
+                         ? StringUtils.sanitize(
+                             eventData.event_secretary || '')
                          : ''}" />
               </div>
             </div>
@@ -704,10 +714,12 @@ class EventsAdminManager {
                 <i data-lucide="user-plus"></i> Event Proposed By
               </label>
               <div class="input-wrap neu-inset">
-                <input type="text" name="event_proposed_by" class="form-input"
+                <input type="text" name="event_proposed_by"
+                       class="form-input"
                        placeholder="Proposed by (member name)"
                        value="${isEdit
-                         ? StringUtils.sanitize(eventData.event_proposed_by || '')
+                         ? StringUtils.sanitize(
+                             eventData.event_proposed_by || '')
                          : ''}" />
               </div>
             </div>
@@ -718,10 +730,12 @@ class EventsAdminManager {
                 <i data-lucide="users"></i> Seconded By
               </label>
               <div class="input-wrap neu-inset">
-                <input type="text" name="event_seconded_by" class="form-input"
+                <input type="text" name="event_seconded_by"
+                       class="form-input"
                        placeholder="Seconded by (member name)"
                        value="${isEdit
-                         ? StringUtils.sanitize(eventData.event_seconded_by || '')
+                         ? StringUtils.sanitize(
+                             eventData.event_seconded_by || '')
                          : ''}" />
               </div>
             </div>
@@ -757,10 +771,12 @@ class EventsAdminManager {
                 <i data-lucide="building-2"></i> Collaborator Name
               </label>
               <div class="input-wrap neu-inset">
-                <input type="text" name="collaborator_name" class="form-input"
+                <input type="text" name="collaborator_name"
+                       class="form-input"
                        placeholder="Name of collaborating organization"
                        value="${isEdit
-                         ? StringUtils.sanitize(eventData.collaborator_name || '')
+                         ? StringUtils.sanitize(
+                             eventData.collaborator_name || '')
                          : ''}" />
               </div>
             </div>
@@ -784,29 +800,30 @@ class EventsAdminManager {
             </div>
 
             <!-- ── DPP Extra Fields ──────────────────────────── -->
-            <div class="form-group admin-form-full" id="ev-dpp-extra-fields"
+            <div class="form-group admin-form-full"
+                 id="ev-dpp-extra-fields"
                  style="${isDPPEvent ? '' : 'display:none;'}">
               <div style="padding:16px;
                           background:rgba(var(--avenue-dpp-rgb,239,68,68),0.05);
                           border-radius:var(--border-radius-sm);
-                          border:1px solid rgba(var(--avenue-dpp-rgb,239,68,68),0.2);">
+                          border:1px solid
+                            rgba(var(--avenue-dpp-rgb,239,68,68),0.2);">
 
-                <div style="font-size:0.75rem;font-weight:800;letter-spacing:0.06em;
-                            text-transform:uppercase;color:var(--avenue-dpp);
-                            margin-bottom:14px;display:flex;align-items:center;
-                            gap:6px;">
+                <div style="font-size:0.75rem;font-weight:800;
+                            letter-spacing:0.06em;text-transform:uppercase;
+                            color:var(--avenue-dpp);margin-bottom:14px;
+                            display:flex;align-items:center;gap:6px;">
                   <i data-lucide="award" style="width:14px;height:14px;"></i>
                   DPP Specific Details
                 </div>
 
                 <div class="admin-form-grid" style="padding:0;">
 
-                  <!-- Approval Number -->
+                  <!-- Project Approval Number -->
                   <div class="form-group">
                     <label class="form-label">
                       <i data-lucide="hash"></i>
-                      Project Approval Number
-                      <span class="form-required">*</span>
+                      Project Approval Number *
                     </label>
                     <div class="input-wrap neu-inset">
                       <input type="text" name="dpp_approval_number"
@@ -819,47 +836,37 @@ class EventsAdminManager {
                     </div>
                   </div>
 
-                  <!-- DPP Pillar -->
+                  <!-- DPP Pillar — FREE TEXT -->
                   <div class="form-group">
                     <label class="form-label">
                       <i data-lucide="layers"></i>
-                      DPP Pillar
-                      <span class="form-required">*</span>
+                      DPP Pillar *
                     </label>
-                    <div class="select-wrap neu-inset">
-                      <select name="dpp_pillar" class="form-select">
-                        <option value="">— Select Pillar —</option>
-                        ${Object.entries(DPP_PILLARS).map(([key, p]) => `
-                          <option value="${key}"
-                                  ${isEdit && eventData.dpp_pillar === key
-                                    ? 'selected' : ''}>
-                            ${p.label}
-                          </option>
-                        `).join('')}
-                      </select>
-                      <i data-lucide="chevron-down" class="select-arrow"></i>
+                    <div class="input-wrap neu-inset">
+                      <input type="text" name="dpp_pillar"
+                             class="form-input"
+                             placeholder="e.g. Community Service"
+                             value="${isEdit
+                               ? StringUtils.sanitize(
+                                   eventData.dpp_pillar || '')
+                               : ''}" />
                     </div>
                   </div>
 
-                  <!-- Category -->
+                  <!-- Category — FREE TEXT -->
                   <div class="form-group">
                     <label class="form-label">
                       <i data-lucide="tag"></i>
-                      Category
-                      <span class="form-required">*</span>
+                      Category *
                     </label>
-                    <div class="select-wrap neu-inset">
-                      <select name="dpp_category" class="form-select">
-                        <option value="">— Select Category —</option>
-                        ${Object.entries(DPP_CATEGORIES).map(([key, c]) => `
-                          <option value="${key}"
-                                  ${isEdit && eventData.dpp_category === key
-                                    ? 'selected' : ''}>
-                            ${c.label}
-                          </option>
-                        `).join('')}
-                      </select>
-                      <i data-lucide="chevron-down" class="select-arrow"></i>
+                    <div class="input-wrap neu-inset">
+                      <input type="text" name="dpp_category"
+                             class="form-input"
+                             placeholder="e.g. Flagship Project"
+                             value="${isEdit
+                               ? StringUtils.sanitize(
+                                   eventData.dpp_category || '')
+                               : ''}" />
                     </div>
                   </div>
 
@@ -893,7 +900,8 @@ class EventsAdminManager {
                 <i data-lucide="users"></i> Expected Attendance
               </label>
               <div class="input-wrap neu-inset">
-                <input type="number" name="expected_attendance" class="form-input"
+                <input type="number" name="expected_attendance"
+                       class="form-input"
                        placeholder="Expected participants" min="1"
                        value="${isEdit
                          ? (eventData.expected_attendance || '')
@@ -907,7 +915,8 @@ class EventsAdminManager {
                 <i data-lucide="indian-rupee"></i> Proposed Budget (Rs.)
               </label>
               <div class="input-wrap neu-inset">
-                <input type="number" name="budget_proposed" class="form-input"
+                <input type="number" name="budget_proposed"
+                       class="form-input"
                        placeholder="0.00" min="0" step="0.01"
                        value="${isEdit
                          ? (eventData.budget_proposed || '0')
@@ -921,11 +930,13 @@ class EventsAdminManager {
                 <i data-lucide="file-text"></i> Event Description *
               </label>
               <div class="input-wrap neu-inset">
-                <textarea name="description" class="form-textarea" rows="6"
+                <textarea name="description" class="form-textarea"
+                          rows="6"
                           placeholder="Detailed description about the event,
                           objectives, and expected outcomes..."
                           required>${isEdit
-                            ? StringUtils.sanitize(eventData.description || '')
+                            ? StringUtils.sanitize(
+                                eventData.description || '')
                             : ''}</textarea>
               </div>
             </div>
@@ -933,18 +944,23 @@ class EventsAdminManager {
             <!-- Poster Upload -->
             <div class="form-group admin-form-full">
               <label class="form-label">
-                <i data-lucide="image"></i> Event Poster / Promotional Images
+                <i data-lucide="image"></i>
+                Event Poster / Promotional Images
                 <span style="font-weight:400;color:var(--text-muted);
                              font-size:0.75rem;">
                   (Max ${MAX_PHOTOS.EVENT} images, 4MB each)
                 </span>
               </label>
 
-              ${isEdit ? await this.getExistingPhotosHTML(eventId, false) : ''}
+              ${isEdit
+                ? await this.getExistingPhotosHTML(eventId, false)
+                : ''}
 
               <div class="file-upload-wrap neu-inset" id="ev-poster-wrap">
-                <input type="file" id="ev-poster-input" class="file-input"
-                       accept="image/jpeg,image/png,image/webp" multiple />
+                <input type="file" id="ev-poster-input"
+                       class="file-input"
+                       accept="image/jpeg,image/png,image/webp"
+                       multiple />
                 <div class="file-upload-ui">
                   <i data-lucide="upload-cloud"></i>
                   <span id="ev-poster-label">
@@ -960,7 +976,8 @@ class EventsAdminManager {
               </div>
 
               <div id="ev-poster-previews"
-                   style="margin-top:12px;display:none;flex-wrap:wrap;gap:10px;">
+                   style="margin-top:12px;display:none;
+                          flex-wrap:wrap;gap:10px;">
               </div>
             </div>
 
@@ -976,14 +993,18 @@ class EventsAdminManager {
               <span>Cancel</span>
             </button>
             ${!isEdit ? `
-            <button type="button" class="btn btn-outline" id="ev-save-draft"
+            <button type="button" class="btn btn-outline"
+                    id="ev-save-draft"
                     onclick="eventsAdmin.submitForm('draft')">
               <i data-lucide="save"></i>
               <span>Save as Draft</span>
             </button>` : ''}
-            <button type="submit" class="btn btn-primary" id="ev-submit-btn">
+            <button type="submit" class="btn btn-primary"
+                    id="ev-submit-btn">
               <i data-lucide="send"></i>
-              <span>${isEdit ? 'Update Event' : 'Submit for Approval'}</span>
+              <span>${isEdit
+                ? 'Update Event'
+                : 'Submit for Approval'}</span>
             </button>
           </div>
 
@@ -1011,27 +1032,29 @@ class EventsAdminManager {
 
       return `
         <div style="margin-bottom:12px;">
-          <p style="font-size:0.78rem;font-weight:600;color:var(--text-muted);
-                    margin-bottom:8px;">
+          <p style="font-size:0.78rem;font-weight:600;
+                    color:var(--text-muted);margin-bottom:8px;">
             Existing ${isActionPhoto ? 'Action Photos' : 'Poster Images'}:
           </p>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             ${photos.map(photo => `
               <div style="position:relative;width:80px;height:80px;
-                          border-radius:var(--border-radius-sm);overflow:hidden;
-                          box-shadow:var(--neu-shadow-sm);">
+                          border-radius:var(--border-radius-sm);
+                          overflow:hidden;box-shadow:var(--neu-shadow-sm);">
                 <img src="${StringUtils.sanitize(photo.photo_url)}"
                      style="width:100%;height:100%;object-fit:cover;"
                      loading="lazy"
                      onerror="this.parentElement.style.display='none'" />
                 <button onclick="eventsAdmin.deletePhoto('${photo.id}')"
                         title="Delete photo"
-                        style="position:absolute;top:2px;right:2px;width:18px;
-                               height:18px;border-radius:50%;background:var(--danger);
-                               color:#fff;border:none;cursor:pointer;font-size:0.6rem;
+                        style="position:absolute;top:2px;right:2px;
+                               width:18px;height:18px;border-radius:50%;
+                               background:var(--danger);color:#fff;
+                               border:none;cursor:pointer;font-size:0.6rem;
                                display:flex;align-items:center;
                                justify-content:center;">
-                  <i data-lucide="x" style="width:10px;height:10px;"></i>
+                  <i data-lucide="x"
+                     style="width:10px;height:10px;"></i>
                 </button>
               </div>
             `).join('')}
@@ -1056,7 +1079,10 @@ class EventsAdminManager {
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const status = isEdit ? 'keep' : 'pending_approval';
-        await this.submitForm(status, isEdit ? this._editingEventId : null);
+        await this.submitForm(
+          status,
+          isEdit ? this._editingEventId : null
+        );
       });
     }
   }
@@ -1067,7 +1093,7 @@ class EventsAdminManager {
       dppWrap.style.display =
         avenue === 'district_priority_projects' ? 'block' : 'none';
     }
-    // If not a DPP avenue, hide extra fields too
+    /* Hide DPP extra fields when avenue is not DPP */
     if (avenue !== 'district_priority_projects') {
       const extraFields = document.getElementById('ev-dpp-extra-fields');
       if (extraFields) extraFields.style.display = 'none';
@@ -1079,13 +1105,16 @@ class EventsAdminManager {
   onCollabChange(value) {
     const wrap = document.getElementById('ev-collaborator-wrap');
     if (wrap) {
-      wrap.style.display = (value && value !== 'none') ? 'block' : 'none';
+      wrap.style.display =
+        (value && value !== 'none') ? 'block' : 'none';
     }
   }
 
   onDPPToggle(checked) {
     const extraFields = document.getElementById('ev-dpp-extra-fields');
-    if (extraFields) extraFields.style.display = checked ? 'block' : 'none';
+    if (extraFields) {
+      extraFields.style.display = checked ? 'block' : 'none';
+    }
   }
 
   handlePosterFiles(files) {
@@ -1125,14 +1154,15 @@ class EventsAdminManager {
           const url = URL.createObjectURL(file);
           return `
             <div style="position:relative;width:80px;height:80px;
-                        border-radius:var(--border-radius-sm);overflow:hidden;
-                        box-shadow:var(--neu-shadow-sm);">
+                        border-radius:var(--border-radius-sm);
+                        overflow:hidden;box-shadow:var(--neu-shadow-sm);">
               <img src="${url}"
                    style="width:100%;height:100%;object-fit:cover;" />
               <button onclick="eventsAdmin.removePosterPreview(${i})"
-                      style="position:absolute;top:2px;right:2px;width:18px;
-                             height:18px;border-radius:50%;background:var(--danger);
-                             color:#fff;border:none;cursor:pointer;display:flex;
+                      style="position:absolute;top:2px;right:2px;
+                             width:18px;height:18px;border-radius:50%;
+                             background:var(--danger);color:#fff;
+                             border:none;cursor:pointer;display:flex;
                              align-items:center;justify-content:center;">
                 <i data-lucide="x" style="width:10px;height:10px;"></i>
               </button>
@@ -1177,7 +1207,7 @@ class EventsAdminManager {
     const formData = new FormData(form);
     const data     = Object.fromEntries(formData.entries());
 
-    // Validate required fields
+    /* Required field validation */
     const requiredFields = [
       { key: 'title',       label: 'Event Title' },
       { key: 'avenue',      label: 'Avenue' },
@@ -1195,18 +1225,20 @@ class EventsAdminManager {
       }
     }
 
-    // Validate DPP-specific required fields
+    /* DPP field validation — only when is_dpp is checked */
     const isDPP = !!data.is_dpp;
     if (isDPP) {
       if (!data.dpp_approval_number?.trim()) {
-        this.showFormMsg(msgEl, 'DPP Project Approval Number is required', 'error');
+        this.showFormMsg(
+          msgEl, 'DPP Project Approval Number is required', 'error'
+        );
         return;
       }
-      if (!data.dpp_pillar) {
+      if (!data.dpp_pillar?.trim()) {
         this.showFormMsg(msgEl, 'DPP Pillar is required', 'error');
         return;
       }
-      if (!data.dpp_category) {
+      if (!data.dpp_category?.trim()) {
         this.showFormMsg(msgEl, 'DPP Category is required', 'error');
         return;
       }
@@ -1224,7 +1256,7 @@ class EventsAdminManager {
       const admin  = this.auth.getAdmin();
       const avenue = data.avenue;
 
-      // Determine final status
+      /* Determine final status */
       let finalStatus = status;
       if (status === 'keep' && eventId) {
         const { data: existing } = await this.db
@@ -1235,7 +1267,7 @@ class EventsAdminManager {
         finalStatus = existing?.status || 'draft';
       }
 
-      // Full-access admins auto-approve
+      /* Full-access admins auto-approve */
       if (status === 'pending_approval' && this.auth.isFullAccess()) {
         finalStatus = 'approved';
       }
@@ -1245,7 +1277,7 @@ class EventsAdminManager {
         avenue,
         event_date         : data.event_date,
         start_time         : data.start_time,
-        end_time           : data.end_time || null,
+        end_time           : data.end_time    || null,
         venue              : data.venue.trim(),
         event_chair        : data.event_chair.trim(),
         event_secretary    : data.event_secretary?.trim()    || null,
@@ -1254,13 +1286,15 @@ class EventsAdminManager {
         collaboration      : data.collaboration || 'none',
         collaborator_name  : data.collaborator_name?.trim()  || null,
         is_dpp             : isDPP,
-        /* DPP specific fields – only saved when is_dpp is true */
+        /* DPP-specific — only saved when is_dpp is true */
         dpp_approval_number: isDPP
           ? (data.dpp_approval_number?.trim() || null) : null,
-        dpp_pillar         : isDPP ? (data.dpp_pillar   || null) : null,
-        dpp_category       : isDPP ? (data.dpp_category || null) : null,
+        dpp_pillar         : isDPP
+          ? (data.dpp_pillar?.trim()          || null) : null,
+        dpp_category       : isDPP
+          ? (data.dpp_category?.trim()        || null) : null,
         dpp_council_member : isDPP
-          ? (data.dpp_council_member?.trim() || null) : null,
+          ? (data.dpp_council_member?.trim()  || null) : null,
         expected_attendance: data.expected_attendance
           ? parseInt(data.expected_attendance) : null,
         budget_proposed    : parseFloat(data.budget_proposed) || 0,
@@ -1272,14 +1306,12 @@ class EventsAdminManager {
       let savedEventId = eventId;
 
       if (eventId) {
-        // Update existing event
         const { error } = await this.db
           .from('events')
           .update(payload)
           .eq('id', eventId);
         if (error) throw error;
       } else {
-        // Insert new event
         const { data: newEvent, error } = await this.db
           .from('events')
           .insert({
@@ -1299,17 +1331,23 @@ class EventsAdminManager {
 
         await this.auth.logActivity(
           admin?.id, 'EVENT_CREATED', 'events', savedEventId,
-          { title: payload.title, avenue: payload.avenue, status: finalStatus }
+          {
+            title  : payload.title,
+            avenue : payload.avenue,
+            status : finalStatus
+          }
         );
       }
 
-      // Upload poster photos
+      /* Upload poster photos */
       if (this._pendingPosters?.length > 0 && savedEventId) {
-        await this.uploadEventPhotos(savedEventId, this._pendingPosters, false);
+        await this.uploadEventPhotos(
+          savedEventId, this._pendingPosters, false
+        );
         this._pendingPosters = [];
       }
 
-      // Send notification if approved
+      /* Send notification if approved */
       if (finalStatus === 'approved' && window.emailService) {
         await window.emailService.sendEventApprovalNotification(savedEventId);
       }
@@ -1410,7 +1448,9 @@ class EventsAdminManager {
         .from('events')
         .select(`
           *,
-          event_photos(id, photo_url, photo_name, is_action_photo, sort_order),
+          event_photos(
+            id, photo_url, photo_name, is_action_photo, sort_order
+          ),
           event_reports(
             id, report_content, key_highlights, challenges,
             outcomes, future_plans, is_approved, submitted_by,
@@ -1433,10 +1473,7 @@ class EventsAdminManager {
       const actionPhotos = (event.event_photos || [])
         .filter(p => p.is_action_photo)
         .sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0));
-      const report       = event.event_reports?.[0] || null;
-
-      const pillar   = DPP_PILLARS[event.dpp_pillar]      || null;
-      const category = DPP_CATEGORIES[event.dpp_category] || null;
+      const report = event.event_reports?.[0] || null;
 
       const modal = document.createElement('div');
       modal.className = 'modal-overlay active';
@@ -1450,7 +1487,8 @@ class EventsAdminManager {
               <div style="display:flex;align-items:center;gap:8px;
                           margin-bottom:6px;flex-wrap:wrap;">
                 <span class="modal-avenue-badge"
-                      style="background:${avenue.bgColor || 'var(--accent-light)'};
+                      style="background:${avenue.bgColor
+                        || 'var(--accent-light)'};
                              color:${avenue.color || 'var(--accent)'};">
                   ${avenue.label || StringUtils.snakeToTitle(event.avenue)}
                 </span>
@@ -1468,8 +1506,8 @@ class EventsAdminManager {
               </h2>
             </div>
             <button class="modal-close neu-btn"
-                    onclick="document.getElementById('ev-detail-modal').remove();
-                             document.body.style.overflow='';">
+                    onclick="document.getElementById('ev-detail-modal')
+                      .remove();document.body.style.overflow='';">
               <i data-lucide="x"></i>
             </button>
           </div>
@@ -1480,12 +1518,14 @@ class EventsAdminManager {
             ${posters.length > 0 ? `
             <div style="border-radius:var(--border-radius-sm);
                         overflow:hidden;margin-bottom:20px;">
-              <div class="swiper ev-detail-swiper" id="ev-detail-swiper">
+              <div class="swiper ev-detail-swiper"
+                   id="ev-detail-swiper">
                 <div class="swiper-wrapper">
                   ${posters.map(p => `
                     <div class="swiper-slide">
                       <img src="${StringUtils.sanitize(p.photo_url)}"
-                           style="width:100%;max-height:360px;object-fit:cover;
+                           style="width:100%;max-height:360px;
+                                  object-fit:cover;
                                   border-radius:var(--border-radius-sm);"
                            loading="lazy"
                            onerror="this.style.display='none'" />
@@ -1585,7 +1625,8 @@ class EventsAdminManager {
                 <div>
                   <span class="modal-detail-label">Collaboration</span>
                   <span class="modal-detail-value">
-                    ${COLLABORATION_TYPES[event.collaboration] || event.collaboration}
+                    ${COLLABORATION_TYPES[event.collaboration]
+                      || event.collaboration}
                     ${event.collaborator_name
                       ? ' — ' + StringUtils.sanitize(event.collaborator_name)
                       : ''}
@@ -1624,7 +1665,7 @@ class EventsAdminManager {
               </div>` : ''}
             </div>
 
-            <!-- ── DPP Details Panel ─────────────────────────── -->
+            <!-- ── DPP Details Panel ──────────────────────────── -->
             ${event.is_dpp ? `
             <div style="padding:16px;border-radius:var(--border-radius-sm);
                         background:linear-gradient(135deg,
@@ -1633,15 +1674,17 @@ class EventsAdminManager {
                         border:1px solid
                           rgba(var(--avenue-dpp-rgb,239,68,68),0.2);
                         margin-bottom:20px;">
-              <h4 style="font-size:0.78rem;font-weight:800;letter-spacing:0.06em;
-                         text-transform:uppercase;color:var(--avenue-dpp);
-                         margin-bottom:14px;display:flex;
-                         align-items:center;gap:6px;">
-                <i data-lucide="award" style="width:15px;height:15px;"></i>
+              <h4 style="font-size:0.78rem;font-weight:800;
+                         letter-spacing:0.06em;text-transform:uppercase;
+                         color:var(--avenue-dpp);margin-bottom:14px;
+                         display:flex;align-items:center;gap:6px;">
+                <i data-lucide="award"
+                   style="width:15px;height:15px;"></i>
                 DPP Information
               </h4>
               <div style="display:grid;
-                          grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+                          grid-template-columns:
+                            repeat(auto-fill,minmax(200px,1fr));
                           gap:14px;">
 
                 <!-- Approval Number -->
@@ -1652,19 +1695,23 @@ class EventsAdminManager {
                               color:var(--text-muted);text-transform:uppercase;
                               letter-spacing:0.05em;margin-bottom:4px;
                               display:flex;align-items:center;gap:4px;">
-                    <i data-lucide="hash" style="width:11px;height:11px;"></i>
+                    <i data-lucide="hash"
+                       style="width:11px;height:11px;"></i>
                     Project Approval Number
                   </div>
                   <div style="font-size:0.95rem;font-weight:800;
                               color:var(--accent);font-family:monospace;">
                     ${event.dpp_approval_number
                       ? StringUtils.sanitize(event.dpp_approval_number)
-                      : `<span style="color:var(--text-muted);font-size:0.8rem;
-                                     font-family:inherit;">Not specified</span>`}
+                      : `<span style="color:var(--text-muted);
+                                     font-size:0.8rem;
+                                     font-family:inherit;">
+                           Not specified
+                         </span>`}
                   </div>
                 </div>
 
-                <!-- Pillar -->
+                <!-- DPP Pillar -->
                 <div style="padding:12px;background:var(--bg-primary);
                             border-radius:var(--border-radius-sm);
                             border:1px solid var(--border-color);">
@@ -1672,21 +1719,19 @@ class EventsAdminManager {
                               color:var(--text-muted);text-transform:uppercase;
                               letter-spacing:0.05em;margin-bottom:4px;
                               display:flex;align-items:center;gap:4px;">
-                    <i data-lucide="layers" style="width:11px;height:11px;"></i>
+                    <i data-lucide="layers"
+                       style="width:11px;height:11px;"></i>
                     DPP Pillar
                   </div>
-                  ${pillar ? `
-                  <div style="display:flex;align-items:center;gap:6px;">
-                    <span style="width:10px;height:10px;border-radius:50%;
-                                 background:${pillar.color};flex-shrink:0;"></span>
-                    <span style="font-size:0.88rem;font-weight:700;
-                                 color:${pillar.color};">
-                      ${pillar.label}
-                    </span>
-                  </div>` : `
-                  <span style="font-size:0.8rem;color:var(--text-muted);">
-                    Not specified
-                  </span>`}
+                  <div style="font-size:0.88rem;font-weight:700;
+                              color:var(--text-heading);">
+                    ${event.dpp_pillar
+                      ? StringUtils.sanitize(event.dpp_pillar)
+                      : `<span style="color:var(--text-muted);
+                                     font-size:0.8rem;">
+                           Not specified
+                         </span>`}
+                  </div>
                 </div>
 
                 <!-- Category -->
@@ -1697,23 +1742,19 @@ class EventsAdminManager {
                               color:var(--text-muted);text-transform:uppercase;
                               letter-spacing:0.05em;margin-bottom:4px;
                               display:flex;align-items:center;gap:4px;">
-                    <i data-lucide="tag" style="width:11px;height:11px;"></i>
+                    <i data-lucide="tag"
+                       style="width:11px;height:11px;"></i>
                     Category
                   </div>
-                  ${category ? `
-                  <div style="display:inline-flex;align-items:center;gap:6px;
-                              padding:3px 10px;
-                              border-radius:var(--border-radius-full);
-                              background:${category.bgColor};
-                              border:1px solid ${category.color}44;">
-                    <span style="font-size:0.84rem;font-weight:700;
-                                 color:${category.color};">
-                      ${category.label}
-                    </span>
-                  </div>` : `
-                  <span style="font-size:0.8rem;color:var(--text-muted);">
-                    Not specified
-                  </span>`}
+                  <div style="font-size:0.88rem;font-weight:700;
+                              color:var(--text-heading);">
+                    ${event.dpp_category
+                      ? StringUtils.sanitize(event.dpp_category)
+                      : `<span style="color:var(--text-muted);
+                                     font-size:0.8rem;">
+                           Not specified
+                         </span>`}
+                  </div>
                 </div>
 
                 <!-- Council Member / District Trainer -->
@@ -1725,15 +1766,16 @@ class EventsAdminManager {
                               letter-spacing:0.05em;margin-bottom:4px;
                               display:flex;align-items:center;gap:4px;
                               flex-wrap:wrap;">
-                    <i data-lucide="shield" style="width:11px;height:11px;"></i>
+                    <i data-lucide="shield"
+                       style="width:11px;height:11px;"></i>
                     Council Member / District Trainer
                   </div>
                   <div style="font-size:0.88rem;font-weight:600;
                               color:var(--text-heading);">
                     ${event.dpp_council_member
                       ? StringUtils.sanitize(event.dpp_council_member)
-                      : `<span style="font-size:0.8rem;
-                                     color:var(--text-muted);">
+                      : `<span style="color:var(--text-muted);
+                                     font-size:0.8rem;">
                            Not specified
                          </span>`}
                   </div>
@@ -1741,11 +1783,13 @@ class EventsAdminManager {
 
               </div>
             </div>` : ''}
-            <!-- ── end DPP Details Panel ──────────────────────── -->
+            <!-- ── end DPP Details Panel ─────────────────────── -->
 
             <!-- Description -->
             <div class="modal-description-section">
-              <h4><i data-lucide="file-text"></i> Event Description</h4>
+              <h4>
+                <i data-lucide="file-text"></i> Event Description
+              </h4>
               <p>${StringUtils.sanitize(event.description || '')}</p>
             </div>
 
@@ -1754,8 +1798,9 @@ class EventsAdminManager {
             <div style="margin-top:20px;padding:16px;
                         background:var(--bg-secondary);
                         border-radius:var(--border-radius-sm);">
-              <h4 style="display:flex;align-items:center;gap:8px;font-size:0.9rem;
-                         font-weight:700;color:var(--text-heading);margin-bottom:12px;">
+              <h4 style="display:flex;align-items:center;gap:8px;
+                         font-size:0.9rem;font-weight:700;
+                         color:var(--text-heading);margin-bottom:12px;">
                 <i data-lucide="file-check"></i>
                 Event Report
                 <span class="admin-status-badge"
@@ -1786,7 +1831,9 @@ class EventsAdminManager {
                   <div class="modal-photo-item"
                        onclick="eventsAdmin._viewPhoto(
                          ${idx},
-                         ${JSON.stringify(actionPhotos.map(p => p.photo_url))})">
+                         ${JSON.stringify(
+                           actionPhotos.map(p => p.photo_url)
+                         )})">
                     <img src="${StringUtils.sanitize(photo.photo_url)}"
                          alt="Action photo"
                          loading="lazy"
@@ -1802,7 +1849,8 @@ class EventsAdminManager {
                 this.auth.canAccessAvenue(event.avenue) ? `
               <button class="btn btn-outline btn-sm"
                       onclick="eventsAdmin.showEventForm('${event.id}');
-                               document.getElementById('ev-detail-modal').remove();
+                               document.getElementById('ev-detail-modal')
+                                 .remove();
                                document.body.style.overflow='';">
                 <i data-lucide="pencil"></i>
                 <span>Edit Event</span>
@@ -1811,29 +1859,35 @@ class EventsAdminManager {
                 this.auth.can('APPROVE_EVENT') ? `
               <button class="btn btn-success btn-sm"
                       onclick="eventsAdmin.approveEvent('${event.id}');
-                               document.getElementById('ev-detail-modal').remove();
+                               document.getElementById('ev-detail-modal')
+                                 .remove();
                                document.body.style.overflow='';">
                 <i data-lucide="check-circle"></i>
                 <span>Approve</span>
               </button>
               <button class="btn btn-danger btn-sm"
                       onclick="eventsAdmin.rejectEvent('${event.id}');
-                               document.getElementById('ev-detail-modal').remove();
+                               document.getElementById('ev-detail-modal')
+                                 .remove();
                                document.body.style.overflow='';">
                 <i data-lucide="x-circle"></i>
                 <span>Reject</span>
               </button>` : ''}
-              ${(event.status === 'approved' || event.status === 'completed') ? `
+              ${(event.status === 'approved' ||
+                event.status === 'completed') ? `
               <button class="btn btn-primary btn-sm"
                       onclick="eventsAdmin.showReportForm('${event.id}');
-                               document.getElementById('ev-detail-modal').remove();
+                               document.getElementById('ev-detail-modal')
+                                 .remove();
                                document.body.style.overflow='';">
                 <i data-lucide="file-text"></i>
-                <span>${report ? 'View/Edit Report' : 'Submit Report'}</span>
+                <span>${report
+                  ? 'View/Edit Report' : 'Submit Report'}</span>
               </button>` : ''}
               ${report?.is_approved ? `
               <button class="btn btn-outline btn-sm"
-                      onclick="eventsAdmin.downloadEventReport('${event.id}')">
+                      onclick="eventsAdmin.downloadEventReport(
+                        '${event.id}')">
                 <i data-lucide="download"></i>
                 <span>Download .docx</span>
               </button>` : ''}
@@ -1853,18 +1907,17 @@ class EventsAdminManager {
       });
       lucide.createIcons();
 
-      // Init swiper for posters
       if (posters.length > 1) {
         setTimeout(() => {
           new Swiper('#ev-detail-swiper', {
-            loop       : true,
-            pagination : {
-              el        : '#ev-detail-swiper .swiper-pagination',
-              clickable : true
+            loop      : true,
+            pagination: {
+              el       : '#ev-detail-swiper .swiper-pagination',
+              clickable: true
             },
-            navigation : {
-              prevEl : '#ev-detail-swiper .swiper-button-prev',
-              nextEl : '#ev-detail-swiper .swiper-button-next'
+            navigation: {
+              prevEl: '#ev-detail-swiper .swiper-button-prev',
+              nextEl: '#ev-detail-swiper .swiper-button-next'
             }
           });
         }, 100);
@@ -1872,7 +1925,9 @@ class EventsAdminManager {
 
     } catch (error) {
       console.error('View event error:', error);
-      this._currentDashboard?.showToast('Failed to load event details', 'error');
+      this._currentDashboard?.showToast(
+        'Failed to load event details', 'error'
+      );
     }
   }
 
@@ -1901,13 +1956,16 @@ class EventsAdminManager {
         await window.emailService.sendEventApprovalNotification(eventId);
       }
 
-      await this.auth.logActivity(admin.id, 'EVENT_APPROVED', 'events', eventId);
+      await this.auth.logActivity(
+        admin.id, 'EVENT_APPROVED', 'events', eventId
+      );
       this._currentDashboard?.showToast(
         'Event approved! Members notified.', 'success'
       );
       await this._currentDashboard?.loadPendingCounts?.();
       await this.renderEventsList(
-        document.getElementById('admin-content'), this._currentDashboard
+        document.getElementById('admin-content'),
+        this._currentDashboard
       );
     } catch (e) {
       this._currentDashboard?.showToast('Failed to approve event', 'error');
@@ -1930,7 +1988,8 @@ class EventsAdminManager {
 
       this._currentDashboard?.showToast('Event rejected', 'warning');
       await this.renderEventsList(
-        document.getElementById('admin-content'), this._currentDashboard
+        document.getElementById('admin-content'),
+        this._currentDashboard
       );
     } catch (e) {
       this._currentDashboard?.showToast('Failed to reject event', 'error');
@@ -1947,7 +2006,8 @@ class EventsAdminManager {
         'Event marked as completed', 'success'
       );
       await this.renderEventsList(
-        document.getElementById('admin-content'), this._currentDashboard
+        document.getElementById('admin-content'),
+        this._currentDashboard
       );
     } catch (e) {
       this._currentDashboard?.showToast('Failed to update status', 'error');
@@ -1969,10 +2029,13 @@ class EventsAdminManager {
 
           this._currentDashboard?.showToast('Event deleted', 'success');
           await this.renderEventsList(
-            document.getElementById('admin-content'), this._currentDashboard
+            document.getElementById('admin-content'),
+            this._currentDashboard
           );
         } catch (e) {
-          this._currentDashboard?.showToast('Failed to delete event', 'error');
+          this._currentDashboard?.showToast(
+            'Failed to delete event', 'error'
+          );
         }
       },
       'trash-2'
@@ -2078,7 +2141,9 @@ class EventsAdminManager {
       <!-- Report Form -->
       <div class="admin-card neu-card">
         <div class="admin-card-header">
-          <h3><i data-lucide="file-text"></i> Report Details</h3>
+          <h3>
+            <i data-lucide="file-text"></i> Report Details
+          </h3>
           ${existingReport ? `
           <span class="admin-status-badge"
                 style="background:${existingReport.is_approved
@@ -2097,7 +2162,8 @@ class EventsAdminManager {
                 <i data-lucide="file-text"></i> Report Content *
               </label>
               <div class="input-wrap neu-inset">
-                <textarea name="report_content" class="form-textarea" rows="10"
+                <textarea name="report_content" class="form-textarea"
+                          rows="10"
                           placeholder="Write a detailed report..."
                           required>${existingReport?.report_content || ''
                           }</textarea>
@@ -2110,7 +2176,8 @@ class EventsAdminManager {
                 <i data-lucide="star"></i> Key Highlights
               </label>
               <div class="input-wrap neu-inset">
-                <textarea name="key_highlights" class="form-textarea" rows="4"
+                <textarea name="key_highlights" class="form-textarea"
+                          rows="4"
                           placeholder="Notable highlights and achievements..."
                 >${existingReport?.key_highlights || ''}</textarea>
               </div>
@@ -2122,7 +2189,8 @@ class EventsAdminManager {
                 <i data-lucide="alert-triangle"></i> Challenges Faced
               </label>
               <div class="input-wrap neu-inset">
-                <textarea name="challenges" class="form-textarea" rows="4"
+                <textarea name="challenges" class="form-textarea"
+                          rows="4"
                           placeholder="Any difficulties encountered..."
                 >${existingReport?.challenges || ''}</textarea>
               </div>
@@ -2134,7 +2202,8 @@ class EventsAdminManager {
                 <i data-lucide="target"></i> Outcomes &amp; Impact
               </label>
               <div class="input-wrap neu-inset">
-                <textarea name="outcomes" class="form-textarea" rows="4"
+                <textarea name="outcomes" class="form-textarea"
+                          rows="4"
                           placeholder="Results achieved and community impact..."
                 >${existingReport?.outcomes || ''}</textarea>
               </div>
@@ -2146,7 +2215,8 @@ class EventsAdminManager {
                 <i data-lucide="arrow-right-circle"></i> Future Plans
               </label>
               <div class="input-wrap neu-inset">
-                <textarea name="future_plans" class="form-textarea" rows="4"
+                <textarea name="future_plans" class="form-textarea"
+                          rows="4"
                           placeholder="Plans for follow-up activities..."
                 >${existingReport?.future_plans || ''}</textarea>
               </div>
@@ -2158,8 +2228,9 @@ class EventsAdminManager {
                 <i data-lucide="users"></i> Actual Attendance
               </label>
               <div class="input-wrap neu-inset">
-                <input type="number" name="actual_attendance" class="form-input"
-                       min="0" placeholder="Total participants"
+                <input type="number" name="actual_attendance"
+                       class="form-input" min="0"
+                       placeholder="Total participants"
                        value="${event.actual_attendance || ''}" />
               </div>
             </div>
@@ -2169,8 +2240,9 @@ class EventsAdminManager {
                 <i data-lucide="heart"></i> Total Beneficiaries
               </label>
               <div class="input-wrap neu-inset">
-                <input type="number" name="beneficiaries" class="form-input"
-                       min="0" placeholder="People benefited"
+                <input type="number" name="beneficiaries"
+                       class="form-input" min="0"
+                       placeholder="People benefited"
                        value="${event.beneficiaries || ''}" />
               </div>
             </div>
@@ -2180,8 +2252,9 @@ class EventsAdminManager {
                 <i data-lucide="clock"></i> Total Service Hours
               </label>
               <div class="input-wrap neu-inset">
-                <input type="number" name="service_hours" class="form-input"
-                       min="0" step="0.5" placeholder="Service hours rendered"
+                <input type="number" name="service_hours"
+                       class="form-input" min="0" step="0.5"
+                       placeholder="Service hours rendered"
                        value="${event.service_hours || ''}" />
               </div>
             </div>
@@ -2191,8 +2264,9 @@ class EventsAdminManager {
                 <i data-lucide="indian-rupee"></i> Actual Expenses (Rs.)
               </label>
               <div class="input-wrap neu-inset">
-                <input type="number" name="budget_actual" class="form-input"
-                       min="0" step="0.01" placeholder="Total amount spent"
+                <input type="number" name="budget_actual"
+                       class="form-input" min="0" step="0.01"
+                       placeholder="Total amount spent"
                        value="${event.budget_actual || ''}" />
               </div>
             </div>
@@ -2217,11 +2291,14 @@ class EventsAdminManager {
                   ${actionPhotos.map((photo, idx) => `
                     <div style="position:relative;width:80px;height:80px;
                                 border-radius:var(--border-radius-sm);
-                                overflow:hidden;box-shadow:var(--neu-shadow-sm);
+                                overflow:hidden;
+                                box-shadow:var(--neu-shadow-sm);
                                 cursor:pointer;"
                          onclick="eventsAdmin._viewPhoto(
                            ${idx},
-                           ${JSON.stringify(actionPhotos.map(p => p.photo_url))})">
+                           ${JSON.stringify(
+                             actionPhotos.map(p => p.photo_url)
+                           )})">
                       <img src="${StringUtils.sanitize(photo.photo_url)}"
                            style="width:100%;height:100%;object-fit:cover;"
                            loading="lazy"
@@ -2231,9 +2308,12 @@ class EventsAdminManager {
                 </div>
               </div>` : ''}
 
-              <div class="file-upload-wrap neu-inset" id="rpt-photos-wrap">
-                <input type="file" id="rpt-photos-input" class="file-input"
-                       accept="image/jpeg,image/png,image/webp" multiple />
+              <div class="file-upload-wrap neu-inset"
+                   id="rpt-photos-wrap">
+                <input type="file" id="rpt-photos-input"
+                       class="file-input"
+                       accept="image/jpeg,image/png,image/webp"
+                       multiple />
                 <div class="file-upload-ui">
                   <i data-lucide="upload-cloud"></i>
                   <span id="rpt-photos-label">
@@ -2248,7 +2328,8 @@ class EventsAdminManager {
               </div>
 
               <div id="rpt-photo-previews"
-                   style="margin-top:8px;display:none;flex-wrap:wrap;gap:8px;">
+                   style="margin-top:8px;display:none;
+                          flex-wrap:wrap;gap:8px;">
               </div>
             </div>
 
@@ -2264,8 +2345,11 @@ class EventsAdminManager {
                   <span class="admin-toggle-slider"></span>
                 </label>
                 <div>
-                  <strong style="color:var(--success);">Approve this report</strong>
-                  <p style="font-size:0.78rem;color:var(--text-muted);margin-top:2px;">
+                  <strong style="color:var(--success);">
+                    Approve this report
+                  </strong>
+                  <p style="font-size:0.78rem;color:var(--text-muted);
+                            margin-top:2px;">
                     Approving will notify members via email.
                   </p>
                 </div>
@@ -2282,7 +2366,8 @@ class EventsAdminManager {
               <i data-lucide="x"></i>
               <span>Cancel</span>
             </button>
-            <button type="submit" class="btn btn-primary" id="rpt-submit-btn">
+            <button type="submit" class="btn btn-primary"
+                    id="rpt-submit-btn">
               <i data-lucide="send"></i>
               <span>Submit Report</span>
             </button>
@@ -2306,7 +2391,8 @@ class EventsAdminManager {
 
     if (photosInput) {
       photosInput.addEventListener('change', (e) => {
-        const files = Array.from(e.target.files).slice(0, MAX_PHOTOS.REPORT);
+        const files = Array.from(e.target.files)
+          .slice(0, MAX_PHOTOS.REPORT);
         this._pendingReportPhotos = files;
 
         if (previews) {
@@ -2317,7 +2403,8 @@ class EventsAdminManager {
               return `
                 <div style="width:80px;height:80px;
                             border-radius:var(--border-radius-sm);
-                            overflow:hidden;box-shadow:var(--neu-shadow-sm);">
+                            overflow:hidden;
+                            box-shadow:var(--neu-shadow-sm);">
                   <img src="${url}"
                        style="width:100%;height:100%;object-fit:cover;" />
                 </div>`;
@@ -2357,14 +2444,14 @@ class EventsAdminManager {
     }
 
     if (btn) {
-      btn.disabled = true;
+      btn.disabled  = true;
       btn.innerHTML =
         '<i data-lucide="loader-2"></i><span>Submitting...</span>';
       lucide.createIcons();
     }
 
     try {
-      // Upload new action photos
+      /* Upload new action photos */
       const newPhotoUrls = [];
       if (this._pendingReportPhotos?.length > 0) {
         const uploaded = await this.uploadEventPhotos(
@@ -2378,23 +2465,23 @@ class EventsAdminManager {
         !!data.approve_report && this.auth.can('APPROVE_REPORT');
 
       const reportPayload = {
-        event_id        : eventId,
-        report_content  : data.report_content.trim(),
-        key_highlights  : data.key_highlights?.trim()  || null,
-        challenges      : data.challenges?.trim()      || null,
-        outcomes        : data.outcomes?.trim()        || null,
-        future_plans    : data.future_plans?.trim()    || null,
-        photo_urls      : newPhotoUrls,
-        submitted_by    : admin?.id,
-        report_month    : DateUtils.getMonthName(new Date().getMonth() + 1),
-        report_year     : new Date().getFullYear(),
-        is_approved     : shouldApprove || this.auth.isFullAccess(),
-        updated_at      : new Date().toISOString()
+        event_id       : eventId,
+        report_content : data.report_content.trim(),
+        key_highlights : data.key_highlights?.trim()  || null,
+        challenges     : data.challenges?.trim()      || null,
+        outcomes       : data.outcomes?.trim()        || null,
+        future_plans   : data.future_plans?.trim()    || null,
+        photo_urls     : newPhotoUrls,
+        submitted_by   : admin?.id,
+        report_month   : DateUtils.getMonthName(new Date().getMonth() + 1),
+        report_year    : new Date().getFullYear(),
+        is_approved    : shouldApprove || this.auth.isFullAccess(),
+        updated_at     : new Date().toISOString()
       };
 
       if (shouldApprove || this.auth.isFullAccess()) {
-        reportPayload.approved_by  = admin?.id;
-        reportPayload.approved_at  = new Date().toISOString();
+        reportPayload.approved_by = admin?.id;
+        reportPayload.approved_at = new Date().toISOString();
       }
 
       if (existingReportId) {
@@ -2410,7 +2497,7 @@ class EventsAdminManager {
         if (error) throw error;
       }
 
-      // Update event stats
+      /* Update event stats */
       const statsUpdate = { status: 'completed' };
       if (data.actual_attendance) {
         statsUpdate.actual_attendance = parseInt(data.actual_attendance);
@@ -2425,9 +2512,11 @@ class EventsAdminManager {
         statsUpdate.budget_actual = parseFloat(data.budget_actual);
       }
 
-      await this.db.from('events').update(statsUpdate).eq('id', eventId);
+      await this.db.from('events')
+        .update(statsUpdate)
+        .eq('id', eventId);
 
-      // Notify if approved
+      /* Notify if approved */
       if ((shouldApprove || this.auth.isFullAccess()) && window.emailService) {
         await window.emailService.sendReportNotification(eventId);
       }
@@ -2441,7 +2530,8 @@ class EventsAdminManager {
         'Report submitted successfully!', 'success'
       );
       await this.renderEventsList(
-        document.getElementById('admin-content'), this._currentDashboard
+        document.getElementById('admin-content'),
+        this._currentDashboard
       );
 
     } catch (error) {
@@ -2451,7 +2541,7 @@ class EventsAdminManager {
       );
     } finally {
       if (btn) {
-        btn.disabled = false;
+        btn.disabled  = false;
         btn.innerHTML =
           '<i data-lucide="send"></i><span>Submit Report</span>';
         lucide.createIcons();
@@ -2477,8 +2567,8 @@ class EventsAdminManager {
             <i data-lucide="download"></i> Download Reports
           </h2>
           <button class="modal-close neu-btn"
-                  onclick="document.getElementById('ev-download-modal').remove();
-                           document.body.style.overflow='';">
+                  onclick="document.getElementById('ev-download-modal')
+                    .remove();document.body.style.overflow='';">
             <i data-lucide="x"></i>
           </button>
         </div>
@@ -2521,21 +2611,27 @@ class EventsAdminManager {
             <div class="select-wrap neu-inset">
               <select id="dl-type" class="form-select">
                 ${this.auth.can('DOWNLOAD_MONTHLY_REPORT') ? `
-                <option value="monthly">Monthly Combined Report</option>` : ''}
+                <option value="monthly">
+                  Monthly Combined Report
+                </option>` : ''}
                 ${accessibleAvenues.map(a => `
                   <option value="${a}">
-                    ${AVENUES[a]?.label || StringUtils.snakeToTitle(a)} Report
+                    ${AVENUES[a]?.label
+                      || StringUtils.snakeToTitle(a)} Report
                   </option>
                 `).join('')}
-                <option value="dpp">District Priority Projects Report</option>
+                <option value="dpp">
+                  District Priority Projects Report
+                </option>
               </select>
               <i data-lucide="chevron-down" class="select-arrow"></i>
             </div>
           </div>
-          <div class="admin-form-actions" style="margin-top:20px;padding:0;">
+          <div class="admin-form-actions"
+               style="margin-top:20px;padding:0;">
             <button class="btn btn-outline"
-                    onclick="document.getElementById('ev-download-modal').remove();
-                             document.body.style.overflow='';">
+                    onclick="document.getElementById('ev-download-modal')
+                      .remove();document.body.style.overflow='';">
               Cancel
             </button>
             <button class="btn btn-primary"
@@ -2637,7 +2733,8 @@ class EventsAdminManager {
             <i data-lucide="clock"></i> Pending Approval
           </h1>
           <p class="admin-section-subtitle">
-            ${events?.length || 0} event${events?.length !== 1 ? 's' : ''}
+            ${events?.length || 0}
+            event${events?.length !== 1 ? 's' : ''}
             awaiting your review
           </p>
         </div>
@@ -2654,7 +2751,8 @@ class EventsAdminManager {
       <div class="admin-card neu-card">
         <div class="admin-empty-state" style="padding:80px;">
           <i data-lucide="check-circle"
-             style="width:56px;height:56px;color:var(--success);opacity:0.7;"></i>
+             style="width:56px;height:56px;color:var(--success);
+                    opacity:0.7;"></i>
           <h3 style="color:var(--text-heading);">All Clear!</h3>
           <p>No events are pending approval at this time.</p>
         </div>
@@ -2672,19 +2770,23 @@ class EventsAdminManager {
 
     return `
       <div class="admin-card neu-card" style="padding:0;overflow:hidden;">
-        <div style="padding:20px 24px;border-bottom:1px solid var(--border-color);">
+        <div style="padding:20px 24px;
+                    border-bottom:1px solid var(--border-color);">
           <div style="display:flex;justify-content:space-between;
                       align-items:flex-start;gap:16px;flex-wrap:wrap;">
             <div style="flex:1;">
               <div style="display:flex;align-items:center;gap:8px;
                           margin-bottom:8px;flex-wrap:wrap;">
                 <span class="admin-avenue-badge"
-                      style="background:${avenue.bgColor || 'var(--accent-light)'};
+                      style="background:${avenue.bgColor
+                        || 'var(--accent-light)'};
                              color:${avenue.color || 'var(--accent)'};">
-                  ${avenue.label || StringUtils.snakeToTitle(event.avenue)}
+                  ${avenue.label
+                    || StringUtils.snakeToTitle(event.avenue)}
                 </span>
                 ${event.is_dpp
-                  ? '<span class="admin-dpp-badge">District Priority Project</span>'
+                  ? '<span class="admin-dpp-badge">'
+                    + 'District Priority Project</span>'
                   : ''}
                 <span style="font-size:0.72rem;color:var(--text-muted);">
                   Group ${event.group_number || '1'}
@@ -2854,5 +2956,5 @@ const eventsAdminStyles = `
 /* ============================================================
    GLOBAL INSTANCE
    ============================================================ */
-const eventsAdmin = new EventsAdminManager();
+const eventsAdmin  = new EventsAdminManager();
 window.eventsAdmin = eventsAdmin;
