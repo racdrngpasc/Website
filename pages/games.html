@@ -7,32 +7,25 @@
         content="Games Portal – Rotaract Club of Dr. N.G.P Arts & Science College" />
   <title>Games | Rotaract Club of Dr. N.G.P Arts & Science College</title>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet" />
 
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-
-  <!-- Supabase (optional) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 
-  <!-- Main site styles (optional – fallback vars below) -->
   <link rel="stylesheet" href="../css/styles.css" />
 
   <link rel="icon" type="image/png"
         href="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" />
 
   <style>
-    /* ───────────────────────────────────────────────────
-       CSS VARIABLES  (self-contained fallbacks)
-    ─────────────────────────────────────────────────── */
+    /* ─── Self-contained CSS variables ─────────────────────── */
     :root {
       --accent:             #0055FF;
       --accent-light:       #e8f0ff;
-      --accent-rgb:         0, 85, 255;
+      --accent-rgb:         0,85,255;
       --bg-page:            #E8E8E8;
       --bg-card:            #EFEFEF;
       --bg-secondary:       #E0E0E0;
@@ -48,9 +41,9 @@
       --warning-light:      #FEFCBF;
       --danger:             #E53E3E;
       --danger-light:       #FED7D7;
-      --neu-shadow:         6px 6px 12px #C5C5C5,  -6px -6px 12px #FBFBFB;
-      --neu-shadow-sm:      3px 3px 6px  #C5C5C5,  -3px -3px 6px  #FBFBFB;
-      --neu-shadow-lg:      10px 10px 20px #C0C0C0, -10px -10px 20px #FFFFFF;
+      --neu-shadow:         6px 6px 12px #C5C5C5, -6px -6px 12px #FBFBFB;
+      --neu-shadow-sm:      3px 3px 6px  #C5C5C5, -3px -3px 6px  #FBFBFB;
+      --neu-shadow-lg:      10px 10px 20px #C0C0C0,-10px -10px 20px #FFFFFF;
       --neu-inset:          inset 4px 4px 8px #C5C5C5, inset -4px -4px 8px #FBFBFB;
       --transition:         all 0.22s ease;
       --border-radius:      14px;
@@ -62,7 +55,7 @@
     [data-theme="dark"] {
       --accent:           #4DEEEA;
       --accent-light:     #1a3a3a;
-      --accent-rgb:       77, 238, 234;
+      --accent-rgb:       77,238,234;
       --bg-page:          #13141F;
       --bg-card:          #1A1B26;
       --bg-secondary:     #22233A;
@@ -80,13 +73,11 @@
       --danger-light:     #3a1a1a;
       --neu-shadow:       6px 6px 12px #0D0E18,  -6px -6px 12px #212234;
       --neu-shadow-sm:    3px 3px 6px  #0D0E18,  -3px -3px 6px  #212234;
-      --neu-shadow-lg:    10px 10px 20px #0A0B14, -10px -10px 20px #242536;
+      --neu-shadow-lg:    10px 10px 20px #0A0B14,-10px -10px 20px #242536;
       --neu-inset:        inset 4px 4px 8px #0D0E18, inset -4px -4px 8px #212234;
     }
 
-    /* ───────────────────────────────────────────────────
-       RESET / BASE
-    ─────────────────────────────────────────────────── */
+    /* ─── Reset / Base ──────────────────────────────────────── */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
@@ -101,18 +92,17 @@
       min-height: 100vh;
     }
 
+    a { text-decoration: none; color: inherit; }
     .hidden { display: none !important; }
 
-    a { text-decoration: none; }
-
-    /* ─── Neumorphic card ───────────────────────────── */
+    /* ─── Neumorphic card ───────────────────────────────────── */
     .neu-card {
       background: var(--bg-card);
       border-radius: var(--border-radius);
       box-shadow: var(--neu-shadow);
     }
 
-    /* ─── Buttons ───────────────────────────────────── */
+    /* ─── Buttons ───────────────────────────────────────────── */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -164,22 +154,10 @@
     }
     .neu-btn:hover { color: var(--accent); }
 
-    /* ─── Fade-in animation ─────────────────────────── */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(18px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .fade-in-up {
-      opacity: 0;
-      animation: fadeInUp 0.45s ease forwards;
-    }
-
-    /* ═══════════════════════════════════════════════════
-       PAGE LAYOUT
-    ═══════════════════════════════════════════════════ */
+    /* ─── Page layout ───────────────────────────────────────── */
     .games-page { min-height: 100vh; display: flex; flex-direction: column; }
 
-    /* ─── Sticky Header ─────────────────────────────── */
+    /* ─── Sticky header ─────────────────────────────────────── */
     .games-header {
       background: var(--bg-card);
       box-shadow: var(--neu-shadow-sm);
@@ -195,15 +173,20 @@
     .games-header-left   { display: flex; align-items: center; gap: 14px; }
     .games-header-logo   { width: 40px; height: 40px; object-fit: contain; flex-shrink: 0; }
     .games-header-title h1 {
-      font-size: 1.05rem; font-weight: 800; color: var(--text-heading);
-      display: flex; align-items: center; gap: 8px; line-height: 1.2;
+      font-size: 1.05rem; font-weight: 800;
+      color: var(--text-heading);
+      display: flex; align-items: center; gap: 8px;
+      line-height: 1.2;
     }
     .games-header-title h1 i,
     .games-header-title h1 svg { width: 20px; height: 20px; color: var(--accent); }
-    .games-header-title p { font-size: 0.7rem; color: var(--text-muted); font-weight: 500; margin-top: 2px; }
-    .games-header-right  { display: flex; align-items: center; gap: 10px; }
+    .games-header-title p {
+      font-size: 0.7rem; color: var(--text-muted);
+      font-weight: 500; margin-top: 2px;
+    }
+    .games-header-right { display: flex; align-items: center; gap: 10px; }
 
-    /* ─── Content container ─────────────────────────── */
+    /* ─── Content ───────────────────────────────────────────── */
     .games-content {
       max-width: 1200px;
       margin: 0 auto;
@@ -211,7 +194,7 @@
       flex: 1;
     }
 
-    /* ─── Intro Banner ──────────────────────────────── */
+    /* ─── Intro banner ──────────────────────────────────────── */
     .games-intro {
       text-align: center;
       margin-bottom: 32px;
@@ -243,16 +226,14 @@
       gap: 10px;
     }
     .games-intro h2 i,
-    .games-intro h2 svg {
-      width: 28px; height: 28px; color: var(--accent);
-    }
+    .games-intro h2 svg { width: 28px; height: 28px; color: var(--accent); }
     .games-intro p {
       font-size: 0.9rem; color: var(--text-secondary);
       max-width: 480px; margin: 0 auto;
       line-height: 1.75; position: relative;
     }
 
-    /* ─── Category Filter ───────────────────────────── */
+    /* ─── Category filter ───────────────────────────────────── */
     .games-category-filter {
       display: flex;
       gap: 8px;
@@ -260,7 +241,7 @@
       justify-content: center;
       margin-bottom: 28px;
     }
-    .games-category-btn {
+    .gcf-btn {
       display: inline-flex;
       align-items: center;
       gap: 5px;
@@ -276,28 +257,28 @@
       transition: var(--transition);
       font-family: 'Poppins', sans-serif;
     }
-    .games-category-btn i,
-    .games-category-btn svg { width: 13px; height: 13px; }
-    .games-category-btn:hover { color: var(--accent); background: var(--accent-light); }
-    .games-category-btn.active {
+    .gcf-btn i, .gcf-btn svg { width: 13px; height: 13px; }
+    .gcf-btn:hover { color: var(--accent); background: var(--accent-light); }
+    .gcf-btn.active {
       background: var(--accent);
       color: #fff;
       border-color: var(--accent);
     }
 
-    /* ─── Games Grid ────────────────────────────────── */
+    /* ─── Games grid ────────────────────────────────────────── */
     #games-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
       gap: 18px;
     }
 
-    /* ─── Leaderboard ───────────────────────────────── */
+    /* ─── Leaderboard ───────────────────────────────────────── */
     .games-leaderboard { margin-top: 48px; }
     .leaderboard-header {
       display: flex; align-items: center;
       justify-content: space-between;
-      margin-bottom: 16px; flex-wrap: wrap; gap: 10px;
+      margin-bottom: 16px;
+      flex-wrap: wrap; gap: 10px;
     }
     .leaderboard-header h3 {
       display: flex; align-items: center; gap: 8px;
@@ -311,31 +292,31 @@
       grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
       gap: 12px;
     }
-    .leaderboard-card {
+    .lb-card {
       padding: 16px; display: flex; align-items: center; gap: 12px;
       transition: var(--transition);
     }
-    .leaderboard-card:hover { transform: translateY(-2px); }
+    .lb-card:hover { transform: translateY(-2px); }
 
-    .leaderboard-rank {
+    .lb-rank {
       width: 34px; height: 34px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       font-size: 0.8rem; font-weight: 800; flex-shrink: 0;
     }
-    .leaderboard-rank.gold   { background: linear-gradient(135deg,#FFD700,#FFA500); color:#fff; }
-    .leaderboard-rank.silver { background: linear-gradient(135deg,#C0C0C0,#808080); color:#fff; }
-    .leaderboard-rank.bronze { background: linear-gradient(135deg,#CD7F32,#8B4513); color:#fff; }
-    .leaderboard-rank.normal { background: var(--bg-secondary); color: var(--text-muted); }
+    .lb-rank.gold   { background: linear-gradient(135deg,#FFD700,#FFA500); color:#fff; }
+    .lb-rank.silver { background: linear-gradient(135deg,#C0C0C0,#808080); color:#fff; }
+    .lb-rank.bronze { background: linear-gradient(135deg,#CD7F32,#8B4513); color:#fff; }
+    .lb-rank.normal { background: var(--bg-secondary); color: var(--text-muted); }
 
-    .leaderboard-info  { flex: 1; overflow: hidden; }
-    .leaderboard-game  {
+    .lb-info  { flex: 1; overflow: hidden; }
+    .lb-game  {
       font-size: 0.82rem; font-weight: 600; color: var(--text-heading);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .leaderboard-score  { font-size: 0.72rem; color: var(--text-muted); }
-    .leaderboard-points { font-size: 1.05rem; font-weight: 800; color: var(--accent); }
+    .lb-label  { font-size: 0.72rem; color: var(--text-muted); }
+    .lb-points { font-size: 1.05rem; font-weight: 800; color: var(--accent); }
 
-    /* ─── Footer ────────────────────────────────────── */
+    /* ─── Footer ────────────────────────────────────────────── */
     .games-footer {
       text-align: center; padding: 32px 24px;
       border-top: 1px solid var(--border-color);
@@ -344,11 +325,11 @@
       font-size: 0.78rem; color: var(--text-muted); line-height: 1.8;
     }
     .games-footer a {
-      color: var(--accent); font-weight: 600; text-decoration: none;
+      color: var(--accent); font-weight: 600;
     }
     .games-footer a:hover { text-decoration: underline; }
 
-    /* ─── Toast ──────────────────────────────────────── */
+    /* ─── Toast ─────────────────────────────────────────────── */
     .toast-container {
       position: fixed; bottom: 24px; right: 24px;
       z-index: 9999; display: flex;
@@ -363,20 +344,17 @@
       background: var(--bg-card);
       box-shadow: var(--neu-shadow-lg);
       min-width: 240px; max-width: 340px;
-      animation: toastSlideIn 0.3s ease;
+      animation: toastIn 0.3s ease;
       border-left: 4px solid var(--accent);
     }
-    .toast.removing { animation: toastSlideOut 0.3s ease forwards; }
+    .toast.removing { animation: toastOut 0.3s ease forwards; }
     .toast-content  { flex: 1; }
     .toast-title    { font-size: 0.85rem; font-weight: 700; color: var(--text-heading); }
     .toast-message  { font-size: 0.78rem; color: var(--text-secondary); margin-top: 2px; }
-    @keyframes toastSlideIn  { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
-    @keyframes toastSlideOut { from { opacity:1; transform:translateX(0); } to { opacity:0; transform:translateX(40px); } }
+    @keyframes toastIn  { from{opacity:0;transform:translateX(40px);}to{opacity:1;transform:translateX(0);} }
+    @keyframes toastOut { from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(40px);} }
 
-    /* ─── Game Play Area Reset ──────────────────────── */
-    #game-play-area { display: none; }
-
-    /* ─── Responsive ────────────────────────────────── */
+    /* ─── Responsive ─────────────────────────────────────────── */
     @media (max-width: 768px) {
       .games-header { flex-wrap: wrap; padding: 12px 16px; }
       .games-header-right { width: 100%; justify-content: flex-end; }
@@ -392,12 +370,12 @@
         justify-content: flex-start;
         flex-wrap: nowrap;
         overflow-x: auto;
-        padding-bottom: 6px;
+        padding-bottom: 8px;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
       }
       .games-category-filter::-webkit-scrollbar { display: none; }
-      .games-category-btn { flex-shrink: 0; }
+      .gcf-btn { flex-shrink: 0; }
       .games-header-title p { display: none; }
       .btn-sm span { display: none; }
       .btn-sm { padding: 7px; }
@@ -430,10 +408,12 @@
     </div>
 
     <div class="games-header-right">
-      <button class="neu-btn" id="games-theme-toggle" title="Toggle Theme"
+      <button class="neu-btn" id="games-theme-toggle"
+              title="Toggle Theme"
               style="width:38px;height:38px;border-radius:50%;">
         <i data-lucide="sun"  id="theme-icon-light" style="width:17px;height:17px;"></i>
-        <i data-lucide="moon" id="theme-icon-dark"  style="width:17px;height:17px;" class="hidden"></i>
+        <i data-lucide="moon" id="theme-icon-dark"
+           style="width:17px;height:17px;" class="hidden"></i>
       </button>
       <a href="../index.html" class="btn btn-outline btn-sm">
         <i data-lucide="home"></i>
@@ -451,11 +431,11 @@
   ══════════════════════════════════════════════════ -->
   <div class="games-content">
 
-    <!-- ─── Games List Area ────────────────────────── -->
+    <!-- ── Games List Area ─────────────────────────── -->
     <div id="games-list-area">
 
       <!-- Intro Banner -->
-      <div class="games-intro fade-in-up">
+      <div class="games-intro">
         <h2>
           <i data-lucide="gamepad-2"></i>
           Rotaract Gaming Zone
@@ -466,51 +446,69 @@
         </p>
       </div>
 
-      <!-- Category Filter Buttons
-           VALUES MUST match GAMES_CONFIG categories exactly:
-           Arcade, Puzzle, Strategy, Trivia, Word, Skill  -->
+      <!-- ── Category Filter Buttons ─────────────────
+           Values MUST match GAMES_CONFIG categories in config.js
+           exactly (case-sensitive, lowercase):
+             classic | puzzle | action | educational | word | skill
+      ─────────────────────────────────────────────── -->
       <div class="games-category-filter" id="category-filter">
-        <button class="games-category-btn active"
-                onclick="filterGames('all',this)">
-          <i data-lucide="layout-grid"></i> All
+
+        <button class="gcf-btn active" data-filter="all"
+                onclick="filterGames('all', this)">
+          <i data-lucide="layout-grid"></i>
+          All
         </button>
-        <button class="games-category-btn"
-                onclick="filterGames('Arcade',this)">
-          <i data-lucide="zap"></i> Arcade
+
+        <button class="gcf-btn" data-filter="classic"
+                onclick="filterGames('classic', this)">
+          <i data-lucide="star"></i>
+          Classic
         </button>
-        <button class="games-category-btn"
-                onclick="filterGames('Puzzle',this)">
-          <i data-lucide="grid-3x3"></i> Puzzle
+
+        <button class="gcf-btn" data-filter="puzzle"
+                onclick="filterGames('puzzle', this)">
+          <i data-lucide="grid-3x3"></i>
+          Puzzle
         </button>
-        <button class="games-category-btn"
-                onclick="filterGames('Strategy',this)">
-          <i data-lucide="cpu"></i> Strategy
+
+        <button class="gcf-btn" data-filter="action"
+                onclick="filterGames('action', this)">
+          <i data-lucide="zap"></i>
+          Action
         </button>
-        <button class="games-category-btn"
-                onclick="filterGames('Trivia',this)">
-          <i data-lucide="book-open"></i> Trivia
+
+        <button class="gcf-btn" data-filter="educational"
+                onclick="filterGames('educational', this)">
+          <i data-lucide="book-open"></i>
+          Educational
         </button>
-        <button class="games-category-btn"
-                onclick="filterGames('Word',this)">
-          <i data-lucide="type"></i> Word
+
+        <button class="gcf-btn" data-filter="word"
+                onclick="filterGames('word', this)">
+          <i data-lucide="type"></i>
+          Word
         </button>
-        <button class="games-category-btn"
-                onclick="filterGames('Skill',this)">
-          <i data-lucide="target"></i> Skill
+
+        <button class="gcf-btn" data-filter="skill"
+                onclick="filterGames('skill', this)">
+          <i data-lucide="target"></i>
+          Skill
         </button>
+
       </div>
 
       <!-- Games Grid — populated by games.js -->
       <div id="games-grid"></div>
 
       <!-- Leaderboard -->
-      <div class="games-leaderboard" id="games-leaderboard">
+      <div class="games-leaderboard">
         <div class="leaderboard-header">
           <h3>
             <i data-lucide="trophy"></i>
             Your High Scores
           </h3>
-          <button class="btn btn-outline btn-sm" onclick="clearAllScores()">
+          <button class="btn btn-outline btn-sm"
+                  onclick="clearAllScores()">
             <i data-lucide="trash-2"></i>
             <span>Clear Scores</span>
           </button>
@@ -518,12 +516,12 @@
         <div class="leaderboard-grid" id="leaderboard-grid"></div>
       </div>
 
-    </div>
+    </div><!-- /#games-list-area -->
 
-    <!-- ─── Game Play Area — populated by games.js ─── -->
-    <div id="game-play-area"></div>
+    <!-- ── Game Play Area — populated by games.js ──── -->
+    <div id="game-play-area" style="display:none;"></div>
 
-  </div>
+  </div><!-- /.games-content -->
 
   <!-- ══════════════════════════════════════════════════
        FOOTER
@@ -545,198 +543,250 @@
     </p>
   </footer>
 
-</div>
+</div><!-- /.games-page -->
 
 <!-- Toast Container -->
 <div class="toast-container" id="toast-container"></div>
 
 <!-- ══════════════════════════════════════════════════
      SCRIPTS
-     Load config.js first (optional), then games.js
-     which declares GAMES_CONFIG, Storage, etc.
+     Load order is critical:
+       1. config.js  — declares GAMES_CONFIG, Storage, getSupabaseClient, etc.
+       2. games.js   — reads window.GAMES_CONFIG, uses Storage from config.js
 ══════════════════════════════════════════════════ -->
 <script src="../js/config.js"
-        onerror="console.warn('config.js not found – Supabase features disabled.');">
+        onerror="console.error('config.js failed to load!');">
 </script>
-<script src="../js/games.js"></script>
+<script src="../js/games.js"
+        onerror="console.error('games.js failed to load!');">
+</script>
 
 <script>
 /* ════════════════════════════════════════════════════════
-   PAGE-LEVEL LOGIC
+   PAGE-LEVEL SCRIPT
    ────────────────────────────────────────────────────────
-   This script runs AFTER games.js is loaded.
-   It does NOT redeclare anything from games.js.
-   It uses:
-     - GAMES_CONFIG        (const from games.js)
-     - window.gamesManager (global from games.js)
-     - Storage             (helper from games.js)
+   Runs AFTER config.js and games.js are both loaded.
+   Does NOT redeclare anything from either file.
 ════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  /* ─────────────────────────────────────────────────────
-     1.  APPLY SAVED THEME INSTANTLY
-         games.js Storage helper uses plain JSON:
-           localStorage.setItem('theme', JSON.stringify('dark'))
-         So reading it: JSON.parse(value) → 'dark'
-  ───────────────────────────────────────────────────── */
-  var savedTheme = null;
-  try {
-    var raw = localStorage.getItem('theme');
-    if (raw) savedTheme = JSON.parse(raw);
-  } catch (e) {}
+  /* ── 1. Apply saved theme instantly ─────────────────── */
+  (function applyTheme () {
+    try {
+      /* config.js Storage wraps as {value, timestamp, expiry}
+         under key "rac_theme"
+         Storage.get('theme') reads "rac_theme" and returns .value  */
+      var theme = window.Storage ? window.Storage.get('theme') : null;
 
-  if (savedTheme === 'dark' || savedTheme === 'light') {
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    syncIcons(savedTheme);
-  }
+      /* Fallback: check plain key too */
+      if (!theme) {
+        var raw = localStorage.getItem('rac_theme');
+        if (raw) {
+          try { theme = JSON.parse(raw).value; } catch (e) { theme = null; }
+        }
+      }
 
-  /* ─────────────────────────────────────────────────────
-     2.  THEME TOGGLE BUTTON
-  ───────────────────────────────────────────────────── */
+      if (theme === 'dark' || theme === 'light') {
+        document.documentElement.setAttribute('data-theme', theme);
+        syncThemeIcons(theme);
+      }
+    } catch (e) { /* silent */ }
+  })();
+
+  /* ── 2. Theme toggle ──────────────────────────────────  */
   var themeBtn = document.getElementById('games-theme-toggle');
   if (themeBtn) {
     themeBtn.addEventListener('click', function () {
-      var current = document.documentElement.getAttribute('data-theme') || 'light';
-      var next    = (current === 'dark') ? 'light' : 'dark';
+      var cur  = document.documentElement.getAttribute('data-theme') || 'light';
+      var next = cur === 'dark' ? 'light' : 'dark';
 
       document.documentElement.setAttribute('data-theme', next);
-      syncIcons(next);
+      syncThemeIcons(next);
 
-      // Save using same key & format as games.js
-      try { localStorage.setItem('theme', JSON.stringify(next)); } catch (e) {}
+      /* Save via config.js Storage (writes "rac_theme") */
+      if (window.Storage) {
+        window.Storage.set('theme', next);
+      } else {
+        try {
+          localStorage.setItem('rac_theme', JSON.stringify({ value: next, timestamp: Date.now(), expiry: null }));
+        } catch (e) { /* silent */ }
+      }
 
       if (typeof lucide !== 'undefined') lucide.createIcons();
     });
   }
 
-  function syncIcons(theme) {
-    var lightIcon = document.getElementById('theme-icon-light');
-    var darkIcon  = document.getElementById('theme-icon-dark');
-    if (!lightIcon || !darkIcon) return;
-    if (theme === 'dark') {
-      lightIcon.classList.add('hidden');
-      darkIcon.classList.remove('hidden');
-    } else {
-      lightIcon.classList.remove('hidden');
-      darkIcon.classList.add('hidden');
-    }
+  function syncThemeIcons (theme) {
+    var li = document.getElementById('theme-icon-light');
+    var di = document.getElementById('theme-icon-dark');
+    if (!li || !di) return;
+    if (theme === 'dark') { li.classList.add('hidden'); di.classList.remove('hidden'); }
+    else                  { li.classList.remove('hidden'); di.classList.add('hidden'); }
   }
 
-  /* ─────────────────────────────────────────────────────
-     3.  INITIALIZE LUCIDE ICONS
-  ───────────────────────────────────────────────────── */
+  /* ── 3. Lucide icons ──────────────────────────────────  */
   if (typeof lucide !== 'undefined') lucide.createIcons();
 
-  /* ─────────────────────────────────────────────────────
-     4.  RENDER LEADERBOARD ON PAGE LOAD
-  ───────────────────────────────────────────────────── */
+  /* ── 4. Leaderboard on load ───────────────────────────  */
   refreshLeaderboard();
 
-  /* ─────────────────────────────────────────────────────
-     5.  AUTO-REFRESH LEADERBOARD WHEN RETURNING
-         FROM A GAME (games-list-area becomes visible)
-  ───────────────────────────────────────────────────── */
+  /* ── 5. Auto-refresh leaderboard when returning to list  */
   var listArea = document.getElementById('games-list-area');
   if (listArea && typeof MutationObserver !== 'undefined') {
     new MutationObserver(function () {
-      if (listArea.style.display !== 'none') {
-        refreshLeaderboard();
-      }
+      if (listArea.style.display !== 'none') refreshLeaderboard();
     }).observe(listArea, { attributes: true, attributeFilter: ['style'] });
   }
 
-})(); // end IIFE
+})();
 
 
 /* ════════════════════════════════════════════════════════
    CATEGORY FILTER
    ────────────────────────────────────────────────────────
-   GAMES_CONFIG categories: Arcade, Puzzle, Strategy,
-                            Trivia, Word, Skill
+   config.js GAMES_CONFIG categories (all lowercase):
+     classic | puzzle | action | educational | word | skill
+
+   games.js renders each card as:
+     <div class="gcard" data-gcat="classic" data-gid="snake">
+
+   This function reads data-gcat and compares with the
+   clicked filter value.
 ════════════════════════════════════════════════════════ */
-function filterGames(category, btn) {
-  // Update active state
-  var allBtns = document.querySelectorAll('.games-category-btn');
+function filterGames (category, clickedBtn) {
+
+  /* 1. Update active button */
+  var allBtns = document.querySelectorAll('.gcf-btn');
   for (var i = 0; i < allBtns.length; i++) {
     allBtns[i].classList.remove('active');
   }
-  if (btn) btn.classList.add('active');
+  if (clickedBtn) clickedBtn.classList.add('active');
 
-  // Show/hide cards
-  var cards = document.querySelectorAll('#games-grid [data-game-id]');
+  /* 2. Gather all game cards
+        games.js uses class "gcard" and attribute "data-gcat"
+        We also handle fallback attribute names just in case   */
+  var grid  = document.getElementById('games-grid');
+  if (!grid) return;
+
+  var cards = grid.querySelectorAll('.gcard, .game-card, [data-game-id], [data-gid]');
+  var visible = 0;
+
   for (var j = 0; j < cards.length; j++) {
-    var card   = cards[j];
-    var gameId = card.getAttribute('data-game-id');
+    var card = cards[j];
 
-    if (category === 'all') {
-      card.style.display = '';
-      continue;
-    }
+    /* Read category from every possible attribute name */
+    var cardCat =
+      card.getAttribute('data-gcat') ||          /* games.js (new) */
+      card.getAttribute('data-category') ||       /* games.js (old) */
+      '';
 
-    // Look up category from GAMES_CONFIG
-    var gameConfig = null;
-    if (typeof GAMES_CONFIG !== 'undefined' && Array.isArray(GAMES_CONFIG)) {
-      for (var k = 0; k < GAMES_CONFIG.length; k++) {
-        if (GAMES_CONFIG[k].id === gameId) {
-          gameConfig = GAMES_CONFIG[k];
-          break;
+    /* If attribute missing, look up from GAMES_CONFIG */
+    if (!cardCat && typeof GAMES_CONFIG !== 'undefined') {
+      var gid =
+        card.getAttribute('data-gid') ||
+        card.getAttribute('data-game-id') || '';
+
+      if (gid) {
+        for (var k = 0; k < GAMES_CONFIG.length; k++) {
+          if (GAMES_CONFIG[k].id === gid) {
+            cardCat = GAMES_CONFIG[k].category || '';
+            break;
+          }
         }
       }
     }
 
-    if (gameConfig && gameConfig.category === category) {
-      card.style.display = '';
-    } else {
-      card.style.display = 'none';
+    /* 3. Decide visibility
+          Compare lowercase to lowercase for safety            */
+    var show = (category === 'all') ||
+               (cardCat.toLowerCase() === category.toLowerCase());
+
+    card.style.display = show ? '' : 'none';
+    if (show) visible++;
+  }
+
+  /* 4. Show/hide empty-state message */
+  showEmptyState(visible === 0 && category !== 'all', category);
+}
+
+function showEmptyState (show, category) {
+  var grid = document.getElementById('games-grid');
+  if (!grid) return;
+
+  var existing = document.getElementById('gcf-empty');
+
+  if (show) {
+    if (!existing) {
+      existing = document.createElement('div');
+      existing.id = 'gcf-empty';
+      existing.style.cssText =
+        'grid-column:1/-1;text-align:center;padding:48px 24px;' +
+        'color:var(--text-muted);font-size:0.9rem;';
+      existing.innerHTML =
+        '<div style="display:flex;justify-content:center;margin-bottom:12px;">' +
+          '<i data-lucide="search" ' +
+             'style="width:36px;height:36px;opacity:0.35;"></i>' +
+        '</div>' +
+        '<p>No games found in the <strong>' + category + '</strong> category.</p>';
+      grid.appendChild(existing);
+      if (typeof lucide !== 'undefined') lucide.createIcons();
     }
+    existing.style.display = '';
+  } else if (existing) {
+    existing.style.display = 'none';
   }
 }
 
 
 /* ════════════════════════════════════════════════════════
-   LEADERBOARD RENDERER
+   LEADERBOARD
    ────────────────────────────────────────────────────────
-   games.js stores high scores with:
-     localStorage.setItem('game_high_scores', JSON.stringify({
-       snake: 120,
-       memory: 200,
-       ...
-     }))
+   config.js Storage.set('game_high_scores', obj) writes:
+     localStorage["rac_game_high_scores"] =
+       JSON.stringify({ value: obj, timestamp: ..., expiry: null })
+
+   Storage.get('game_high_scores') reads it back and
+   returns the plain object (the .value).
 ════════════════════════════════════════════════════════ */
-function refreshLeaderboard() {
+function refreshLeaderboard () {
   var grid = document.getElementById('leaderboard-grid');
   if (!grid) return;
 
-  // Read scores
+  /* Read via config.js Storage helper */
   var scores = {};
   try {
-    var raw = localStorage.getItem('game_high_scores');
-    if (raw) {
-      var parsed = JSON.parse(raw);
-      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
-        scores = parsed;
+    if (window.Storage) {
+      scores = window.Storage.get('game_high_scores') || {};
+    } else {
+      /* Bare-metal fallback */
+      var raw = localStorage.getItem('rac_game_high_scores');
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        scores = parsed && parsed.value ? parsed.value : parsed || {};
       }
     }
-  } catch (e) {}
+  } catch (e) { scores = {}; }
 
-  // Build sorted entries (only positive scores)
+  /* Build sorted entries */
   var entries = [];
   var keys = Object.keys(scores);
   for (var i = 0; i < keys.length; i++) {
-    var val = scores[keys[i]];
-    if (typeof val === 'number' && val > 0) {
-      entries.push({ id: keys[i], score: val });
+    var v = scores[keys[i]];
+    if (typeof v === 'number' && v > 0) {
+      entries.push({ id: keys[i], score: v });
     }
   }
   entries.sort(function (a, b) { return b.score - a.score; });
 
-  // Empty state
+  /* Empty state */
   if (entries.length === 0) {
     grid.innerHTML =
-      '<div class="neu-card" style="padding:40px;text-align:center;grid-column:1/-1;">' +
+      '<div class="neu-card" ' +
+           'style="padding:40px;text-align:center;grid-column:1/-1;">' +
         '<div style="display:flex;justify-content:center;margin-bottom:12px;">' +
-          '<i data-lucide="gamepad-2" style="width:40px;height:40px;color:var(--text-muted);opacity:0.35;"></i>' +
+          '<i data-lucide="gamepad-2" ' +
+             'style="width:40px;height:40px;color:var(--text-muted);opacity:0.35;"></i>' +
         '</div>' +
         '<p style="color:var(--text-muted);font-size:0.88rem;line-height:1.6;">' +
           'No scores yet!<br>Play some games to see your high scores here.' +
@@ -746,44 +796,38 @@ function refreshLeaderboard() {
     return;
   }
 
-  // Build game name map from GAMES_CONFIG
+  /* Build name map from GAMES_CONFIG */
   var nameMap = {};
-  if (typeof GAMES_CONFIG !== 'undefined' && Array.isArray(GAMES_CONFIG)) {
+  if (typeof GAMES_CONFIG !== 'undefined') {
     for (var j = 0; j < GAMES_CONFIG.length; j++) {
       nameMap[GAMES_CONFIG[j].id] = GAMES_CONFIG[j].name;
     }
   }
 
-  // Render cards
-  var rankClasses = ['gold', 'silver', 'bronze'];
+  /* Rank classes and icons */
+  var rankMeta = [
+    { cls: 'gold',   icon: 'crown'  },
+    { cls: 'silver', icon: 'medal'  },
+    { cls: 'bronze', icon: 'award'  }
+  ];
+
   var html = '';
-
   for (var m = 0; m < entries.length; m++) {
-    var entry     = entries[m];
-    var gameName  = nameMap[entry.id] || entry.id;
-    var rankClass = rankClasses[m] || 'normal';
-    var rankNum   = m + 1;
-
-    // Rank badge icon for top 3
-    var rankContent = '';
-    if (m === 0) {
-      rankContent = '<i data-lucide="crown" style="width:16px;height:16px;"></i>';
-    } else if (m === 1) {
-      rankContent = '<i data-lucide="medal" style="width:16px;height:16px;"></i>';
-    } else if (m === 2) {
-      rankContent = '<i data-lucide="award" style="width:16px;height:16px;"></i>';
-    } else {
-      rankContent = rankNum;
-    }
+    var entry   = entries[m];
+    var name    = nameMap[entry.id] || entry.id;
+    var meta    = rankMeta[m] || { cls: 'normal', icon: '' };
+    var rankInner = meta.icon
+      ? '<i data-lucide="' + meta.icon + '" style="width:15px;height:15px;"></i>'
+      : (m + 1);
 
     html +=
-      '<div class="leaderboard-card neu-card">' +
-        '<div class="leaderboard-rank ' + rankClass + '">' + rankContent + '</div>' +
-        '<div class="leaderboard-info">' +
-          '<div class="leaderboard-game">' + gameName + '</div>' +
-          '<div class="leaderboard-score">High Score</div>' +
+      '<div class="lb-card neu-card">' +
+        '<div class="lb-rank ' + meta.cls + '">' + rankInner + '</div>' +
+        '<div class="lb-info">' +
+          '<div class="lb-game">' + name + '</div>' +
+          '<div class="lb-label">High Score</div>' +
         '</div>' +
-        '<div class="leaderboard-points">' + entry.score.toLocaleString() + '</div>' +
+        '<div class="lb-points">' + entry.score.toLocaleString() + '</div>' +
       '</div>';
   }
 
@@ -795,42 +839,67 @@ function refreshLeaderboard() {
 /* ════════════════════════════════════════════════════════
    CLEAR ALL SCORES
 ════════════════════════════════════════════════════════ */
-function clearAllScores() {
+function clearAllScores () {
   if (!confirm('Clear all your high scores? This cannot be undone.')) return;
 
-  // Remove from localStorage
-  try { localStorage.removeItem('game_high_scores'); } catch (e) {}
-
-  // Clear in-memory cache in gamesManager & refresh game cards
-  if (window.gamesManager) {
-    window.gamesManager.highScores = {};
-    window.gamesManager.renderGamesList();
+  /* Remove from localStorage via config.js Storage */
+  if (window.Storage) {
+    window.Storage.remove('game_high_scores');
+  } else {
+    try { localStorage.removeItem('rac_game_high_scores'); } catch (e) { /* silent */ }
   }
 
-  // Refresh leaderboard
-  refreshLeaderboard();
+  /* Clear in-memory cache inside gamesManager and refresh cards */
+  if (window.gamesManager) {
+    window.gamesManager.highScores = {};
+    if (typeof window.gamesManager._renderList === 'function') {
+      window.gamesManager._renderList();
+    } else if (typeof window.gamesManager.renderGamesList === 'function') {
+      window.gamesManager.renderGamesList();
+    }
+  }
 
-  // Show toast notification
+  refreshLeaderboard();
   showPageToast('Scores Cleared', 'All high scores have been reset.');
 }
 
 
 /* ════════════════════════════════════════════════════════
-   TOAST NOTIFICATION
+   TOAST HELPER
 ════════════════════════════════════════════════════════ */
-function showPageToast(title, message) {
+function showPageToast (title, message, type) {
   var container = document.getElementById('toast-container');
   if (!container) return;
 
+  var colors = {
+    info:    'var(--accent)',
+    success: 'var(--success)',
+    danger:  'var(--danger)',
+    warning: 'var(--warning)'
+  };
+  var borderColor = colors[type || 'info'] || colors.info;
+
+  var icons = {
+    info:    'info',
+    success: 'check-circle',
+    danger:  'x-circle',
+    warning: 'alert-triangle'
+  };
+  var iconName = icons[type || 'info'] || 'info';
+
   var toast = document.createElement('div');
   toast.className = 'toast';
+  toast.style.borderLeftColor = borderColor;
   toast.innerHTML =
     '<div style="flex-shrink:0;margin-top:2px;">' +
-      '<i data-lucide="check-circle" style="width:18px;height:18px;color:var(--accent);"></i>' +
+      '<i data-lucide="' + iconName + '" ' +
+         'style="width:18px;height:18px;color:' + borderColor + ';"></i>' +
     '</div>' +
     '<div class="toast-content">' +
-      '<div class="toast-title">' + title + '</div>' +
-      '<div class="toast-message">' + message + '</div>' +
+      '<div class="toast-title">'   + title   + '</div>' +
+      (message
+        ? '<div class="toast-message">' + message + '</div>'
+        : '') +
     '</div>';
 
   container.appendChild(toast);
