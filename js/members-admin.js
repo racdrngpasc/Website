@@ -73,13 +73,13 @@ class MembersAdminManager {
           <div style="font-size:0.72rem;color:var(--text-muted);font-weight:600;">Board Members</div>
         </div>
         ${BLOOD_GROUPS.map(bg => {
-      const count = active.filter(m => m.blood_group === bg).length;
-      return count > 0 ? `
+          const count = active.filter(m => m.blood_group === bg).length;
+          return count > 0 ? `
           <div class="neu-card" style="padding:12px;text-align:center;">
             <div style="font-size:1.2rem;font-weight:800;color:var(--danger);">${count}</div>
             <div style="font-size:0.72rem;color:var(--text-muted);font-weight:700;">${bg}</div>
           </div>` : '';
-    }).join('')}
+        }).join('')}
       </div>
 
       <!-- Filters -->
@@ -95,9 +95,9 @@ class MembersAdminManager {
             <select id="mbr-role-filter" class="form-select" onchange="membersAdmin.applyFilters()">
               <option value="">All Roles</option>
               ${Object.entries(ROLE_DISPLAY_NAMES)
-        .filter(([k]) => k !== 'super_admin' && k !== 'advisor')
-        .map(([k, v]) => `<option value="${k}">${v}</option>`)
-        .join('')}
+                .filter(([k]) => k !== 'super_admin' && k !== 'advisor')
+                .map(([k, v]) => `<option value="${k}">${v}</option>`)
+                .join('')}
             </select>
             <i data-lucide="chevron-down" class="select-arrow"></i>
           </div>
@@ -173,16 +173,16 @@ class MembersAdminManager {
           <td>
             <div style="display:flex;align-items:center;gap:10px;">
               ${m.professional_photo_url
-          ? `<img src="${StringUtils.sanitize(m.professional_photo_url)}"
-                     style="width:36px;height:36px;border-radius:50%;object-fit:cover;
-                            flex-shrink:0;border:2px solid var(--bg);"
-                     loading="lazy"
-                     onerror="this.outerHTML='<div style=\\'width:36px;height:36px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;\\'><i data-lucide=\\'user\\' style=\\'width:18px;height:18px;color:var(--accent)\\'></i></div>'" />`
-          : `<div style="width:36px;height:36px;border-radius:50%;background:var(--accent-light);
-                          display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <i data-lucide="user" style="width:18px;height:18px;color:var(--accent)"></i>
-              </div>`
-        }
+                ? `<img src="${StringUtils.sanitize(m.professional_photo_url)}"
+                       style="width:36px;height:36px;border-radius:50%;object-fit:cover;
+                              flex-shrink:0;border:2px solid var(--bg);"
+                       loading="lazy"
+                       onerror="this.outerHTML='<div style=\\'width:36px;height:36px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;\\'><i data-lucide=\\'user\\' style=\\'width:18px;height:18px;color:var(--accent)\\'></i></div>'" />`
+                : `<div style="width:36px;height:36px;border-radius:50%;background:var(--accent-light);
+                              display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                    <i data-lucide="user" style="width:18px;height:18px;color:var(--accent)"></i>
+                  </div>`
+              }
               <div>
                 <div style="font-weight:600;color:var(--text-heading);">
                   ${StringUtils.sanitize(m.full_name)}
@@ -204,13 +204,13 @@ class MembersAdminManager {
           </td>
           <td>
             ${m.blood_group
-          ? `<span style="display:inline-flex;width:28px;height:28px;border-radius:50%;
-                         background:var(--danger-light);color:var(--danger);
-                         font-size:0.65rem;font-weight:800;
-                         align-items:center;justify-content:center;">
-                ${m.blood_group}
-              </span>`
-          : '<span style="color:var(--text-muted);font-size:0.78rem;">—</span>'}
+              ? `<span style="display:inline-flex;width:28px;height:28px;border-radius:50%;
+                             background:var(--danger-light);color:var(--danger);
+                             font-size:0.65rem;font-weight:800;
+                             align-items:center;justify-content:center;">
+                  ${m.blood_group}
+                </span>`
+              : '<span style="color:var(--text-muted);font-size:0.78rem;">—</span>'}
           </td>
           <td style="font-size:0.78rem;color:var(--text-secondary);">
             ${StringUtils.sanitize(m.phone || '—')}
@@ -221,11 +221,11 @@ class MembersAdminManager {
           </td>
           <td>
             ${m.is_board_member
-          ? `<span class="admin-status-badge"
-                    style="background:var(--accent-light);color:var(--accent);">
-                Board
-              </span>`
-          : '<span style="color:var(--text-muted);font-size:0.78rem;">—</span>'}
+              ? `<span class="admin-status-badge"
+                        style="background:var(--accent-light);color:var(--accent);">
+                  Board
+                </span>`
+              : '<span style="color:var(--text-muted);font-size:0.78rem;">—</span>'}
           </td>
           <td>
             <span class="admin-status-badge"
@@ -374,8 +374,8 @@ class MembersAdminManager {
                 <select name="blood_group" class="form-select">
                   <option value="">Select</option>
                   ${BLOOD_GROUPS.map(bg =>
-      `<option value="${bg}" ${isEdit && memberData.blood_group === bg ? 'selected' : ''}>${bg}</option>`
-    ).join('')}
+                    `<option value="${bg}" ${isEdit && memberData.blood_group === bg ? 'selected' : ''}>${bg}</option>`
+                  ).join('')}
                 </select>
                 <i data-lucide="chevron-down" class="select-arrow"></i>
               </div>
@@ -395,10 +395,10 @@ class MembersAdminManager {
               <div class="select-wrap neu-inset">
                 <select name="role" class="form-select">
                   ${Object.entries(ROLE_DISPLAY_NAMES)
-        .filter(([k]) => k !== 'super_admin' && k !== 'advisor')
-        .map(([k, v]) =>
-          `<option value="${k}" ${isEdit && memberData.role === k ? 'selected' : k === 'member' ? 'selected' : ''}>${v}</option>`
-        ).join('')}
+                    .filter(([k]) => k !== 'super_admin' && k !== 'advisor')
+                    .map(([k, v]) =>
+                      `<option value="${k}" ${isEdit && memberData.role === k ? 'selected' : k === 'member' ? 'selected' : ''}>${v}</option>`
+                    ).join('')}
                 </select>
                 <i data-lucide="chevron-down" class="select-arrow"></i>
               </div>
@@ -410,8 +410,8 @@ class MembersAdminManager {
                 <select name="avenue" class="form-select">
                   <option value="">None</option>
                   ${Object.entries(AVENUES).map(([k, v]) =>
-      `<option value="${k}" ${isEdit && memberData.avenue === k ? 'selected' : ''}>${v.label}</option>`
-    ).join('')}
+                    `<option value="${k}" ${isEdit && memberData.avenue === k ? 'selected' : ''}>${v.label}</option>`
+                  ).join('')}
                 </select>
                 <i data-lucide="chevron-down" class="select-arrow"></i>
               </div>
@@ -479,7 +479,7 @@ class MembersAdminManager {
                   <i data-lucide="upload-cloud"></i>
                   <span id="mbr-photo-label">
                     ${isEdit && memberData.professional_photo_url
-        ? 'Change photo' : 'Upload professional photo'}
+                      ? 'Change photo' : 'Upload professional photo'}
                   </span>
                 </div>
               </div>
@@ -686,21 +686,21 @@ class MembersAdminManager {
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
         ${members?.map(m => {
-      const portfolio = m.portfolio || ROLE_DISPLAY_NAMES[m.role] || 'Board Member';
-      return `
+          const portfolio = m.portfolio || ROLE_DISPLAY_NAMES[m.role] || 'Board Member';
+          return `
             <div class="neu-card" style="padding:24px;text-align:center;">
               ${m.professional_photo_url
-          ? `<img src="${StringUtils.sanitize(m.professional_photo_url)}"
-                       style="width:80px;height:80px;border-radius:50%;object-fit:cover;
-                              margin:0 auto 12px;display:block;box-shadow:var(--neu-shadow-sm);
-                              border:3px solid var(--accent);"
-                       loading="lazy"
-                       onerror="this.outerHTML='<div style=\\'width:80px;height:80px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;\\'><i data-lucide=\\'user\\' style=\\'width:36px;height:36px;color:var(--accent)\\'></i></div>'" />`
-          : `<div style="width:80px;height:80px;border-radius:50%;background:var(--accent-light);
-                          display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
-                <i data-lucide="user" style="width:36px;height:36px;color:var(--accent)"></i>
-              </div>`
-        }
+                ? `<img src="${StringUtils.sanitize(m.professional_photo_url)}"
+                         style="width:80px;height:80px;border-radius:50%;object-fit:cover;
+                                margin:0 auto 12px;display:block;box-shadow:var(--neu-shadow-sm);
+                                border:3px solid var(--accent);"
+                         loading="lazy"
+                         onerror="this.outerHTML='<div style=\\'width:80px;height:80px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;\\'><i data-lucide=\\'user\\' style=\\'width:36px;height:36px;color:var(--accent)\\'></i></div>'" />`
+                : `<div style="width:80px;height:80px;border-radius:50%;background:var(--accent-light);
+                              display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+                    <i data-lucide="user" style="width:36px;height:36px;color:var(--accent)"></i>
+                  </div>`
+              }
               <h3 style="font-size:1rem;font-weight:700;color:var(--text-heading);margin-bottom:6px;">
                 ${StringUtils.sanitize(m.full_name)}
               </h3>
@@ -715,7 +715,7 @@ class MembersAdminManager {
               </div>
             </div>
           `;
-    }).join('') || '<div class="admin-empty-state"><i data-lucide="users"></i><p>No board members</p></div>'}
+        }).join('') || '<div class="admin-empty-state"><i data-lucide="users"></i><p>No board members</p></div>'}
       </div>
     `;
     lucide.createIcons();
@@ -758,16 +758,16 @@ class MembersAdminManager {
             </thead>
             <tbody>
               ${!applications || applications.length === 0
-        ? '<tr><td colspan="8" class="admin-table-empty"><i data-lucide="inbox"></i><span>No applications</span></td></tr>'
-        : applications.map(app => `
+                ? '<tr><td colspan="8" class="admin-table-empty"><i data-lucide="inbox"></i><span>No applications</span></td></tr>'
+                : applications.map(app => `
                 <tr>
                   <td>
                     <div style="display:flex;align-items:center;gap:8px;">
                       ${app.professional_photo_url
-            ? `<img src="${StringUtils.sanitize(app.professional_photo_url)}"
-                             style="width:32px;height:32px;border-radius:50%;object-fit:cover;"
-                             loading="lazy" onerror="this.style.display='none'" />`
-            : ''}
+                        ? `<img src="${StringUtils.sanitize(app.professional_photo_url)}"
+                               style="width:32px;height:32px;border-radius:50%;object-fit:cover;"
+                               loading="lazy" onerror="this.style.display='none'" />`
+                        : ''}
                       <span style="font-weight:600;color:var(--text-heading);">
                         ${StringUtils.sanitize(app.full_name)}
                       </span>
@@ -782,11 +782,11 @@ class MembersAdminManager {
                   </td>
                   <td>
                     ${app.blood_group
-            ? `<span style="display:inline-flex;width:26px;height:26px;border-radius:50%;
-                               background:var(--danger-light);color:var(--danger);
-                               font-size:0.62rem;font-weight:800;
-                               align-items:center;justify-content:center;">${app.blood_group}</span>`
-            : '—'}
+                      ? `<span style="display:inline-flex;width:26px;height:26px;border-radius:50%;
+                                     background:var(--danger-light);color:var(--danger);
+                                     font-size:0.62rem;font-weight:800;
+                                     align-items:center;justify-content:center;">${app.blood_group}</span>`
+                      : '—'}
                   </td>
                   <td style="font-size:0.78rem;max-width:100px;overflow:hidden;
                              text-overflow:ellipsis;white-space:nowrap;">
@@ -795,11 +795,11 @@ class MembersAdminManager {
                   <td>
                     <span class="admin-status-badge"
                           style="background:${app.status === 'approved' ? 'var(--success-light)' :
-            app.status === 'rejected' ? 'var(--danger-light)' :
-              'var(--warning-light)'};
+                                              app.status === 'rejected' ? 'var(--danger-light)' :
+                                              'var(--warning-light)'};
                                  color:${app.status === 'approved' ? 'var(--success)' :
-            app.status === 'rejected' ? 'var(--danger)' :
-              'var(--warning)'};">
+                                          app.status === 'rejected' ? 'var(--danger)' :
+                                          'var(--warning)'};">
                       ${StringUtils.capitalize(app.status)}
                     </span>
                   </td>
@@ -924,14 +924,14 @@ class MembersAdminManager {
         ${newsletters?.map(nl => `
           <div class="neu-card" style="overflow:hidden;">
             ${nl.cover_image_url
-          ? `<img src="${StringUtils.sanitize(nl.cover_image_url)}"
-                     style="width:100%;height:180px;object-fit:cover;"
-                     loading="lazy"
-                     onerror="this.style.display='none'" />`
-          : `<div style="height:180px;background:linear-gradient(135deg,var(--accent-light),var(--bg-secondary));
-                          display:flex;align-items:center;justify-content:center;">
-                <i data-lucide="newspaper" style="width:48px;height:48px;color:var(--accent);opacity:0.5;"></i>
-              </div>`}
+              ? `<img src="${StringUtils.sanitize(nl.cover_image_url)}"
+                       style="width:100%;height:180px;object-fit:cover;"
+                       loading="lazy"
+                       onerror="this.style.display='none'" />`
+              : `<div style="height:180px;background:linear-gradient(135deg,var(--accent-light),var(--bg-secondary));
+                            display:flex;align-items:center;justify-content:center;">
+                  <i data-lucide="newspaper" style="width:48px;height:48px;color:var(--accent);opacity:0.5;"></i>
+                </div>`}
             <div style="padding:16px;">
               <div style="font-size:0.72rem;font-weight:700;color:var(--accent);
                           text-transform:uppercase;margin-bottom:6px;">
@@ -1017,8 +1017,8 @@ class MembersAdminManager {
                 <div class="select-wrap neu-inset">
                   <select name="month" class="form-select" required>
                     ${months.map(m =>
-      `<option value="${m}" ${isEdit && nlData.month === m ? 'selected' : ''}>${m}</option>`
-    ).join('')}
+                      `<option value="${m}" ${isEdit && nlData.month === m ? 'selected' : ''}>${m}</option>`
+                    ).join('')}
                   </select>
                   <i data-lucide="chevron-down" class="select-arrow"></i>
                 </div>
@@ -1206,67 +1206,69 @@ class MembersAdminManager {
             </thead>
             <tbody>
               ${!requests || requests.length === 0
-        ? '<tr><td colspan="9" class="admin-table-empty"><i data-lucide="droplets"></i><span>No blood requests</span></td></tr>'
-        : requests.map(req => {
-          const urgencyColors = {
-            normal: { bg: 'var(--success-light)', color: 'var(--success)' },
-            urgent: { bg: 'var(--warning-light)', color: 'var(--warning)' },
-            critical: { bg: 'var(--danger-light)', color: 'var(--danger)' }
-          };
-          const urg = urgencyColors[req.urgency_level] || urgencyColors.normal;
-          return `
-                  <tr>
-                    <td style="font-weight:600;color:var(--text-heading);">
-                      ${StringUtils.sanitize(req.patient_name)}
-                    </td>
-                    <td>
-                      <span style="display:inline-flex;width:32px;height:32px;border-radius:50%;
-                                   background:var(--danger-light);color:var(--danger);
-                                   font-size:0.72rem;font-weight:800;
-                                   align-items:center;justify-content:center;">
-                        ${req.blood_group}
-                      </span>
-                    </td>
-                    <td style="font-weight:700;font-size:0.9rem;">${req.units_required}</td>
-                    <td style="font-size:0.82rem;">${StringUtils.sanitize(req.hospital_name)}</td>
-                    <td style="font-size:0.78rem;">
-                      <div>${StringUtils.sanitize(req.contact_name)}</div>
-                      <div style="color:var(--text-muted);">${StringUtils.sanitize(req.contact_phone)}</div>
-                    </td>
-                    <td style="font-size:0.82rem;">${DateUtils.format(req.required_date, 'short')}</td>
-                    <td>
-                      <span class="admin-status-badge"
-                            style="background:${urg.bg};color:${urg.color};">
-                        ${StringUtils.capitalize(req.urgency_level)}
-                      </span>
-                    </td>
-                    <td>
-                      <span class="admin-status-badge"
-                            style="background:${req.status === 'fulfilled' ? 'var(--success-light)' :
-              req.status === 'active' ? 'var(--warning-light)' : 'var(--bg-secondary)'};
-                                   color:${req.status === 'fulfilled' ? 'var(--success)' :
-              req.status === 'active' ? 'var(--warning)' : 'var(--text-muted)'};">
-                        ${StringUtils.capitalize(req.status)}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="admin-table-actions">
-                        ${req.status === 'active' ? `
-                        <button class="admin-action-btn admin-action-success"
-                                onclick="membersAdmin.fulfillBloodRequest('${req.id}')"
-                                title="Mark Fulfilled">
-                          <i data-lucide="check-circle"></i>
-                        </button>
-                        <button class="admin-action-btn admin-action-danger"
-                                onclick="membersAdmin.closeBloodRequest('${req.id}')"
-                                title="Close Request">
-                          <i data-lucide="x-circle"></i>
-                        </button>` : ''}
-                      </div>
-                    </td>
-                  </tr>
-                `;
-        }).join('')}
+                ? '<tr><td colspan="9" class="admin-table-empty"><i data-lucide="droplets"></i><span>No blood requests</span></td></tr>'
+                : requests.map(req => {
+                    const urgencyColors = {
+                      normal:   { bg: 'var(--success-light)', color: 'var(--success)' },
+                      urgent:   { bg: 'var(--warning-light)', color: 'var(--warning)' },
+                      critical: { bg: 'var(--danger-light)',  color: 'var(--danger)'  }
+                    };
+                    const urg = urgencyColors[req.urgency_level] || urgencyColors.normal;
+                    return `
+                    <tr>
+                      <td style="font-weight:600;color:var(--text-heading);">
+                        ${StringUtils.sanitize(req.patient_name)}
+                      </td>
+                      <td>
+                        <span style="display:inline-flex;width:32px;height:32px;border-radius:50%;
+                                     background:var(--danger-light);color:var(--danger);
+                                     font-size:0.72rem;font-weight:800;
+                                     align-items:center;justify-content:center;">
+                          ${req.blood_group}
+                        </span>
+                      </td>
+                      <td style="font-weight:700;font-size:0.9rem;">${req.units_required}</td>
+                      <td style="font-size:0.82rem;">${StringUtils.sanitize(req.hospital_name)}</td>
+                      <td style="font-size:0.78rem;">
+                        <div>${StringUtils.sanitize(req.contact_name)}</div>
+                        <div style="color:var(--text-muted);">${StringUtils.sanitize(req.contact_phone)}</div>
+                      </td>
+                      <td style="font-size:0.82rem;">${DateUtils.format(req.required_date, 'short')}</td>
+                      <td>
+                        <span class="admin-status-badge"
+                              style="background:${urg.bg};color:${urg.color};">
+                          ${StringUtils.capitalize(req.urgency_level)}
+                        </span>
+                      </td>
+                      <td>
+                        <span class="admin-status-badge"
+                              style="background:${req.status === 'fulfilled' ? 'var(--success-light)' :
+                                                  req.status === 'active'    ? 'var(--warning-light)' :
+                                                  'var(--bg-secondary)'};
+                                     color:${req.status === 'fulfilled' ? 'var(--success)' :
+                                              req.status === 'active'   ? 'var(--warning)' :
+                                              'var(--text-muted)'};">
+                          ${StringUtils.capitalize(req.status)}
+                        </span>
+                      </td>
+                      <td>
+                        <div class="admin-table-actions">
+                          ${req.status === 'active' ? `
+                          <button class="admin-action-btn admin-action-success"
+                                  onclick="membersAdmin.fulfillBloodRequest('${req.id}')"
+                                  title="Mark Fulfilled">
+                            <i data-lucide="check-circle"></i>
+                          </button>
+                          <button class="admin-action-btn admin-action-danger"
+                                  onclick="membersAdmin.closeBloodRequest('${req.id}')"
+                                  title="Close Request">
+                            <i data-lucide="x-circle"></i>
+                          </button>` : ''}
+                        </div>
+                      </td>
+                    </tr>
+                  `;
+                  }).join('')}
             </tbody>
           </table>
         </div>
@@ -1339,16 +1341,16 @@ class MembersAdminManager {
             </thead>
             <tbody>
               ${!leaders || leaders.length === 0
-        ? '<tr><td colspan="5" class="admin-table-empty"><i data-lucide="crown"></i><span>No past leaders added</span></td></tr>'
-        : leaders.map(l => `
+                ? '<tr><td colspan="5" class="admin-table-empty"><i data-lucide="crown"></i><span>No past leaders added</span></td></tr>'
+                : leaders.map(l => `
                 <tr>
                   <td>
                     <div style="display:flex;align-items:center;gap:8px;">
                       ${l.photo_url
-            ? `<img src="${StringUtils.sanitize(l.photo_url)}"
-                             style="width:32px;height:32px;border-radius:6px;object-fit:cover;"
-                             loading="lazy" onerror="this.style.display='none'" />`
-            : ''}
+                        ? `<img src="${StringUtils.sanitize(l.photo_url)}"
+                               style="width:32px;height:32px;border-radius:6px;object-fit:cover;"
+                               loading="lazy" onerror="this.style.display='none'" />`
+                        : ''}
                       <span style="font-weight:600;color:var(--text-heading);">
                         ${StringUtils.sanitize(l.full_name)}
                       </span>
@@ -1407,7 +1409,8 @@ class MembersAdminManager {
               <label class="form-label">Full Name *</label>
               <div class="input-wrap neu-inset">
                 <input type="text" name="full_name" class="form-input"
-                       value="${isEdit ? StringUtils.sanitize(leaderData.full_name) : ''}" required />
+                       value="${isEdit ? StringUtils.sanitize(leaderData.full_name) : ''}"
+                       required />
               </div>
             </div>
             <div class="form-row">
@@ -1415,23 +1418,35 @@ class MembersAdminManager {
                 <label class="form-label">Portfolio *</label>
                 <div class="select-wrap neu-inset">
                   <select name="portfolio" class="form-select" required>
-                    <option value="President" ${isEdit && leaderData.portfolio === 'President' ? 'selected' : ''}>President</option>
-                    <option value="Secretary" ${isEdit && leaderData.portfolio === 'Secretary' ? 'selected' : ''}>Secretary</option>
-                    <option value="Secretary Administration" ${isEdit && leaderData.portfolio === 'Secretary Administration' ? 'selected' : ''}>Secretary Administration</option>
-                    <option value="Secretary Communication" ${isEdit && leaderData.portfolio === 'Secretary Communication' ? 'selected' : ''}>Secretary Communication</option>
+                    <option value="President"
+                      ${isEdit && leaderData.portfolio === 'President' ? 'selected' : ''}>
+                      President
+                    </option>
+                    <option value="Secretary"
+                      ${isEdit && leaderData.portfolio === 'Secretary' ? 'selected' : ''}>
+                      Secretary
+                    </option>
+                    <option value="Secretary Administration"
+                      ${isEdit && leaderData.portfolio === 'Secretary Administration' ? 'selected' : ''}>
+                      Secretary Administration
+                    </option>
+                    <option value="Secretary Communication"
+                      ${isEdit && leaderData.portfolio === 'Secretary Communication' ? 'selected' : ''}>
+                      Secretary Communication
+                    </option>
                   </select>
                   <i data-lucide="chevron-down" class="select-arrow"></i>
                 </div>
               </div>
               <div class="form-group">
                 <label class="form-label">Rotary Year *</label>
-                <div class="select-wrap neu-inset">
-                  <select name="rotary_year" class="form-select" required>
-                    ${ROTARY_YEARS.map(y =>
-      `<option value="${y}" ${isEdit && leaderData.rotary_year === y ? 'selected' : ''}>${y}</option>`
-    ).join('')}
-                  </select>
-                  <i data-lucide="chevron-down" class="select-arrow"></i>
+                <div class="input-wrap neu-inset">
+                  <input type="text" name="rotary_year" class="form-input"
+                         placeholder="e.g., 2024-25"
+                         pattern="\\d{4}-\\d{2}"
+                         title="Format: YYYY-YY (e.g., 2024-25)"
+                         value="${isEdit ? StringUtils.sanitize(leaderData.rotary_year || '') : ''}"
+                         required />
                 </div>
               </div>
             </div>
@@ -1477,17 +1492,29 @@ class MembersAdminManager {
       e.preventDefault();
       const formData = new FormData(e.target);
       const data = Object.fromEntries(formData.entries());
-      const yearParts = data.rotary_year.split('-');
+
+      // Validate rotary year format YYYY-YY
+      const yearPattern = /^(\d{4})-(\d{2})$/;
+      const yearMatch = data.rotary_year.trim().match(yearPattern);
+      if (!yearMatch) {
+        this._currentDashboard?.showToast(
+          'Invalid Rotary Year format. Use YYYY-YY (e.g., 2024-25)', 'error'
+        );
+        return;
+      }
+
+      const yearStart = parseInt(yearMatch[1]);
+      const yearEnd = parseInt('20' + yearMatch[2]);
 
       const payload = {
-        full_name: data.full_name.trim(),
-        portfolio: data.portfolio,
-        rotary_year: data.rotary_year,
-        year_start: parseInt(yearParts[0]),
-        year_end: parseInt('20' + yearParts[1]),
-        email: data.email?.trim() || null,
-        phone: data.phone?.trim() || null,
-        sort_order: parseInt(data.sort_order) || 0
+        full_name:    data.full_name.trim(),
+        portfolio:    data.portfolio,
+        rotary_year:  data.rotary_year.trim(),
+        year_start:   yearStart,
+        year_end:     yearEnd,
+        email:        data.email?.trim() || null,
+        phone:        data.phone?.trim() || null,
+        sort_order:   parseInt(data.sort_order) || 0
       };
 
       try {
@@ -1499,7 +1526,9 @@ class MembersAdminManager {
         modal.remove();
         document.body.style.overflow = '';
         this._currentDashboard?.showToast(isEdit ? 'Leader updated' : 'Leader added', 'success');
-        await this.renderPastLeaders(document.getElementById('admin-content'), this._currentDashboard);
+        await this.renderPastLeaders(
+          document.getElementById('admin-content'), this._currentDashboard
+        );
       } catch (err) {
         this._currentDashboard?.showToast('Failed to save', 'error');
       }
@@ -1555,30 +1584,33 @@ class MembersAdminManager {
       </div>
       <div class="admin-card neu-card">
         ${!notifications || notifications.length === 0
-        ? `<div class="admin-empty-state" style="padding:60px;">
-              <i data-lucide="bell-off"></i>
-              <p>No notifications</p>
-            </div>`
-        : `<div style="display:flex;flex-direction:column;">
-            ${notifications.map(n => {
-          const icons = { info: 'info', warning: 'alert-triangle', error: 'alert-circle', success: 'check-circle' };
-          const colors = { info: 'var(--accent)', warning: 'var(--warning)', error: 'var(--danger)', success: 'var(--success)' };
-          return `
-                <div class="admin-list-item" style="border-left:3px solid ${colors[n.type] || colors.info};">
-                  <div class="admin-list-icon" style="background:${colors[n.type] || colors.info}20;color:${colors[n.type] || colors.info};">
-                    <i data-lucide="${icons[n.type] || 'bell'}"></i>
+          ? `<div class="admin-empty-state" style="padding:60px;">
+                <i data-lucide="bell-off"></i>
+                <p>No notifications</p>
+              </div>`
+          : `<div style="display:flex;flex-direction:column;">
+              ${notifications.map(n => {
+                const icons  = { info: 'info', warning: 'alert-triangle', error: 'alert-circle', success: 'check-circle' };
+                const colors = { info: 'var(--accent)', warning: 'var(--warning)', error: 'var(--danger)', success: 'var(--success)' };
+                return `
+                  <div class="admin-list-item"
+                       style="border-left:3px solid ${colors[n.type] || colors.info};">
+                    <div class="admin-list-icon"
+                         style="background:${colors[n.type] || colors.info}20;
+                                color:${colors[n.type] || colors.info};">
+                      <i data-lucide="${icons[n.type] || 'bell'}"></i>
+                    </div>
+                    <div class="admin-list-info">
+                      <div class="admin-list-title">${StringUtils.sanitize(n.title)}</div>
+                      <div class="admin-list-meta">${StringUtils.sanitize(n.message)}</div>
+                    </div>
+                    <span style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">
+                      ${dashboard.getTimeAgo(n.created_at)}
+                    </span>
                   </div>
-                  <div class="admin-list-info">
-                    <div class="admin-list-title">${StringUtils.sanitize(n.title)}</div>
-                    <div class="admin-list-meta">${StringUtils.sanitize(n.message)}</div>
-                  </div>
-                  <span style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap;">
-                    ${dashboard.getTimeAgo(n.created_at)}
-                  </span>
-                </div>
-              `;
-        }).join('')}
-          </div>`}
+                `;
+              }).join('')}
+            </div>`}
       </div>
     `;
     lucide.createIcons();
@@ -1603,7 +1635,8 @@ class MembersAdminManager {
             <div class="form-group">
               <label class="form-label">Title *</label>
               <div class="input-wrap neu-inset">
-                <input type="text" name="title" class="form-input" placeholder="Notification title" required />
+                <input type="text" name="title" class="form-input"
+                       placeholder="Notification title" required />
               </div>
             </div>
             <div class="form-group">
@@ -1648,17 +1681,19 @@ class MembersAdminManager {
 
       try {
         await this.db.from('notifications').insert({
-          title: data.title.trim(),
-          message: data.message.trim(),
-          type: data.type,
-          is_global: true,
+          title:      data.title.trim(),
+          message:    data.message.trim(),
+          type:       data.type,
+          is_global:  true,
           created_by: this.auth.getAdmin().id
         });
 
         modal.remove();
         document.body.style.overflow = '';
         this._currentDashboard?.showToast('Notification sent!', 'success');
-        await this.renderNotifications(document.getElementById('admin-content'), this._currentDashboard);
+        await this.renderNotifications(
+          document.getElementById('admin-content'), this._currentDashboard
+        );
       } catch (err) {
         this._currentDashboard?.showToast('Failed to send notification', 'error');
       }
@@ -1672,7 +1707,7 @@ class MembersAdminManager {
   }
 
   /* ============================================================
-     MEMBER FORM (for dashboard stub)
+     MEMBER FORM STUB (for dashboard)
      ============================================================ */
   renderMemberForm(container, dashboard, data) {
     this._currentDashboard = dashboard;
@@ -1699,12 +1734,12 @@ window.membersAdmin = membersAdmin;
 
 // Connect to admin dashboard
 if (window.adminDashboard) {
-  window.adminDashboard.renderMembersList = async (c) => { await membersAdmin.renderMembersList(c, window.adminDashboard); };
-  window.adminDashboard.renderMemberForm = (c, d) => { membersAdmin.renderMemberForm(c, window.adminDashboard, d); };
-  window.adminDashboard.renderBoardMembers = async (c) => { await membersAdmin.renderBoardMembers(c, window.adminDashboard); };
-  window.adminDashboard.renderApplications = async (c) => { await membersAdmin.renderApplications(c, window.adminDashboard); };
-  window.adminDashboard.renderNewsletters = async (c) => { await membersAdmin.renderNewsletters(c, window.adminDashboard); };
-  window.adminDashboard.renderBloodRequests = async (c) => { await membersAdmin.renderBloodRequests(c, window.adminDashboard); };
-  window.adminDashboard.renderPastLeaders = async (c) => { await membersAdmin.renderPastLeaders(c, window.adminDashboard); };
-  window.adminDashboard.renderNotifications = async (c) => { await membersAdmin.renderNotifications(c, window.adminDashboard); };
+  window.adminDashboard.renderMembersList    = async (c)    => { await membersAdmin.renderMembersList(c, window.adminDashboard); };
+  window.adminDashboard.renderMemberForm     = (c, d)       => { membersAdmin.renderMemberForm(c, window.adminDashboard, d); };
+  window.adminDashboard.renderBoardMembers   = async (c)    => { await membersAdmin.renderBoardMembers(c, window.adminDashboard); };
+  window.adminDashboard.renderApplications   = async (c)    => { await membersAdmin.renderApplications(c, window.adminDashboard); };
+  window.adminDashboard.renderNewsletters    = async (c)    => { await membersAdmin.renderNewsletters(c, window.adminDashboard); };
+  window.adminDashboard.renderBloodRequests  = async (c)    => { await membersAdmin.renderBloodRequests(c, window.adminDashboard); };
+  window.adminDashboard.renderPastLeaders    = async (c)    => { await membersAdmin.renderPastLeaders(c, window.adminDashboard); };
+  window.adminDashboard.renderNotifications  = async (c)    => { await membersAdmin.renderNotifications(c, window.adminDashboard); };
 }
