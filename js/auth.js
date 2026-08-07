@@ -538,6 +538,17 @@ class AuthManager {
     return this.hasRole(ROLES.TREASURER);
   }
 
+  /* ============================================================
+     NEW ROLE HELPERS
+     ============================================================ */
+  isRotaryFoundationChair() {
+    return this.hasRole(ROLES.ROTARY_FOUNDATION_CHAIR);
+  }
+
+  isAllAvenueChair() {
+    return this.hasRole(ROLES.ALL_AVENUE_CHAIR);
+  }
+
   isAvenuDirector() {
     return this.hasRole(
       ROLES.AVENUE_DIRECTOR_CLUB_SERVICE,
