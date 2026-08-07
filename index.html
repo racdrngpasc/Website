@@ -42,6 +42,56 @@
     .hidden { display: none !important; }
 
     /* ============================================================
+       CSS CUSTOM PROPERTIES (Neumorphism tokens)
+    ============================================================ */
+    :root, [data-theme="light"] {
+      --neu-bg: #e8edf2;
+      --neu-bg-card: #e8edf2;
+      --neu-shadow-light: rgba(255, 255, 255, 0.85);
+      --neu-shadow-dark: rgba(163, 177, 198, 0.6);
+      --neu-shadow-inset-light: rgba(255, 255, 255, 0.7);
+      --neu-shadow-inset-dark: rgba(163, 177, 198, 0.5);
+      --neu-radius: 18px;
+      --neu-radius-sm: 12px;
+      --neu-radius-xs: 8px;
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --primary-glow: rgba(30, 58, 138, 0.15);
+      --accent: #6366f1;
+      --danger: #dc2626;
+      --text-primary: #1e293b;
+      --text-secondary: #475569;
+      --text-muted: #94a3b8;
+      --text-on-primary: #ffffff;
+      --section-bg: #e0e5ec;
+      --section-bg-alt: #e8edf2;
+      --border-subtle: rgba(0, 0, 0, 0.04);
+      --glass-bg: rgba(232, 237, 242, 0.7);
+    }
+
+    [data-theme="dark"] {
+      --neu-bg: #1a1d23;
+      --neu-bg-card: #1e2128;
+      --neu-shadow-light: rgba(45, 50, 60, 0.5);
+      --neu-shadow-dark: rgba(0, 0, 0, 0.55);
+      --neu-shadow-inset-light: rgba(45, 50, 60, 0.35);
+      --neu-shadow-inset-dark: rgba(0, 0, 0, 0.45);
+      --primary: #60a5fa;
+      --primary-light: #93c5fd;
+      --primary-glow: rgba(96, 165, 250, 0.12);
+      --accent: #818cf8;
+      --danger: #f87171;
+      --text-primary: #f1f5f9;
+      --text-secondary: #cbd5e1;
+      --text-muted: #64748b;
+      --text-on-primary: #0f172a;
+      --section-bg: #161920;
+      --section-bg-alt: #1a1d23;
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --glass-bg: rgba(26, 29, 35, 0.7);
+    }
+
+    /* ============================================================
        SOCIAL SVG ICONS
     ============================================================ */
     .social-icon-svg { width:20px; height:20px; fill:currentColor; flex-shrink:0; display:block; }
@@ -49,226 +99,654 @@
     .contact-icon-wrap  .social-icon-svg { width:18px; height:18px; }
 
     /* ============================================================
-       NEWSLETTER CARD
+       NEUMORPHISM NEWSLETTER SECTION
+    ============================================================ */
+    .newsletters-section {
+      background: var(--section-bg-alt);
+      position: relative;
+      overflow: hidden;
+    }
+    .newsletters-section::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      right: -120px;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .newsletters-section .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ============================================================
+       NEUMORPHISM NEWSLETTER CARD — Full Redesign
     ============================================================ */
     .nl-card {
-      display: flex; flex-direction: column;
-      border-radius: 16px; overflow: hidden;
-      height: 100%;
-      background: var(--neu-bg, #f0f0f3);
-      box-shadow: 6px 6px 12px rgba(0,0,0,.08), -6px -6px 12px rgba(255,255,255,.9);
-      transition: transform .3s ease, box-shadow .3s ease;
-    }
-    [data-theme="dark"] .nl-card {
-      box-shadow: 6px 6px 12px rgba(0,0,0,.3), -6px -6px 12px rgba(255,255,255,.04);
-    }
-    .nl-card:hover { transform: translateY(-5px); }
-
-    /* Preview banner */
-    .nl-preview {
-      position: relative; width: 100%; height: 190px;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 10px; padding: 20px; text-align: center;
-      flex-shrink: 0; overflow: hidden;
-    }
-    .nl-preview-badge {
-      position: absolute; top: 10px; left: 10px;
-      background: rgba(0,0,0,.55); color: #fff;
-      font-size: .58rem; font-weight: 700;
-      letter-spacing: .7px; text-transform: uppercase;
-      padding: 3px 10px; border-radius: 20px;
-      font-family: Poppins, sans-serif;
-    }
-    .nl-preview-icon { opacity: .88; flex-shrink: 0; }
-    .nl-preview-title {
-      color: rgba(255,255,255,.93); font-size: .88rem;
-      font-weight: 600; margin: 0; line-height: 1.3;
-      font-family: Poppins, sans-serif;
-      display: -webkit-box; -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical; overflow: hidden;
-    }
-    .nl-preview-month {
-      color: rgba(255,255,255,.62); font-size: .72rem;
-      margin: 0; font-family: Poppins, sans-serif;
-    }
-
-    /* Card body */
-    .nl-body {
-      padding: 14px; display: flex;
-      flex-direction: column; gap: 6px; flex: 1;
-    }
-    .nl-body-title {
-      margin: 0; font-size: .9rem; font-weight: 700;
-      color: var(--text-primary, #1e293b); line-height: 1.4;
-      font-family: Poppins, sans-serif;
-    }
-    .nl-body-meta {
-      display: flex; align-items: center; gap: 5px;
-      font-size: .72rem; color: var(--text-muted, #64748b);
-      font-family: Poppins, sans-serif;
-    }
-    .nl-body-meta svg { width: 12px; height: 12px; flex-shrink: 0; }
-    .nl-body-desc {
-      margin: 0; font-size: .78rem;
-      color: var(--text-secondary, #475569);
-      line-height: 1.5; flex: 1;
-      display: -webkit-box; -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical; overflow: hidden;
-      font-family: Poppins, sans-serif;
-    }
-
-    /* Card action buttons */
-    .nl-actions {
-      display: flex; gap: 8px;
-      padding: 8px 14px 14px;
-    }
-    .nl-btn {
-      flex: 1; display: inline-flex;
-      align-items: center; justify-content: center;
-      gap: 6px; padding: 9px 12px;
-      border-radius: 8px; font-size: .78rem;
-      font-weight: 600; cursor: pointer;
-      transition: all .2s ease; text-decoration: none;
-      font-family: Poppins, sans-serif;
-      white-space: nowrap; border: none;
-      min-width: 80px;
-    }
-    .nl-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
-    .nl-btn-view  { background: var(--primary, #1e3a8a); color: #fff; }
-    .nl-btn-view:hover { opacity: .85; transform: translateY(-1px); }
-    .nl-btn-open  {
-      background: transparent;
-      color: var(--primary, #1e3a8a);
-      border: 2px solid var(--primary, #1e3a8a) !important;
-    }
-    .nl-btn-open:hover { background: var(--primary, #1e3a8a); color: #fff; }
-    .nl-no-url {
-      font-size: .75rem; color: var(--text-muted, #64748b);
-      text-align: center; width: 100%; padding: 6px 0;
-      font-family: Poppins, sans-serif;
-    }
-
-    /* ============================================================
-       NEWSLETTER SWIPER
-    ============================================================ */
-    .newsletters-swiper { padding: 12px 4px 52px !important; overflow: visible !important; }
-    .newsletters-swiper .swiper-wrapper { align-items: stretch; }
-    .newsletters-swiper .swiper-slide  { height: auto !important; display: flex; width: 300px; }
-    .newsletters-swiper .swiper-slide .nl-card { height: 100%; width: 100%; }
-    .newsletters-pagination { bottom: 8px !important; }
-
-    /* ============================================================
-       NEWSLETTER VIEWER MODAL
-    ============================================================ */
-    #nl-viewer-overlay {
-      position: fixed; inset: 0;
-      background: rgba(0,0,0,.88);
-      z-index: 999999;
-      display: flex; align-items: center; justify-content: center;
-      padding: 12px; backdrop-filter: blur(8px);
-      opacity: 0; pointer-events: none;
-      transition: opacity .3s ease;
-    }
-    #nl-viewer-overlay.active { opacity: 1; pointer-events: all; }
-
-    #nl-viewer-box {
-      background: var(--neu-bg, #f0f0f3);
-      border-radius: 20px; width: 100%;
-      max-width: 940px; max-height: 92vh;
-      display: flex; flex-direction: column;
+      display: flex;
+      flex-direction: column;
+      border-radius: var(--neu-radius);
       overflow: hidden;
-      box-shadow: 0 32px 80px rgba(0,0,0,.45);
-      transform: scale(.95); transition: transform .3s ease;
+      height: 100%;
+      background: var(--neu-bg-card);
+      box-shadow:
+        8px 8px 16px var(--neu-shadow-dark),
+        -8px -8px 16px var(--neu-shadow-light);
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1),
+                  box-shadow 0.35s cubic-bezier(.4,0,.2,1);
+      position: relative;
     }
-    #nl-viewer-overlay.active #nl-viewer-box { transform: scale(1); }
+    .nl-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: var(--neu-radius);
+      border: 1px solid var(--border-subtle);
+      pointer-events: none;
+      z-index: 2;
+    }
+    .nl-card:hover {
+      transform: translateY(-6px) scale(1.01);
+      box-shadow:
+        12px 12px 24px var(--neu-shadow-dark),
+        -12px -12px 24px var(--neu-shadow-light);
+    }
 
-    #nl-viewer-head {
-      display: flex; align-items: center; gap: 10px;
-      padding: 14px 18px;
-      border-bottom: 1px solid var(--neu-border, rgba(0,0,0,.08));
+    /* ── Cover image preview ── */
+    .nl-preview {
+      position: relative;
+      width: 100%;
+      height: 220px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding: 0;
+      flex-shrink: 0;
+      overflow: hidden;
+      background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    }
+
+    /* Cover image that fills the preview */
+    .nl-preview-cover {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+      z-index: 1;
+      transition: transform 0.5s cubic-bezier(.4,0,.2,1);
+    }
+    .nl-card:hover .nl-preview-cover {
+      transform: scale(1.06);
+    }
+
+    /* Fallback icon when no cover image */
+    .nl-preview-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      z-index: 1;
+      padding: 20px;
+      text-align: center;
+    }
+    .nl-preview-fallback.has-cover {
+      display: none;
+    }
+
+    /* Gradient overlay on cover for text readability */
+    .nl-preview-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 100px;
+      background: linear-gradient(to top, rgba(0,0,0,.7) 0%, transparent 100%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* Type badge */
+    .nl-preview-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 5;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #fff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-family: Poppins, sans-serif;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .nl-preview-badge svg {
+      width: 10px;
+      height: 10px;
       flex-shrink: 0;
     }
-    #nl-viewer-head h3 {
-      flex: 1; font-size: .95rem; font-weight: 700;
-      color: var(--text-primary, #1e293b); margin: 0;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+
+    /* Issue number badge (top right) */
+    .nl-preview-issue {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      z-index: 5;
+      background: var(--primary);
+      color: var(--text-on-primary);
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 5px 11px;
+      border-radius: 20px;
+      font-family: Poppins, sans-serif;
+      box-shadow: 0 2px 8px rgba(0,0,0,.2);
+    }
+
+    /* Title overlay on bottom of image */
+    .nl-preview-info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 3;
+      padding: 16px 16px 14px;
+    }
+    .nl-preview-title {
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin: 0;
+      line-height: 1.35;
+      font-family: Poppins, sans-serif;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-shadow: 0 1px 6px rgba(0,0,0,.4);
+    }
+    .nl-preview-month {
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 0.72rem;
+      margin: 4px 0 0;
+      font-family: Poppins, sans-serif;
+      text-shadow: 0 1px 4px rgba(0,0,0,.3);
+    }
+
+    /* Neumorphic icon for fallback */
+    .nl-preview-icon {
+      opacity: 0.88;
+      flex-shrink: 0;
+    }
+    .nl-preview-fallback-title {
+      color: rgba(255,255,255,.93);
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin: 0;
+      line-height: 1.3;
+      font-family: Poppins, sans-serif;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .nl-preview-fallback-month {
+      color: rgba(255,255,255,.62);
+      font-size: 0.72rem;
+      margin: 0;
       font-family: Poppins, sans-serif;
     }
-    #nl-viewer-btns { display: flex; gap: 8px; flex-shrink: 0; }
+
+    /* ── Card body (neumorphic inset feel) ── */
+    .nl-body {
+      padding: 16px 18px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+    }
+    .nl-body-title {
+      margin: 0;
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+      font-family: Poppins, sans-serif;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .nl-body-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      font-family: Poppins, sans-serif;
+    }
+    .nl-body-meta svg {
+      width: 12px;
+      height: 12px;
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+    .nl-body-desc {
+      margin: 0;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.55;
+      flex: 1;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      font-family: Poppins, sans-serif;
+    }
+
+    /* ── Neumorphic action buttons ── */
+    .nl-actions {
+      display: flex;
+      gap: 10px;
+      padding: 10px 18px 18px;
+    }
+    .nl-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 10px 14px;
+      border-radius: var(--neu-radius-sm);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(.4,0,.2,1);
+      text-decoration: none;
+      font-family: Poppins, sans-serif;
+      white-space: nowrap;
+      border: none;
+      min-width: 80px;
+      letter-spacing: 0.2px;
+    }
+    .nl-btn svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+    }
+
+    /* View button — neumorphic raised */
+    .nl-btn-view {
+      background: var(--neu-bg-card);
+      color: var(--primary);
+      box-shadow:
+        4px 4px 8px var(--neu-shadow-dark),
+        -4px -4px 8px var(--neu-shadow-light);
+    }
+    .nl-btn-view:hover {
+      box-shadow:
+        inset 3px 3px 6px var(--neu-shadow-dark),
+        inset -3px -3px 6px var(--neu-shadow-light);
+      transform: scale(0.97);
+    }
+    .nl-btn-view:active {
+      box-shadow:
+        inset 4px 4px 8px var(--neu-shadow-dark),
+        inset -4px -4px 8px var(--neu-shadow-light);
+    }
+
+    /* Open button — neumorphic primary */
+    .nl-btn-open {
+      background: var(--primary);
+      color: var(--text-on-primary);
+      box-shadow:
+        4px 4px 8px var(--neu-shadow-dark),
+        -4px -4px 8px var(--neu-shadow-light);
+    }
+    .nl-btn-open:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+      box-shadow:
+        6px 6px 12px var(--neu-shadow-dark),
+        -6px -6px 12px var(--neu-shadow-light);
+    }
+
+    .nl-no-url {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      text-align: center;
+      width: 100%;
+      padding: 8px 0;
+      font-family: Poppins, sans-serif;
+      font-style: italic;
+    }
+
+    /* ============================================================
+       NEWSLETTER SWIPER — Neumorphic wrapper
+    ============================================================ */
+    .newsletters-swiper-wrap {
+      position: relative;
+      padding: 8px;
+      border-radius: calc(var(--neu-radius) + 8px);
+      background: var(--neu-bg);
+    }
+    .newsletters-swiper {
+      padding: 16px 8px 56px !important;
+      overflow: visible !important;
+    }
+    .newsletters-swiper .swiper-wrapper {
+      align-items: stretch;
+    }
+    .newsletters-swiper .swiper-slide {
+      height: auto !important;
+      display: flex;
+      width: 300px;
+    }
+    .newsletters-swiper .swiper-slide .nl-card {
+      height: 100%;
+      width: 100%;
+    }
+    .newsletters-pagination {
+      bottom: 10px !important;
+    }
+    .newsletters-pagination .swiper-pagination-bullet {
+      width: 10px;
+      height: 10px;
+      background: var(--text-muted);
+      opacity: 0.4;
+      transition: all 0.3s;
+    }
+    .newsletters-pagination .swiper-pagination-bullet-active {
+      background: var(--primary);
+      opacity: 1;
+      width: 28px;
+      border-radius: 5px;
+    }
+    .newsletters-prev, .newsletters-next {
+      color: var(--primary) !important;
+      background: var(--neu-bg-card) !important;
+      width: 40px !important;
+      height: 40px !important;
+      border-radius: 50% !important;
+      box-shadow:
+        4px 4px 8px var(--neu-shadow-dark),
+        -4px -4px 8px var(--neu-shadow-light) !important;
+      transition: all 0.25s !important;
+    }
+    .newsletters-prev:hover, .newsletters-next:hover {
+      box-shadow:
+        inset 3px 3px 6px var(--neu-shadow-dark),
+        inset -3px -3px 6px var(--neu-shadow-light) !important;
+    }
+    .newsletters-prev::after, .newsletters-next::after {
+      font-size: 16px !important;
+      font-weight: 700 !important;
+    }
+
+    /* ============================================================
+       NEWSLETTER VIEWER MODAL — Neumorphic
+    ============================================================ */
+    #nl-viewer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.75);
+      z-index: 999999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s cubic-bezier(.4,0,.2,1);
+    }
+    #nl-viewer-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #nl-viewer-box {
+      background: var(--neu-bg-card);
+      border-radius: calc(var(--neu-radius) + 4px);
+      width: 100%;
+      max-width: 960px;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow:
+        16px 16px 32px var(--neu-shadow-dark),
+        -16px -16px 32px var(--neu-shadow-light),
+        0 0 0 1px var(--border-subtle);
+      transform: scale(0.93) translateY(20px);
+      transition: transform 0.4s cubic-bezier(.4,0,.2,1);
+    }
+    #nl-viewer-overlay.active #nl-viewer-box {
+      transform: scale(1) translateY(0);
+    }
+
+    #nl-viewer-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      background: var(--neu-bg-card);
+    }
+    #nl-viewer-head h3 {
+      flex: 1;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: Poppins, sans-serif;
+    }
+    #nl-viewer-btns {
+      display: flex;
+      gap: 8px;
+      flex-shrink: 0;
+    }
 
     .nlv-btn {
-      display: inline-flex; align-items: center;
-      justify-content: center; gap: 6px;
-      padding: 7px 14px; border-radius: 8px;
-      font-size: .76rem; font-weight: 600;
-      cursor: pointer; text-decoration: none;
-      border: none; transition: all .2s;
-      font-family: Poppins, sans-serif; white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 16px;
+      border-radius: var(--neu-radius-xs);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      transition: all 0.25s cubic-bezier(.4,0,.2,1);
+      font-family: Poppins, sans-serif;
+      white-space: nowrap;
     }
-    .nlv-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .nlv-btn svg {
+      width: 13px;
+      height: 13px;
+      flex-shrink: 0;
+    }
     .nlv-btn-outline {
-      background: transparent; color: var(--primary, #1e3a8a);
-      border: 2px solid var(--primary, #1e3a8a) !important;
+      background: var(--neu-bg-card);
+      color: var(--primary);
+      box-shadow:
+        3px 3px 6px var(--neu-shadow-dark),
+        -3px -3px 6px var(--neu-shadow-light);
     }
-    .nlv-btn-outline:hover { background: var(--primary, #1e3a8a); color: #fff; }
-    .nlv-btn-solid { background: var(--primary, #1e3a8a); color: #fff; }
-    .nlv-btn-solid:hover { opacity: .85; }
+    .nlv-btn-outline:hover {
+      box-shadow:
+        inset 2px 2px 5px var(--neu-shadow-dark),
+        inset -2px -2px 5px var(--neu-shadow-light);
+    }
+    .nlv-btn-solid {
+      background: var(--primary);
+      color: var(--text-on-primary);
+      box-shadow:
+        3px 3px 6px var(--neu-shadow-dark),
+        -3px -3px 6px var(--neu-shadow-light);
+    }
+    .nlv-btn-solid:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
 
     #nl-viewer-x {
-      background: none; border: none; cursor: pointer;
-      color: var(--text-secondary, #64748b);
-      width: 36px; height: 36px; border-radius: 8px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; transition: all .2s;
+      background: var(--neu-bg-card);
+      border: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.25s;
+      box-shadow:
+        3px 3px 6px var(--neu-shadow-dark),
+        -3px -3px 6px var(--neu-shadow-light);
     }
-    #nl-viewer-x:hover { background: rgba(0,0,0,.08); color: var(--text-primary, #1e293b); }
-    #nl-viewer-x svg { width: 20px; height: 20px; }
+    #nl-viewer-x:hover {
+      box-shadow:
+        inset 2px 2px 5px var(--neu-shadow-dark),
+        inset -2px -2px 5px var(--neu-shadow-light);
+      color: var(--danger);
+    }
+    #nl-viewer-x svg {
+      width: 18px;
+      height: 18px;
+    }
 
     #nl-viewer-content {
-      flex: 1; overflow: hidden; position: relative;
-      background: #1a1a2e; min-height: 440px;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+      background: #111827;
+      min-height: 440px;
+      border-radius: 0 0 calc(var(--neu-radius) + 4px) calc(var(--neu-radius) + 4px);
     }
     #nl-viewer-content iframe {
-      width: 100%; height: 100%;
-      min-height: 520px; border: none; display: block;
+      width: 100%;
+      height: 100%;
+      min-height: 520px;
+      border: none;
+      display: block;
     }
 
     .nlv-loader {
-      position: absolute; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 14px; color: #fff;
-      font-family: Poppins, sans-serif; z-index: 2;
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      color: #fff;
+      font-family: Poppins, sans-serif;
+      z-index: 2;
     }
-    .nlv-loader p { margin: 0; font-size: .88rem; opacity: .7; }
+    .nlv-loader p {
+      margin: 0;
+      font-size: 0.88rem;
+      opacity: 0.7;
+    }
     .nlv-spin {
-      width: 40px; height: 40px;
-      border: 3px solid rgba(255,255,255,.2);
-      border-top-color: #fff; border-radius: 50%;
-      animation: nlv-spin .8s linear infinite;
+      width: 42px;
+      height: 42px;
+      border: 3px solid rgba(255, 255, 255, 0.15);
+      border-top-color: var(--primary-light, #3b82f6);
+      border-radius: 50%;
+      animation: nlv-spin 0.8s linear infinite;
     }
-    @keyframes nlv-spin { to { transform: rotate(360deg); } }
+    @keyframes nlv-spin {
+      to { transform: rotate(360deg); }
+    }
 
     .nlv-ext {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 16px; padding: 48px 32px;
-      text-align: center; color: #fff;
-      height: 100%; min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      padding: 56px 32px;
+      text-align: center;
+      color: #fff;
+      height: 100%;
+      min-height: 300px;
     }
-    .nlv-ext svg { opacity: .75; flex-shrink: 0; }
-    .nlv-ext h4 { font-size: 1.1rem; font-weight: 700; margin: 0; color: #fff; font-family: Poppins, sans-serif; }
-    .nlv-ext p  { font-size: .86rem; color: rgba(255,255,255,.7); margin: 0; line-height: 1.6; max-width: 380px; font-family: Poppins, sans-serif; }
+    .nlv-ext svg { opacity: 0.6; flex-shrink: 0; }
+    .nlv-ext h4 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin: 0;
+      color: #fff;
+      font-family: Poppins, sans-serif;
+    }
+    .nlv-ext p {
+      font-size: 0.86rem;
+      color: rgba(255, 255, 255, 0.65);
+      margin: 0;
+      line-height: 1.6;
+      max-width: 400px;
+      font-family: Poppins, sans-serif;
+    }
     .nlv-ext-btn {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 24px; background: var(--primary, #1e3a8a);
-      color: #fff; border-radius: 10px; text-decoration: none;
-      font-size: .86rem; font-weight: 600;
-      transition: all .2s; font-family: Poppins, sans-serif;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      background: var(--primary);
+      color: var(--text-on-primary);
+      border-radius: var(--neu-radius-sm);
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      transition: all 0.25s;
+      font-family: Poppins, sans-serif;
+      box-shadow: 0 4px 14px rgba(0,0,0,.3);
     }
-    .nlv-ext-btn:hover { opacity: .85; transform: translateY(-1px); }
+    .nlv-ext-btn:hover {
+      opacity: 0.88;
+      transform: translateY(-2px);
+    }
     .nlv-ext-btn svg { width: 16px; height: 16px; }
+
+    /* ============================================================
+       NEWSLETTER PLACEHOLDER — Neumorphic
+    ============================================================ */
+    #newsletters-placeholder .placeholder-card,
+    #newsletters-loading {
+      background: var(--neu-bg-card);
+      border-radius: var(--neu-radius);
+      box-shadow:
+        6px 6px 12px var(--neu-shadow-dark),
+        -6px -6px 12px var(--neu-shadow-light);
+    }
 
     /* ============================================================
        FULL RESPONSIVE SYSTEM
@@ -337,10 +815,11 @@
       .modal-actions        { flex-direction: column; gap: 8px; }
       .modal-actions .btn   { width: 100%; justify-content: center; }
       .member-modal-body    { flex-direction: column !important; align-items: center; text-align: center; }
-      #nl-viewer-head       { padding: 10px 12px; }
+      #nl-viewer-head       { padding: 12px 14px; }
       #nl-viewer-head h3    { font-size: .82rem; }
       .nlv-btn span         { display: none; }
-      .nlv-btn              { padding: 7px 10px; }
+      .nlv-btn              { padding: 8px 10px; }
+      .nl-preview           { height: 180px; }
     }
 
     @media (max-width: 639px) {
@@ -376,9 +855,11 @@
       .modal-overlay          { padding: 8px; }
       .modal-title            { font-size: 1rem; }
       .chatbot-window         { left: 10px !important; right: 10px !important; bottom: 68px !important; width: auto !important; max-width: none !important; border-radius: 16px; }
-      #nl-viewer-box          { border-radius: 14px; max-height: 96vh; }
+      #nl-viewer-box          { border-radius: 16px; max-height: 96vh; }
       .nl-actions             { flex-direction: column; }
       .nl-btn                 { width: 100%; min-width: unset; }
+      .nl-preview             { height: 160px; }
+      .newsletters-swiper-wrap { padding: 4px; border-radius: var(--neu-radius); }
     }
 
     @media (max-width: 359px) {
@@ -387,6 +868,7 @@
       .hero-logo    { width: 64px !important; height: 64px !important; }
       .members-grid { grid-template-columns: 1fr !important; }
       .stats-grid   { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+      .nl-preview   { height: 140px; }
     }
 
     @media (min-width: 768px) and (max-width: 1023px) {
@@ -677,7 +1159,7 @@
 </section>
 
 <!-- ============================================================
-     NEWSLETTERS / BULLETINS
+     NEWSLETTERS / BULLETINS — Neumorphic Section
 ============================================================ -->
 <section class="section newsletters-section" id="newsletters">
   <div class="container">
@@ -700,8 +1182,8 @@
       <div class="neu-card placeholder-card"><i data-lucide="file-x"></i><p>No bulletins published yet</p></div>
     </div>
     <div id="newsletters-loading" style="text-align:center;padding:40px 0;display:none">
-      <div style="display:inline-flex;align-items:center;gap:12px;color:var(--text-muted,#64748b);font-family:Poppins,sans-serif;font-size:.9rem">
-        <div class="nlv-spin" style="border-color:rgba(0,0,0,.12);border-top-color:var(--primary,#1e3a8a)"></div>
+      <div style="display:inline-flex;align-items:center;gap:12px;color:var(--text-muted);font-family:Poppins,sans-serif;font-size:.9rem">
+        <div class="nlv-spin" style="border-color:var(--neu-shadow-dark);border-top-color:var(--primary)"></div>
         Loading bulletins…
       </div>
     </div>
@@ -709,7 +1191,7 @@
 </section>
 
 <!-- ============================================================
-     NEWSLETTER VIEWER MODAL
+     NEWSLETTER VIEWER MODAL — Neumorphic
 ============================================================ -->
 <div id="nl-viewer-overlay">
   <div id="nl-viewer-box">
@@ -1003,9 +1485,10 @@
 <script src="js/app.js"></script>
 
 <!-- ============================================================
-     NEWSLETTER ENGINE — exact column names from Supabase:
-     id | title | month | pdf_url | description | is_published
-     published_at | created_by | created_at | updated_at
+     NEWSLETTER ENGINE — Enhanced with Cover Image & Neumorphism
+     Supabase columns:
+     id | title | month | pdf_url | cover_image_url | description
+     is_published | published_at | created_by | created_at | updated_at
 ============================================================ -->
 <script>
 (function(){
@@ -1047,13 +1530,10 @@ function toEmbed(u,t){
   if(!u)return null;
   u=u.trim();
   if(t==='gdrive'){
-    // /file/d/ID/view or /file/d/ID/edit → /file/d/ID/preview
     var m=u.match(/\/d\/([a-zA-Z0-9_-]+)/);
     if(m)return'https://drive.google.com/file/d/'+m[1]+'/preview';
-    // ?id=ID format
     var m2=u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
     if(m2)return'https://drive.google.com/file/d/'+m2[1]+'/preview';
-    // open?id= format
     var m3=u.match(/open\?id=([a-zA-Z0-9_-]+)/);
     if(m3)return'https://drive.google.com/file/d/'+m3[1]+'/preview';
   }
@@ -1064,14 +1544,24 @@ function toEmbed(u,t){
   return null;
 }
 
+/* ── Google Drive thumbnail helper ── */
+function gdriveThumb(url){
+  if(!url)return null;
+  var m=url.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if(!m){m=url.match(/[?&]id=([a-zA-Z0-9_-]+)/);}
+  if(!m){m=url.match(/open\?id=([a-zA-Z0-9_-]+)/);}
+  if(m&&m[1])return'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w600';
+  return null;
+}
+
 /* SVG helpers */
 var SVG_EYE='<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
 var SVG_EXT='<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
-var SVG_DOC='<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
+var SVG_DOC='<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
 var SVG_CAL='<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+var SVG_FILE_BADGE='<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
 
 function openViewer(d){
-  /* d = { title, pdf_url } — exact column names */
   var url=(d.pdf_url||d.file_url||d.link_url||d.url||'').trim();
   var title=(d.title||'Bulletin').trim();
   var type=detectType(url);
@@ -1094,7 +1584,6 @@ function openViewer(d){
     body.appendChild(img);
 
   }else if(embed){
-    /* loading indicator */
     var ld=document.createElement('div');ld.className='nlv-loader';ld.id='_nlvld';
     ld.innerHTML='<div class="nlv-spin"></div><p>Loading bulletin…</p>';
     body.appendChild(ld);
@@ -1107,7 +1596,6 @@ function openViewer(d){
     ifr.addEventListener('load',function(){var l=document.getElementById('_nlvld');if(l)l.remove()});
     body.appendChild(ifr);
 
-    /* 8s fallback — if still loading show external view */
     setTimeout(function(){var l=document.getElementById('_nlvld');if(l){l.remove();showExt(body,url,type)}},8000);
 
   }else{
@@ -1134,22 +1622,20 @@ function closeViewer(){
   var o=document.getElementById('nl-viewer-overlay');if(!o)return;
   o.classList.remove('active');
   document.body.style.overflow='';
-  setTimeout(function(){var b=document.getElementById('nl-viewer-content');if(b)b.innerHTML=''},320);
+  setTimeout(function(){var b=document.getElementById('nl-viewer-content');if(b)b.innerHTML=''},350);
 }
 
-/* Viewer controls */
 document.getElementById('nl-viewer-x').addEventListener('click',closeViewer);
 document.getElementById('nl-viewer-overlay').addEventListener('click',function(e){if(e.target===this)closeViewer()});
 document.addEventListener('keydown',function(e){if(e.key==='Escape')closeViewer()});
 
-/* Global exposure */
 window.openNewsletterViewer=openViewer;
 window.closeNewsletterViewer=closeViewer;
 
 /* ══════════════════════════════════════════════════════════
-   NEWSLETTER CARD RENDERER
-   Uses exact Supabase columns:
-   id, title, month, pdf_url, description,
+   NEWSLETTER CARD RENDERER — with Cover Image Support
+   Supabase columns:
+   id, title, month, pdf_url, cover_image_url, description,
    is_published, published_at, created_by, created_at, updated_at
 ══════════════════════════════════════════════════════════ */
 var COLORS=[
@@ -1160,6 +1646,7 @@ var COLORS=[
   'linear-gradient(135deg,#be123c 0%,#fb7185 100%)',
   'linear-gradient(135deg,#4338ca 0%,#818cf8 100%)',
   'linear-gradient(135deg,#065f46 0%,#6ee7b7 100%)',
+  'linear-gradient(135deg,#9333ea 0%,#c084fc 100%)',
 ];
 
 var TYPE_LABEL={
@@ -1177,7 +1664,6 @@ function renderCards(newsletters){
   if(loading)loading.style.display='none';
   if(!wrapper)return;
 
-  /* Filter only published */
   var published=newsletters.filter(function(n){
     return n.is_published===true||n.is_published===1||n.is_published==='true';
   });
@@ -1191,12 +1677,22 @@ function renderCards(newsletters){
   wrapper.innerHTML='';
 
   published.forEach(function(nl,i){
-    /* ── exact column mapping ── */
-    var url    = (nl.pdf_url||'').trim();
-    var title  = (nl.title||'Bulletin').trim();
-    var month  = nl.month||'';
-    var desc   = nl.description||'';
-    var pubAt  = nl.published_at||nl.created_at||'';
+    var url        = (nl.pdf_url||'').trim();
+    var title      = (nl.title||'Bulletin').trim();
+    var month      = nl.month||'';
+    var desc       = nl.description||'';
+    var pubAt      = nl.published_at||nl.created_at||'';
+    var coverUrl   = (nl.cover_image_url||nl.cover_url||nl.thumbnail_url||nl.image_url||'').trim();
+
+    /* Auto-generate cover from Google Drive PDF if no cover uploaded */
+    if(!coverUrl && url){
+      var type=detectType(url);
+      if(type==='gdrive'){
+        coverUrl=gdriveThumb(url)||'';
+      }
+    }
+
+    var hasCover = !!coverUrl;
 
     /* format date */
     var dateStr='';
@@ -1208,9 +1704,11 @@ function renderCards(newsletters){
     var typeLabel=TYPE_LABEL[type]||'Link';
     var color=COLORS[i%COLORS.length];
 
-    /* Safe strings for onclick */
     var safeTitle=title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
     var safeUrl=(url||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+    /* Issue number */
+    var issueNum = i + 1;
 
     var slide=document.createElement('div');
     slide.className='swiper-slide';
@@ -1220,15 +1718,39 @@ function renderCards(newsletters){
     slide.innerHTML=
       '<div class="nl-card">'+
 
-        /* preview banner */
+        /* ── PREVIEW AREA ── */
         '<div class="nl-preview" style="background:'+color+'">'+
-          '<span class="nl-preview-badge">'+typeLabel+'</span>'+
-          SVG_DOC+
-          '<p class="nl-preview-title">'+escH(title)+'</p>'+
-          (month?'<p class="nl-preview-month">'+escH(month)+'</p>':'')+
+
+          /* Cover image (if available) */
+          (hasCover ?
+            '<img src="'+escA(coverUrl)+'" alt="'+escA(title)+'" class="nl-preview-cover" loading="lazy" onerror="this.style.display=\'none\';this.nextElementSibling.classList.remove(\'has-cover\')" />' : ''
+          )+
+
+          /* Fallback (shown when no cover) */
+          '<div class="nl-preview-fallback'+(hasCover?' has-cover':'')+'">'+
+            SVG_DOC+
+            '<p class="nl-preview-fallback-title">'+escH(title)+'</p>'+
+            (month?'<p class="nl-preview-fallback-month">'+escH(month)+'</p>':'')+
+          '</div>'+
+
+          /* Gradient overlay for text on cover */
+          (hasCover ? '<div class="nl-preview-overlay"></div>' : '')+
+
+          /* Badges */
+          '<span class="nl-preview-badge">'+SVG_FILE_BADGE+' '+typeLabel+'</span>'+
+          '<span class="nl-preview-issue">Issue #'+issueNum+'</span>'+
+
+          /* Title info overlay (shown on covers) */
+          (hasCover ?
+            '<div class="nl-preview-info">'+
+              '<p class="nl-preview-title">'+escH(title)+'</p>'+
+              (month?'<p class="nl-preview-month">'+escH(month)+'</p>':'')+
+            '</div>' : ''
+          )+
+
         '</div>'+
 
-        /* body */
+        /* ── CARD BODY ── */
         '<div class="nl-body">'+
           '<h4 class="nl-body-title">'+escH(title)+'</h4>'+
           (dateStr?'<p class="nl-body-meta">'+SVG_CAL+' '+dateStr+'</p>':
@@ -1236,15 +1758,15 @@ function renderCards(newsletters){
           (desc?'<p class="nl-body-desc">'+escH(desc)+'</p>':'<div style="flex:1"></div>')+
         '</div>'+
 
-        /* action buttons */
+        /* ── NEUMORPHIC ACTION BUTTONS ── */
         '<div class="nl-actions">'+
           (url?
             '<button type="button" class="nl-btn nl-btn-view" '+
               'onclick="window.openNewsletterViewer({title:\''+safeTitle+'\',pdf_url:\''+safeUrl+'\'})">'+
-              SVG_EYE+'View'+
+              SVG_EYE+' View'+
             '</button>'+
             '<a href="'+escA(url)+'" target="_blank" rel="noopener noreferrer" class="nl-btn nl-btn-open">'+
-              SVG_EXT+'Open'+
+              SVG_EXT+' Open'+
             '</a>'
           :'<p class="nl-no-url">No link available</p>')+
         '</div>'+
@@ -1265,15 +1787,15 @@ function renderCards(newsletters){
       grabCursor:true,
       centeredSlides:false,
       loop:published.length>3,
-      pagination:{el:'.newsletters-pagination',clickable:true},
+      pagination:{el:'.newsletters-pagination',clickable:true,dynamicBullets:true},
       navigation:{prevEl:'.newsletters-prev',nextEl:'.newsletters-next'},
       breakpoints:{
-        320:{slidesPerView:1.12,spaceBetween:12},
-        480:{slidesPerView:1.4, spaceBetween:14},
-        640:{slidesPerView:1.9, spaceBetween:16},
-        768:{slidesPerView:2.3, spaceBetween:18},
-        1024:{slidesPerView:3,  spaceBetween:20},
-        1280:{slidesPerView:3.5,spaceBetween:22},
+        320:{slidesPerView:1.1,spaceBetween:12},
+        480:{slidesPerView:1.35,spaceBetween:14},
+        640:{slidesPerView:1.85,spaceBetween:16},
+        768:{slidesPerView:2.2,spaceBetween:18},
+        1024:{slidesPerView:2.8,spaceBetween:20},
+        1280:{slidesPerView:3.3,spaceBetween:22},
       }
     });
   }
@@ -1287,14 +1809,10 @@ function escA(s){return String(s).replace(/"/g,'&quot;')}
 
 /* ══════════════════════════════════════════════════════════
    SUPABASE FETCH — newsletters table
-   Columns: id, title, month, pdf_url, description,
-            is_published, published_at, created_by,
-            created_at, updated_at
+   Now also fetches cover_image_url column
 ══════════════════════════════════════════════════════════ */
 function getClient(){
-  /* Try window.supabaseClient first (set by config.js) */
   if(window.supabaseClient&&window.supabaseClient.from)return window.supabaseClient;
-  /* Try raw createClient */
   if(window.supabase&&window.supabase.createClient){
     var url=window.SUPABASE_URL||(window.CONFIG&&window.CONFIG.SUPABASE_URL)||null;
     var key=window.SUPABASE_ANON_KEY||(window.CONFIG&&window.CONFIG.SUPABASE_ANON_KEY)||null;
@@ -1314,14 +1832,15 @@ function fetchNewsletters(){
     return;
   }
 
+  /* Fetch with cover_image_url included */
   sb.from('newsletters')
-    .select('id,title,month,pdf_url,description,is_published,published_at,created_at')
-    .eq('is_published',true)            /* only published bulletins */
+    .select('id,title,month,pdf_url,cover_image_url,description,is_published,published_at,created_at')
+    .eq('is_published',true)
     .order('published_at',{ascending:false,nullsFirst:false})
     .then(function(res){
       if(res.error){
         console.error('[Newsletters] Query error:',res.error.message);
-        /* fallback: fetch all and filter client-side */
+        /* Fallback without cover_image_url in case column doesn't exist yet */
         return sb.from('newsletters')
                  .select('id,title,month,pdf_url,description,is_published,published_at,created_at')
                  .order('created_at',{ascending:false});
@@ -1350,18 +1869,15 @@ function tryFetch(){
   else{setTimeout(tryFetch,500)}
 }
 
-/* Expose for public.js / app.js */
 window.fetchNewsletters=fetchNewsletters;
 window.renderNewsletterCards=renderCards;
 
-/* Multiple trigger points */
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',function(){setTimeout(tryFetch,500)});
 }else{
   setTimeout(tryFetch,300);
 }
 window.addEventListener('load',function(){
-  /* Re-fetch in case config.js loaded late */
   setTimeout(tryFetch,800);
 });
 
