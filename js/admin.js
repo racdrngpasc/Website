@@ -790,7 +790,7 @@ class AdminDashboard {
     return actions;
   }
 
-  /* ============================================================
+/* ============================================================
      NEWSLETTERS
      ============================================================ */
   async _renderNewsletters(container) {
@@ -802,7 +802,20 @@ class AdminDashboard {
 
     const { data: newsletters, error } = await this.db
       .from('newsletters')
-      .select('id,title,month,pdf_url,cover_image_url,description,is_published,published_at,created_at,created_by')
+      .select([
+        'id',
+        'title',
+        'month',
+        'year',
+        'pdf_url',
+        'cover_image_url',
+        'description',
+        'is_published',
+        'published_at',
+        'created_at',
+        'created_by'
+      ].join(','))
+      .order('year',       { ascending: false, nullsFirst: false })
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -850,32 +863,36 @@ class AdminDashboard {
     lucide.createIcons();
   }
 
-  /* ── Render one newsletter card (NO inline JSON, NO <script> tags) ── */
+  /* ── Render one newsletter card ── */
   _renderNlCard(nl) {
-    const url     = nl.pdf_url         || '';
-    const cover   = nl.cover_image_url || '';
-    const title   = nl.title           || 'Bulletin';
-    const month   = nl.month           || '';
-    const desc    = nl.description     || '';
-    const pubAt   = nl.published_at    || nl.created_at || '';
-    const nlId    = String(nl.id);
+    const url    = nl.pdf_url         || '';
+    const cover  = nl.cover_image_url || '';
+    const title  = nl.title           || 'Bulletin';
+    const month  = nl.month           || '';
+    const year   = nl.year            || new Date().getFullYear();
+    const desc   = nl.description     || '';
+    const pubAt  = nl.published_at    || nl.created_at || '';
+    const nlId   = String(nl.id);
+
+    /* "June 2025" or just "2025" */
+    const period = month ? `${month} ${year}` : String(year);
 
     let dateStr = '';
     if (pubAt) {
       try {
         dateStr = new Date(pubAt).toLocaleDateString('en-IN', {
-          year:'numeric', month:'short', day:'numeric'
+          year: 'numeric', month: 'short', day: 'numeric'
         });
       } catch (e) { dateStr = pubAt; }
     }
 
     /* Escape for HTML attribute usage */
-    const esc = (s) => String(s||'')
-      .replace(/&/g,'&amp;')
-      .replace(/</g,'&lt;')
-      .replace(/>/g,'&gt;')
-      .replace(/"/g,'&quot;')
-      .replace(/'/g,'&#39;');
+    const esc = (s) => String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
 
     return `
       <div class="admin-nl-card neu-card">
@@ -884,15 +901,21 @@ class AdminDashboard {
         <div class="admin-nl-cover">
           ${cover
             ? `<img src="${esc(cover)}" alt="${esc(title)}" class="admin-nl-cover-img"
-                    onerror="this.parentElement.innerHTML='<div class=&quot;admin-nl-cover-placeholder&quot;><i data-lucide=&quot;newspaper&quot;></i></div>';lucide.createIcons();" />`
+                    onerror="this.parentElement.innerHTML=
+                      '<div class=&quot;admin-nl-cover-placeholder&quot;>
+                        <i data-lucide=&quot;newspaper&quot;></i>
+                      </div>';
+                      lucide.createIcons();" />`
             : `<div class="admin-nl-cover-placeholder">
                  <i data-lucide="newspaper"></i>
-                 <span style="font-size:.72rem;color:var(--text-muted);font-family:Poppins,sans-serif;">No Cover</span>
+                 <span style="font-size:.72rem;color:var(--text-muted);
+                              font-family:Poppins,sans-serif;">No Cover</span>
                </div>`}
 
           <!-- Published toggle overlay -->
           <div class="admin-nl-status-overlay">
-            <label class="admin-toggle" title="${nl.is_published ? 'Click to unpublish' : 'Click to publish'}">
+            <label class="admin-toggle"
+                   title="${nl.is_published ? 'Click to unpublish' : 'Click to publish'}">
               <input type="checkbox" ${nl.is_published ? 'checked' : ''}
                      onchange="adminDashboard._toggleNlPublish('${esc(nlId)}', this.checked)" />
               <span class="admin-toggle-slider"></span>
@@ -906,9 +929,21 @@ class AdminDashboard {
         <!-- Body -->
         <div class="admin-nl-body">
           <div class="admin-nl-title" title="${esc(title)}">${esc(title)}</div>
-          ${month   ? `<div class="admin-nl-meta"><i data-lucide="calendar" style="width:12px;height:12px;flex-shrink:0;"></i>${esc(month)}</div>` : ''}
-          ${dateStr ? `<div class="admin-nl-meta"><i data-lucide="clock"    style="width:12px;height:12px;flex-shrink:0;"></i>${dateStr}</div>` : ''}
-          ${desc    ? `<div class="admin-nl-desc">${esc(desc)}</div>` : ''}
+
+          <!-- Period: "June 2025" or "2025" -->
+          <div class="admin-nl-meta">
+            <i data-lucide="calendar" style="width:12px;height:12px;flex-shrink:0;"></i>
+            ${esc(period)}
+          </div>
+
+          ${dateStr ? `
+          <div class="admin-nl-meta">
+            <i data-lucide="clock" style="width:12px;height:12px;flex-shrink:0;"></i>
+            ${dateStr}
+          </div>` : ''}
+
+          ${desc ? `<div class="admin-nl-desc">${esc(desc)}</div>` : ''}
+
           <div class="admin-nl-link-row">
             ${url
               ? `<span class="admin-nl-link-badge has-link">
@@ -927,10 +962,12 @@ class AdminDashboard {
                   onclick="adminDashboard._previewNl('${esc(nlId)}')">
             <i data-lucide="eye"></i> Preview
           </button>` : ''}
+
           <button class="admin-nl-btn admin-nl-btn-edit" title="Edit"
                   onclick="adminDashboard._editNl('${esc(nlId)}')">
             <i data-lucide="edit-3"></i> Edit
           </button>
+
           <button class="admin-nl-btn admin-nl-btn-delete" title="Delete"
                   onclick="adminDashboard._deleteNl('${esc(nlId)}','${esc(title)}')">
             <i data-lucide="trash-2"></i>
@@ -943,7 +980,10 @@ class AdminDashboard {
   /* ── Preview (id-based lookup) ── */
   _previewNl(id) {
     const nl = this._nlCache[id];
-    if (!nl || !nl.pdf_url) { this.showToast('No link available to preview', 'warning'); return; }
+    if (!nl || !nl.pdf_url) {
+      this.showToast('No link available to preview', 'warning');
+      return;
+    }
     this._previewNewsletter(nl.title || 'Bulletin', nl.pdf_url);
   }
 
@@ -956,11 +996,14 @@ class AdminDashboard {
     }
     /* 2. Fallback: fetch from DB */
     this.db.from('newsletters')
-      .select('id,title,month,pdf_url,cover_image_url,description,is_published,published_at,created_at')
+      .select('id,title,month,year,pdf_url,cover_image_url,description,is_published,published_at,created_at')
       .eq('id', id)
       .single()
       .then(({ data, error }) => {
-        if (error || !data) { this.showToast('Could not load bulletin for editing', 'error'); return; }
+        if (error || !data) {
+          this.showToast('Could not load bulletin for editing', 'error');
+          return;
+        }
         this._nlCache[id] = data;
         this._showNewsletterForm(data);
       })
@@ -1047,20 +1090,26 @@ class AdminDashboard {
              style="display:inline-flex;align-items:center;gap:6px;padding:7px 14px;
                     border-radius:8px;font-size:.76rem;font-weight:600;
                     background:transparent;color:var(--primary,#1e3a8a);
-                    border:2px solid var(--primary,#1e3a8a);text-decoration:none;white-space:nowrap;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    border:2px solid var(--primary,#1e3a8a);
+                    text-decoration:none;white-space:nowrap;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
-              <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+              <polyline points="15 3 21 3 21 9"/>
+              <line x1="10" y1="14" x2="21" y2="3"/>
             </svg>Open
           </a>
           <button onclick="document.getElementById('admin-nl-preview-modal').remove()"
-                  style="background:none;border:none;cursor:pointer;color:var(--text-secondary);
-                         width:32px;height:32px;border-radius:8px;display:flex;
+                  style="background:none;border:none;cursor:pointer;
+                         color:var(--text-secondary);width:32px;height:32px;
+                         border-radius:8px;display:flex;
                          align-items:center;justify-content:center;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24"
-                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18"
+                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/>
+              <line x1="6"  y1="6" x2="18" y2="18"/>
             </svg>
           </button>
         </div>
@@ -1081,32 +1130,74 @@ class AdminDashboard {
   _showNewsletterForm(existing) {
     const isEdit = !!(existing && existing.id);
 
-    /* Remove any existing modal */
     document.getElementById('nl-form-modal')?.remove();
 
     const modal = document.createElement('div');
     modal.className = 'modal-overlay active';
-    modal.id = 'nl-form-modal';
-    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);z-index:9000;display:flex;align-items:center;justify-content:center;padding:16px;';
+    modal.id        = 'nl-form-modal';
+    modal.style.cssText = [
+      'position:fixed;inset:0;',
+      'background:rgba(0,0,0,.6);',
+      'backdrop-filter:blur(8px);',
+      'z-index:9000;',
+      'display:flex;align-items:center;justify-content:center;',
+      'padding:16px;'
+    ].join('');
 
-    const coverHtml = existing && existing.cover_image_url
+    /* ── Year dropdown options ── */
+    const currentYear  = new Date().getFullYear();
+    const selectedYear = existing?.year || currentYear;
+    const yearOptions  = [];
+    for (let y = 2019; y <= currentYear + 3; y++) {
+      yearOptions.push(
+        `<option value="${y}" ${y === selectedYear ? 'selected' : ''}>${y}</option>`
+      );
+    }
+
+    /* ── Month select options ── */
+    const monthNames = [
+      'January','February','March','April','May','June',
+      'July','August','September','October','November','December'
+    ];
+    const monthOptions = monthNames.map(m =>
+      `<option value="${m}" ${existing?.month === m ? 'selected' : ''}>${m}</option>`
+    ).join('');
+
+    /* ── Current cover preview ── */
+    const coverPreviewHtml = existing?.cover_image_url
       ? `<div style="margin-bottom:10px;">
            <img src="${this._safe(existing.cover_image_url)}" alt="Current cover"
-                style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;display:block;" />
-           <p style="font-size:.72rem;color:var(--text-muted);margin:4px 0 0;font-family:Poppins,sans-serif;">
+                style="width:100%;max-height:160px;object-fit:cover;
+                       border-radius:10px;display:block;" />
+           <p style="font-size:.72rem;color:var(--text-muted);
+                     margin:4px 0 0;font-family:Poppins,sans-serif;">
              Current cover — upload a new one to replace
            </p>
          </div>`
       : '';
 
+    /* ── publishedAt default ── */
+    const pubDateVal = existing?.published_at
+      ? existing.published_at.split('T')[0]
+      : new Date().toISOString().split('T')[0];
+
     modal.innerHTML = `
-      <div class="neu-card" style="width:100%;max-width:580px;max-height:92vh;
-                                   display:flex;flex-direction:column;border-radius:18px;overflow:hidden;">
+      <div class="neu-card" style="
+        width:100%;max-width:600px;max-height:92vh;
+        display:flex;flex-direction:column;
+        border-radius:18px;overflow:hidden;">
+
         <!-- Header -->
-        <div style="display:flex;align-items:center;gap:10px;padding:16px 20px;
-                    border-bottom:1px solid var(--border-color);flex-shrink:0;">
-          <h2 style="flex:1;font-size:1rem;font-weight:800;color:var(--text-heading);
-                     margin:0;display:flex;align-items:center;gap:8px;font-family:Poppins,sans-serif;">
+        <div style="
+          display:flex;align-items:center;gap:10px;
+          padding:16px 20px;
+          border-bottom:1px solid var(--border-color);
+          flex-shrink:0;">
+          <h2 style="
+            flex:1;font-size:1rem;font-weight:800;
+            color:var(--text-heading);margin:0;
+            display:flex;align-items:center;gap:8px;
+            font-family:Poppins,sans-serif;">
             <i data-lucide="${isEdit ? 'edit-3' : 'plus-circle'}"
                style="width:18px;height:18px;color:var(--accent);"></i>
             ${isEdit ? 'Edit' : 'Add'} Bulletin
@@ -1118,30 +1209,37 @@ class AdminDashboard {
         </div>
 
         <!-- Scrollable body -->
-        <div style="flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;">
+        <div style="
+          flex:1;overflow-y:auto;padding:20px;
+          display:flex;flex-direction:column;gap:16px;">
 
           <!-- COVER IMAGE -->
           <div class="form-group">
             <label class="form-label">
-              <i data-lucide="image" style="width:14px;height:14px;"></i> Cover Image
+              <i data-lucide="image" style="width:14px;height:14px;"></i>
+              Cover Image
             </label>
-            ${coverHtml}
+            ${coverPreviewHtml}
             <div class="file-upload-wrap neu-inset" style="cursor:pointer;"
                  onclick="document.getElementById('nl-cover-input').click()">
               <input type="file" id="nl-cover-input" name="cover_image"
                      accept="image/jpeg,image/png,image/webp,image/gif"
-                     style="display:none;" onchange="adminDashboard._onNlCoverChange(this)" />
+                     style="display:none;"
+                     onchange="adminDashboard._onNlCoverChange(this)" />
               <div class="file-upload-ui">
-                <i data-lucide="upload-cloud" style="width:22px;height:22px;color:var(--text-muted);"></i>
+                <i data-lucide="upload-cloud"
+                   style="width:22px;height:22px;color:var(--text-muted);"></i>
                 <span id="nl-cover-label"
-                      style="font-size:.8rem;color:var(--text-muted);font-family:Poppins,sans-serif;">
+                      style="font-size:.8rem;color:var(--text-muted);
+                             font-family:Poppins,sans-serif;">
                   Click to upload cover image (JPG / PNG / WebP — Max 5 MB)
                 </span>
               </div>
             </div>
             <div id="nl-cover-preview" style="display:none;margin-top:10px;">
               <img id="nl-cover-preview-img" src="" alt="Preview"
-                   style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;display:block;" />
+                   style="width:100%;max-height:160px;object-fit:cover;
+                          border-radius:10px;display:block;" />
               <button type="button" onclick="adminDashboard._clearNlCover()"
                       style="margin-top:4px;font-size:.72rem;color:var(--danger);
                              background:none;border:none;cursor:pointer;
@@ -1154,7 +1252,8 @@ class AdminDashboard {
           <!-- TITLE -->
           <div class="form-group">
             <label class="form-label">
-              <i data-lucide="type" style="width:14px;height:14px;"></i> Title *
+              <i data-lucide="type" style="width:14px;height:14px;"></i>
+              Title *
             </label>
             <div class="input-wrap neu-inset">
               <input type="text" id="nl-title" class="form-input"
@@ -1163,22 +1262,47 @@ class AdminDashboard {
             </div>
           </div>
 
-          <!-- MONTH -->
-          <div class="form-group">
-            <label class="form-label">
-              <i data-lucide="calendar" style="width:14px;height:14px;"></i> Month / Period
-            </label>
-            <div class="input-wrap neu-inset">
-              <input type="text" id="nl-month" class="form-input"
-                     placeholder="e.g. June 2025"
-                     value="${this._safe(existing?.month || '')}" />
+          <!-- MONTH + YEAR side by side -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+
+            <!-- MONTH (nullable — optional) -->
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">
+                <i data-lucide="calendar" style="width:14px;height:14px;"></i>
+                Month
+                <span style="font-size:.7rem;color:var(--text-muted);
+                             font-weight:400;margin-left:4px;">(optional)</span>
+              </label>
+              <div class="select-wrap neu-inset">
+                <select id="nl-month" class="form-select">
+                  <option value="">— None —</option>
+                  ${monthOptions}
+                </select>
+                <i data-lucide="chevron-down" class="select-arrow"></i>
+              </div>
             </div>
+
+            <!-- YEAR -->
+            <div class="form-group" style="margin:0;">
+              <label class="form-label">
+                <i data-lucide="calendar-check" style="width:14px;height:14px;"></i>
+                Year *
+              </label>
+              <div class="select-wrap neu-inset">
+                <select id="nl-year" class="form-select">
+                  ${yearOptions.join('')}
+                </select>
+                <i data-lucide="chevron-down" class="select-arrow"></i>
+              </div>
+            </div>
+
           </div>
 
           <!-- BULLETIN LINK -->
           <div class="form-group">
             <label class="form-label">
-              <i data-lucide="link" style="width:14px;height:14px;"></i> Bulletin Link
+              <i data-lucide="link" style="width:14px;height:14px;"></i>
+              Bulletin Link
             </label>
             <div class="input-wrap neu-inset">
               <input type="url" id="nl-url" class="form-input"
@@ -1190,7 +1314,8 @@ class AdminDashboard {
           <!-- DESCRIPTION -->
           <div class="form-group">
             <label class="form-label">
-              <i data-lucide="file-text" style="width:14px;height:14px;"></i> Description
+              <i data-lucide="file-text" style="width:14px;height:14px;"></i>
+              Description
             </label>
             <div class="input-wrap neu-inset">
               <textarea id="nl-desc" class="form-textarea" rows="3"
@@ -1201,20 +1326,20 @@ class AdminDashboard {
           <!-- PUBLISH DATE -->
           <div class="form-group">
             <label class="form-label">
-              <i data-lucide="calendar-check" style="width:14px;height:14px;"></i> Publish Date
+              <i data-lucide="calendar-check" style="width:14px;height:14px;"></i>
+              Publish Date
             </label>
             <div class="input-wrap neu-inset">
               <input type="date" id="nl-pubdate" class="form-input"
-                     value="${existing?.published_at
-                               ? existing.published_at.split('T')[0]
-                               : new Date().toISOString().split('T')[0]}" />
+                     value="${pubDateVal}" />
             </div>
           </div>
 
           <!-- VISIBILITY -->
           <div class="form-group">
             <label class="form-label">
-              <i data-lucide="globe" style="width:14px;height:14px;"></i> Visibility
+              <i data-lucide="globe" style="width:14px;height:14px;"></i>
+              Visibility
             </label>
             <div class="admin-toggle-wrap">
               <label class="admin-toggle">
@@ -1222,7 +1347,8 @@ class AdminDashboard {
                        ${(existing?.is_published ?? true) ? 'checked' : ''} />
                 <span class="admin-toggle-slider"></span>
               </label>
-              <span id="nl-published-label" style="font-size:.84rem;font-family:Poppins,sans-serif;">
+              <span id="nl-published-label"
+                    style="font-size:.84rem;font-family:Poppins,sans-serif;">
                 ${(existing?.is_published ?? true)
                   ? 'Published — visible on website'
                   : 'Draft — hidden from website'}
@@ -1231,24 +1357,39 @@ class AdminDashboard {
           </div>
 
           <!-- FORM MESSAGE -->
-          <div class="form-message" id="nl-form-msg"></div>
+          <div class="form-message" id="nl-form-msg" style="margin-top:4px;"></div>
+
         </div>
 
         <!-- Footer actions -->
-        <div style="display:flex;gap:10px;justify-content:flex-end;
-                    padding:14px 20px;border-top:1px solid var(--border-color);
-                    flex-shrink:0;flex-wrap:wrap;">
-          <button class="btn btn-outline" onclick="adminDashboard._closeNlForm()">Cancel</button>
+        <div style="
+          display:flex;gap:10px;justify-content:flex-end;
+          padding:14px 20px;
+          border-top:1px solid var(--border-color);
+          flex-shrink:0;flex-wrap:wrap;">
+
+          <button class="btn btn-outline" onclick="adminDashboard._closeNlForm()">
+            Cancel
+          </button>
+
           ${isEdit && existing?.pdf_url ? `
           <button class="btn btn-outline"
-                  onclick="adminDashboard._previewNewsletter('${this._safe(existing.title||'').replace(/'/g,"\\'")}','${this._safe(existing.pdf_url||'').replace(/'/g,"\\'")}')">
+                  onclick="adminDashboard._previewNewsletter(
+                    '${this._safe((existing.title || '').replace(/'/g,"\\'"))}',
+                    '${this._safe((existing.pdf_url || '').replace(/'/g,"\\'"))}'
+                  )">
             <i data-lucide="eye"></i><span>Preview</span>
           </button>` : ''}
+
           <button class="btn btn-primary" id="nl-save-btn"
-                  onclick="adminDashboard._saveNl('${isEdit ? this._safe(existing.id) : ''}','${isEdit ? this._safe(existing.cover_image_url||'') : ''}')">
+                  onclick="adminDashboard._saveNl(
+                    '${isEdit ? this._safe(existing.id) : ''}',
+                    '${isEdit ? this._safe(existing.cover_image_url || '') : ''}'
+                  )">
             <i data-lucide="${isEdit ? 'save' : 'plus-circle'}"></i>
             <span>${isEdit ? 'Save Changes' : 'Add Bulletin'}</span>
           </button>
+
         </div>
       </div>
     `;
@@ -1257,7 +1398,7 @@ class AdminDashboard {
     document.body.style.overflow = 'hidden';
     lucide.createIcons();
 
-    /* Toggle label */
+    /* Toggle label listener */
     const pubToggle = document.getElementById('nl-published');
     const pubLabel  = document.getElementById('nl-published-label');
     if (pubToggle && pubLabel) {
@@ -1268,7 +1409,7 @@ class AdminDashboard {
       });
     }
 
-    /* Close on overlay click */
+    /* Close on backdrop click */
     modal.addEventListener('click', (e) => {
       if (e.target === modal) this._closeNlForm();
     });
@@ -1302,7 +1443,7 @@ class AdminDashboard {
 
     const reader = new FileReader();
     reader.onload = (e) => {
-      if (img)     img.src = e.target.result;
+      if (img)     img.src            = e.target.result;
       if (preview) preview.style.display = 'block';
     };
     reader.readAsDataURL(file);
@@ -1313,8 +1454,8 @@ class AdminDashboard {
     const input   = document.getElementById('nl-cover-input');
     const label   = document.getElementById('nl-cover-label');
     const preview = document.getElementById('nl-cover-preview');
-    if (input)   input.value = '';
-    if (label)   label.textContent = 'Click to upload cover image (JPG / PNG / WebP — Max 5 MB)';
+    if (input)   input.value          = '';
+    if (label)   label.textContent    = 'Click to upload cover image (JPG / PNG / WebP — Max 5 MB)';
     if (preview) preview.style.display = 'none';
   }
 
@@ -1327,8 +1468,8 @@ class AdminDashboard {
         catch (e) { /* use original */ }
       }
 
-      const ext      = file.type === 'image/png' ? 'png'
-                     : file.type === 'image/gif'  ? 'gif' : 'jpg';
+      const ext = file.type === 'image/png' ? 'png'
+                : file.type === 'image/gif'  ? 'gif' : 'jpg';
       const filename = `covers/nl_${Date.now()}_${Math.random().toString(36).substr(2,6)}.${ext}`;
 
       const bucket = (typeof STORAGE_BUCKETS !== 'undefined' && STORAGE_BUCKETS.NEWSLETTERS)
@@ -1343,6 +1484,7 @@ class AdminDashboard {
 
       const { data: urlData } = this.db.storage.from(bucket).getPublicUrl(data.path);
       return urlData?.publicUrl || null;
+
     } catch (err) {
       console.error('Cover upload error:', err);
       this.showToast('Cover upload failed — saving without cover image', 'warning', 4000);
@@ -1350,89 +1492,119 @@ class AdminDashboard {
     }
   }
 
-  /* ── Save newsletter (called from button onclick with id string) ── */
+  /* ── Save newsletter ── */
   async _saveNl(existingId, existingCoverUrl) {
-    const btn   = document.getElementById('nl-save-btn');
-    const msgEl = document.getElementById('nl-form-msg');
+  const btn   = document.getElementById('nl-save-btn');
+  const msgEl = document.getElementById('nl-form-msg');
 
-    const showMsg = (msg, type) => {
-      if (msgEl) { msgEl.textContent = msg; msgEl.className = `form-message ${type}`; }
+  const showMsg = (msg, type) => {
+    if (msgEl) {
+      msgEl.textContent = msg;
+      msgEl.className   = `form-message ${type}`;
+    }
+  };
+
+  /* ── Read all form fields ── */
+  const title       = (document.getElementById('nl-title')?.value    || '').trim();
+  const month       = (document.getElementById('nl-month')?.value    || '').trim() || null;
+  const yearRaw     =  document.getElementById('nl-year')?.value     || '';
+  const pdfUrl      = (document.getElementById('nl-url')?.value      || '').trim() || null;
+  const description = (document.getElementById('nl-desc')?.value     || '').trim() || null;
+  const publishedAt =  document.getElementById('nl-pubdate')?.value  || null;
+  const isPublished =  document.getElementById('nl-published')?.checked ?? false;
+  const coverFile   =  document.getElementById('nl-cover-input')?.files?.[0] || null;
+
+  /* ── Derive year (integer) ── */
+  let year = null;
+  if (yearRaw && !isNaN(parseInt(yearRaw, 10))) {
+    year = parseInt(yearRaw, 10);
+  } else if (publishedAt) {
+    try   { year = new Date(publishedAt).getFullYear(); }
+    catch (e) { year = new Date().getFullYear(); }
+  } else {
+    year = new Date().getFullYear();
+  }
+
+  /* ── Validate ── */
+  if (!title) { showMsg('Title is required', 'error'); return; }
+
+  /* ── Saving state ── */
+  if (btn) {
+    btn.disabled  = true;
+    btn.innerHTML = '<i data-lucide="loader-2"></i><span>Saving…</span>';
+    lucide.createIcons();
+  }
+
+  try {
+    /* ── Upload cover if new file selected ── */
+    let coverImageUrl = existingCoverUrl || null;
+    if (coverFile) {
+      showMsg('Uploading cover image…', 'info');
+      const uploaded = await this._uploadNlCover(coverFile);
+      if (uploaded) coverImageUrl = uploaded;
+    }
+
+    /* ── Payload ── */
+    const payload = {
+      title,
+      month,
+      year,
+      pdf_url:         pdfUrl,
+      cover_image_url: coverImageUrl,
+      description,
+      is_published:    isPublished,
+      published_at:    publishedAt || null,
+      updated_at:      new Date().toISOString()
+      /* ✅ NO created_by here — never overwrite on UPDATE */
     };
 
-    /* Read form values via IDs (safe — no FormData needed) */
-    const title       = (document.getElementById('nl-title')?.value    || '').trim();
-    const month       = (document.getElementById('nl-month')?.value    || '').trim() || null;
-    const pdfUrl      = (document.getElementById('nl-url')?.value      || '').trim() || null;
-    const description = (document.getElementById('nl-desc')?.value     || '').trim() || null;
-    const publishedAt = document.getElementById('nl-pubdate')?.value   || new Date().toISOString().split('T')[0];
-    const isPublished = document.getElementById('nl-published')?.checked ?? true;
-    const coverFile   = document.getElementById('nl-cover-input')?.files?.[0] || null;
+    const isEdit = !!(existingId && String(existingId).trim());
+    let   dbError;
 
-    /* Validate */
-    if (!title) { showMsg('Title is required', 'error'); return; }
+    if (isEdit) {
+      /* UPDATE */
+      const { error } = await this.db
+        .from('newsletters')
+        .update(payload)
+        .eq('id', existingId.trim());
+      dbError = error;
 
+    } else {
+      /* INSERT — add created_by + created_at only on new records */
+      const { error } = await this.db
+        .from('newsletters')
+        .insert({
+          ...payload,
+          created_by: this.admin?.id || null,
+          created_at: new Date().toISOString()
+        });
+      dbError = error;
+    }
+
+    if (dbError) {
+      console.error('[Newsletter save] DB error:', dbError);
+      throw dbError;
+    }
+
+    this.showToast(`Bulletin ${isEdit ? 'updated' : 'added'} successfully!`, 'success');
+    this._closeNlForm();
+    await this._renderNewsletters(document.getElementById('admin-content'));
+
+  } catch (err) {
+    console.error('[Newsletter save] Error:', err);
+    showMsg(`Failed: ${err.message || 'Unknown error'}`, 'error');
+
+  } finally {
     if (btn) {
-      btn.disabled = true;
-      btn.innerHTML = '<i data-lucide="loader-2"></i><span>Saving…</span>';
+      btn.disabled  = false;
+      const isEdit  = !!(existingId && String(existingId).trim());
+      btn.innerHTML = isEdit
+        ? '<i data-lucide="save"></i><span>Save Changes</span>'
+        : '<i data-lucide="plus-circle"></i><span>Add Bulletin</span>';
       lucide.createIcons();
     }
-
-    try {
-      /* Upload cover if new file selected */
-      let coverImageUrl = existingCoverUrl || null;
-      if (coverFile) {
-        showMsg('Uploading cover image…', 'info');
-        const uploaded = await this._uploadNlCover(coverFile);
-        if (uploaded) coverImageUrl = uploaded;
-      }
-
-      const payload = {
-        title,
-        month,
-        pdf_url:         pdfUrl,
-        cover_image_url: coverImageUrl,
-        description,
-        published_at:    publishedAt,
-        is_published:    isPublished,
-        created_by:      this.admin.id,
-        updated_at:      new Date().toISOString()
-      };
-
-      let dbError;
-      const isEdit = !!(existingId && existingId.trim());
-
-      if (isEdit) {
-        const { error } = await this.db
-          .from('newsletters').update(payload).eq('id', existingId.trim());
-        dbError = error;
-      } else {
-        const { error } = await this.db
-          .from('newsletters').insert({ ...payload, created_at: new Date().toISOString() });
-        dbError = error;
-      }
-
-      if (dbError) throw dbError;
-
-      this.showToast(`Bulletin ${isEdit ? 'updated' : 'added'} successfully!`, 'success');
-      this._closeNlForm();
-
-      /* Refresh list */
-      await this._renderNewsletters(document.getElementById('admin-content'));
-
-    } catch (err) {
-      console.error('Save newsletter error:', err);
-      showMsg(`Failed: ${err.message || 'Unknown error'}`, 'error');
-    } finally {
-      if (btn) {
-        btn.disabled = false;
-        const isEdit = !!(existingId && existingId.trim());
-        btn.innerHTML = isEdit
-          ? '<i data-lucide="save"></i><span>Save Changes</span>'
-          : '<i data-lucide="plus-circle"></i><span>Add Bulletin</span>';
-        lucide.createIcons();
-      }
-    }
   }
+}
 
   /* ============================================================
      SETTINGS
