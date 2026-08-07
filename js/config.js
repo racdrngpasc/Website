@@ -103,202 +103,292 @@ const CLUB_INFO = {
    ROLE DEFINITIONS
    ============================================================ */
 const ROLES = {
-  SUPER_ADMIN: 'super_admin',
-  ADVISOR: 'advisor',
-  PRESIDENT: 'president',
-  IMMEDIATE_PAST_PRESIDENT: 'immediate_past_president',
-  VICE_PRESIDENT: 'vice_president',
-  SECRETARY_ADMINISTRATION: 'secretary_administration',
-  SECRETARY_COMMUNICATION: 'secretary_communication',
-  TREASURER: 'treasurer',
-  DISTRICT_PRIORITY_CHAIR: 'district_priority_chair',
-  BLOOD_DONATION_CHAIR: 'blood_donation_chair',
-  CLUB_EDITOR: 'club_editor',
-  YOUNG_LEADERS_CONTACT: 'young_leaders_contact',
-  PUBLIC_IMAGE_CHAIR: 'public_image_chair',
-  MEMBERSHIP_CHAIR: 'membership_chair',
-  AVENUE_DIRECTOR_CLUB_SERVICE: 'avenue_director_club_service',
-  AVENUE_DIRECTOR_COMMUNITY_SERVICE: 'avenue_director_community_service',
+  SUPER_ADMIN:                          'super_admin',
+  ADVISOR:                              'advisor',
+  PRESIDENT:                            'president',
+  IMMEDIATE_PAST_PRESIDENT:             'immediate_past_president',
+  VICE_PRESIDENT:                       'vice_president',
+  SECRETARY_ADMINISTRATION:             'secretary_administration',
+  SECRETARY_COMMUNICATION:              'secretary_communication',
+  TREASURER:                            'treasurer',
+  ROTARY_FOUNDATION_CHAIR:              'rotary_foundation_chair',   // NEW
+  ALL_AVENUE_CHAIR:                     'all_avenue_chair',          // NEW
+  DISTRICT_PRIORITY_CHAIR:              'district_priority_chair',
+  BLOOD_DONATION_CHAIR:                 'blood_donation_chair',
+  CLUB_EDITOR:                          'club_editor',
+  YOUNG_LEADERS_CONTACT:                'young_leaders_contact',
+  PUBLIC_IMAGE_CHAIR:                   'public_image_chair',
+  MEMBERSHIP_CHAIR:                     'membership_chair',
+  AVENUE_DIRECTOR_CLUB_SERVICE:         'avenue_director_club_service',
+  AVENUE_DIRECTOR_COMMUNITY_SERVICE:    'avenue_director_community_service',
   AVENUE_DIRECTOR_PROFESSIONAL_SERVICE: 'avenue_director_professional_service',
-  AVENUE_DIRECTOR_INTERNATIONAL_SERVICE: 'avenue_director_international_service',
-  SERGEANT_AT_ARMS: 'sergeant_at_arms',
-  MEMBER: 'member'
+  AVENUE_DIRECTOR_INTERNATIONAL_SERVICE:'avenue_director_international_service',
+  SERGEANT_AT_ARMS:                     'sergeant_at_arms',
+  MEMBER:                               'member'
 };
 
 /* ============================================================
    ROLE DISPLAY NAMES
    ============================================================ */
 const ROLE_DISPLAY_NAMES = {
-  super_admin: 'Super Administrator',
-  advisor: 'Advisor',
-  president: 'President',
-  immediate_past_president: 'Immediate Past President',
-  vice_president: 'Vice President',
-  secretary_administration: 'Secretary Administration',
-  secretary_communication: 'Secretary Communication',
-  treasurer: 'Treasurer',
-  district_priority_chair: 'District Priority Projects Chair',
-  blood_donation_chair: 'Blood Donation Chair',
-  club_editor: 'Club Editor',
-  young_leaders_contact: 'Young Leaders Contact',
-  public_image_chair: 'Public Image Chair',
-  membership_chair: 'Membership Chair',
-  avenue_director_club_service: 'Avenue Director - Club Service',
-  avenue_director_community_service: 'Avenue Director - Community Service',
+  super_admin:                          'Super Administrator',
+  advisor:                              'Advisor',
+  president:                            'President',
+  immediate_past_president:             'Immediate Past President',
+  vice_president:                       'Vice President',
+  secretary_administration:             'Secretary Administration',
+  secretary_communication:              'Secretary Communication',
+  treasurer:                            'Treasurer',
+  rotary_foundation_chair:              'The Rotary Foundation Chair',  // NEW
+  all_avenue_chair:                     'All Avenue Chair',             // NEW
+  district_priority_chair:              'District Priority Projects Chair',
+  blood_donation_chair:                 'Blood Donation Chair',
+  club_editor:                          'Club Editor',
+  young_leaders_contact:                'Young Leaders Contact',
+  public_image_chair:                   'Public Image Chair',
+  membership_chair:                     'Membership Chair',
+  avenue_director_club_service:         'Avenue Director - Club Service',
+  avenue_director_community_service:    'Avenue Director - Community Service',
   avenue_director_professional_service: 'Avenue Director - Professional Service',
-  avenue_director_international_service: 'Avenue Director - International Service',
-  sergeant_at_arms: 'Sergeant at Arms',
-  member: 'Member'
+  avenue_director_international_service:'Avenue Director - International Service',
+  sergeant_at_arms:                     'Sergeant at Arms',
+  member:                               'Member'
 };
 
 /* ============================================================
    ROLE HIERARCHY
+   Treasurer = 65  →  RFC just below at 62 (not dominant)
+   All Avenue Chair = 55 (above individual avenue dirs at 50,
+                          below RFC/Treasurer)
    ============================================================ */
 const ROLE_HIERARCHY = {
-  super_admin: 100,
-  advisor: 95,
-  president: 90,
-  immediate_past_president: 85,
-  vice_president: 80,
-  secretary_administration: 75,
-  secretary_communication: 74,
-  treasurer: 65,
-  district_priority_chair: 60,
-  blood_donation_chair: 55,
-  club_editor: 55,
-  young_leaders_contact: 55,
-  public_image_chair: 55,
-  membership_chair: 55,
-  avenue_director_club_service: 50,
-  avenue_director_community_service: 50,
+  super_admin:                          100,
+  advisor:                              95,
+  president:                            90,
+  immediate_past_president:             85,
+  vice_president:                       80,
+  secretary_administration:             75,
+  secretary_communication:              74,
+  treasurer:                            65,
+  rotary_foundation_chair:              62,  // NEW — just below Treasurer
+  all_avenue_chair:                     55,  // NEW — above avenue directors
+  district_priority_chair:              60,
+  blood_donation_chair:                 55,
+  club_editor:                          55,
+  young_leaders_contact:                55,
+  public_image_chair:                   55,
+  membership_chair:                     55,
+  avenue_director_club_service:         50,
+  avenue_director_community_service:    50,
   avenue_director_professional_service: 50,
-  avenue_director_international_service: 50,
-  sergeant_at_arms: 45,
-  member: 10
+  avenue_director_international_service:50,
+  sergeant_at_arms:                     45,
+  member:                               10
 };
 
 /* ============================================================
    PERMISSIONS
    ============================================================ */
 const PERMISSIONS = {
-  MANAGE_ADMINS: ['super_admin'],
-  MANAGE_SETTINGS: ['super_admin', 'advisor'],
+
+  /* ── Admin management ──────────────────────────────────── */
+  MANAGE_ADMINS: [
+    'super_admin'
+  ],
+
+  /* ── Site settings ─────────────────────────────────────── */
+  MANAGE_SETTINGS: [
+    'super_admin',
+    'advisor'
+  ],
+
+  /* ── Admin panel access ────────────────────────────────── */
   VIEW_ADMIN_PANEL: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication',
-    'treasurer', 'district_priority_chair', 'blood_donation_chair',
+    'treasurer',
+    'rotary_foundation_chair',              // NEW
+    'all_avenue_chair',                     // NEW
+    'district_priority_chair', 'blood_donation_chair',
     'club_editor', 'young_leaders_contact', 'public_image_chair',
     'membership_chair', 'avenue_director_club_service',
     'avenue_director_community_service', 'avenue_director_professional_service',
     'avenue_director_international_service', 'sergeant_at_arms'
   ],
+
+  /* ── Events ────────────────────────────────────────────── */
   CREATE_EVENT: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication',
+    'all_avenue_chair',                     // NEW — can create across all avenues
     'avenue_director_club_service', 'avenue_director_community_service',
     'avenue_director_professional_service', 'avenue_director_international_service',
     'district_priority_chair'
   ],
+
   APPROVE_EVENT: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
-    'vice_president', 'secretary_administration', 'secretary_communication'
+    'vice_president', 'secretary_administration', 'secretary_communication',
+    'all_avenue_chair'                      // NEW — can approve across all avenues
   ],
+
   EDIT_ANY_EVENT: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
-    'vice_president', 'secretary_administration', 'secretary_communication'
+    'vice_president', 'secretary_administration', 'secretary_communication',
+    'all_avenue_chair'                      // NEW
   ],
+
   DELETE_EVENT: [
     'super_admin', 'advisor', 'president', 'immediate_past_president'
   ],
+
+  /* ── Reports ───────────────────────────────────────────── */
   SUBMIT_REPORT: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication',
+    'rotary_foundation_chair',              // NEW
+    'all_avenue_chair',                     // NEW
     'avenue_director_club_service', 'avenue_director_community_service',
     'avenue_director_professional_service', 'avenue_director_international_service',
     'district_priority_chair'
   ],
+
   APPROVE_REPORT: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
-    'vice_president', 'secretary_administration', 'secretary_communication'
+    'vice_president', 'secretary_administration', 'secretary_communication',
+    'all_avenue_chair'                      // NEW
   ],
+
   DOWNLOAD_AVENUE_REPORT: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication',
+    'rotary_foundation_chair',              // NEW
+    'all_avenue_chair',                     // NEW
     'avenue_director_club_service', 'avenue_director_community_service',
     'avenue_director_professional_service', 'avenue_director_international_service',
     'district_priority_chair'
   ],
+
   DOWNLOAD_MONTHLY_REPORT: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
-    'vice_president', 'secretary_administration', 'secretary_communication'
+    'vice_president', 'secretary_administration', 'secretary_communication',
+    'rotary_foundation_chair',              // NEW — same read access as treasurer
+    'all_avenue_chair'                      // NEW
   ],
+
+  /* ── Meetings ──────────────────────────────────────────── */
   CREATE_MEETING: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication',
+    'all_avenue_chair',                     // NEW
     'sergeant_at_arms'
   ],
+
   MANAGE_MEETING: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
-    'vice_president', 'secretary_administration', 'secretary_communication'
+    'vice_president', 'secretary_administration', 'secretary_communication',
+    'all_avenue_chair'                      // NEW
   ],
+
   VIEW_MEETING_ATTENDANCE: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
-    'vice_president', 'secretary_administration', 'secretary_communication'
+    'vice_president', 'secretary_administration', 'secretary_communication',
+    'rotary_foundation_chair',              // NEW
+    'all_avenue_chair'                      // NEW
   ],
+
   GENERATE_MINUTES: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication',
     'sergeant_at_arms'
   ],
+
+  /* ── Treasury ──────────────────────────────────────────── */
   VIEW_TREASURY: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication',
-    'treasurer'
+    'treasurer',
+    'rotary_foundation_chair'               // NEW — can VIEW (same as treasurer)
+    // all_avenue_chair: intentionally NOT included (no treasury access)
   ],
+
   MANAGE_TREASURY: [
-    'super_admin', 'advisor', 'president', 'treasurer'
+    'super_admin', 'advisor', 'president',
+    'treasurer'
+    // rotary_foundation_chair: intentionally NOT included (not dominant)
   ],
+
   DOWNLOAD_TREASURY: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
-    'treasurer', 'secretary_administration', 'secretary_communication'
+    'treasurer', 'secretary_administration', 'secretary_communication',
+    'rotary_foundation_chair'               // NEW — can download statements
   ],
+
+  /* ── Members ───────────────────────────────────────────── */
   VIEW_MEMBERS: 'all',
+
   MANAGE_MEMBERS: [
     'super_admin', 'advisor', 'president', 'secretary_administration',
     'membership_chair'
   ],
+
   VIEW_MEMBER_DETAILS: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication',
+    'rotary_foundation_chair',              // NEW
+    'all_avenue_chair',                     // NEW
     'membership_chair'
   ],
+
+  /* ── Newsletters / Bulletins ───────────────────────────── */
   MANAGE_NEWSLETTERS: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication',
+    'rotary_foundation_chair',              // NEW
+    'all_avenue_chair',                     // NEW
     'club_editor', 'public_image_chair'
   ],
+
+  /* ── Applications ──────────────────────────────────────── */
   REVIEW_APPLICATIONS: [
     'super_admin', 'advisor', 'president', 'secretary_administration',
     'membership_chair'
   ],
+
+  /* ── Blood Requests ────────────────────────────────────── */
   MANAGE_BLOOD_REQUESTS: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication',
+    'rotary_foundation_chair',              // NEW
+    'all_avenue_chair',                     // NEW
     'blood_donation_chair'
   ],
+
+  /* ── Past Leaders ──────────────────────────────────────── */
   MANAGE_PAST_LEADERS: [
     'super_admin', 'advisor', 'president', 'secretary_administration'
   ],
+
+  /* ── Notifications ─────────────────────────────────────── */
   SEND_NOTIFICATIONS: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
-    'vice_president', 'secretary_administration', 'secretary_communication'
+    'vice_president', 'secretary_administration', 'secretary_communication',
+    'all_avenue_chair'                      // NEW
   ],
+
+  /* ── Bulk Email ────────────────────────────────────────── */
   SEND_BULK_EMAIL: [
     'super_admin', 'advisor', 'president', 'immediate_past_president',
     'vice_president', 'secretary_administration', 'secretary_communication'
   ],
+
+  /* ── Games ─────────────────────────────────────────────── */
   ACCESS_GAMES: 'all',
-  VIEW_LOGS: ['super_admin', 'advisor', 'president']
+
+  /* ── Logs ──────────────────────────────────────────────── */
+  VIEW_LOGS: [
+    'super_admin', 'advisor', 'president'
+  ]
 };
 
 /* ============================================================
@@ -356,11 +446,13 @@ const AVENUES = {
    ROLE TO AVENUE MAP
    ============================================================ */
 const ROLE_TO_AVENUE = {
-  avenue_director_club_service: 'club_service',
-  avenue_director_community_service: 'community_service',
-  avenue_director_professional_service: 'professional_service',
+  avenue_director_club_service:          'club_service',
+  avenue_director_community_service:     'community_service',
+  avenue_director_professional_service:  'professional_service',
   avenue_director_international_service: 'international_service',
-  district_priority_chair: 'district_priority_projects'
+  district_priority_chair:               'district_priority_projects'
+  // all_avenue_chair → handled separately in PermissionChecker (all avenues)
+  // rotary_foundation_chair → handled separately (all avenues, read-only context)
 };
 
 /* ============================================================
@@ -439,12 +531,12 @@ const MEETING_TYPES = {
    EVENT STATUS
    ============================================================ */
 const EVENT_STATUS = {
-  draft: { label: 'Draft', color: '#718096', bg: 'rgba(113,128,150,0.15)' },
-  pending_approval: { label: 'Pending Approval', color: '#D69E2E', bg: 'rgba(214,158,46,0.15)' },
-  approved: { label: 'Approved', color: '#38A169', bg: 'rgba(56,161,105,0.15)' },
-  rejected: { label: 'Rejected', color: '#E53E3E', bg: 'rgba(229,62,62,0.15)' },
-  completed: { label: 'Completed', color: '#0055FF', bg: 'rgba(0,85,255,0.12)' },
-  cancelled: { label: 'Cancelled', color: '#FC8181', bg: 'rgba(252,129,129,0.15)' }
+  draft:           { label: 'Draft',           color: '#718096', bg: 'rgba(113,128,150,0.15)' },
+  pending_approval:{ label: 'Pending Approval', color: '#D69E2E', bg: 'rgba(214,158,46,0.15)'  },
+  approved:        { label: 'Approved',         color: '#38A169', bg: 'rgba(56,161,105,0.15)'  },
+  rejected:        { label: 'Rejected',         color: '#E53E3E', bg: 'rgba(229,62,62,0.15)'   },
+  completed:       { label: 'Completed',        color: '#0055FF', bg: 'rgba(0,85,255,0.12)'    },
+  cancelled:       { label: 'Cancelled',        color: '#FC8181', bg: 'rgba(252,129,129,0.15)' }
 };
 
 /* ============================================================
@@ -487,39 +579,39 @@ const ROTARY_YEARS = [
    GAMES CONFIG
    ============================================================ */
 const GAMES_CONFIG = [
-  { id: 'snake', name: 'Snake Game', description: 'Classic snake — eat food, grow longer!', icon: 'zap', category: 'classic', difficulty: 'Medium' },
-  { id: 'memory', name: 'Memory Match', description: 'Match pairs of Rotaract-themed cards!', icon: 'brain', category: 'puzzle', difficulty: 'Easy' },
-  { id: 'tetris', name: 'Block Builder', description: 'Stack and clear blocks!', icon: 'layers', category: 'classic', difficulty: 'Hard' },
-  { id: 'quiz', name: 'Rotaract Quiz', description: 'Test your Rotary & Rotaract knowledge!', icon: 'help-circle', category: 'educational', difficulty: 'Medium' },
-  { id: 'flappy', name: 'Flappy Rotaract', description: 'Fly through obstacles!', icon: 'navigation', category: 'action', difficulty: 'Hard' },
-  { id: 'wordle', name: 'Rotaract Wordle', description: 'Guess the Rotary-themed word!', icon: 'type', category: 'word', difficulty: 'Medium' },
-  { id: 'pong', name: 'Ping Pong', description: 'Classic two-player pong!', icon: 'circle', category: 'classic', difficulty: 'Easy' },
-  { id: '2048', name: '2048 Challenge', description: 'Merge tiles to reach 2048!', icon: 'grid', category: 'puzzle', difficulty: 'Hard' },
-  { id: 'tictactoe', name: 'Tic Tac Toe', description: 'Classic three in a row!', icon: 'hash', category: 'classic', difficulty: 'Easy' },
-  { id: 'typing', name: 'Speed Typing', description: 'Type Rotaract quotes fast!', icon: 'keyboard', category: 'skill', difficulty: 'Medium' },
-  { id: 'minesweeper', name: 'Minesweeper', description: 'Find all mines safely!', icon: 'crosshair', category: 'puzzle', difficulty: 'Hard' },
-  { id: 'breakout', name: 'Breakout', description: 'Break all bricks with the ball!', icon: 'disc', category: 'action', difficulty: 'Medium' }
+  { id: 'snake',       name: 'Snake Game',        description: 'Classic snake — eat food, grow longer!',        icon: 'zap',         category: 'classic',     difficulty: 'Medium' },
+  { id: 'memory',      name: 'Memory Match',       description: 'Match pairs of Rotaract-themed cards!',         icon: 'brain',       category: 'puzzle',      difficulty: 'Easy'   },
+  { id: 'tetris',      name: 'Block Builder',      description: 'Stack and clear blocks!',                       icon: 'layers',      category: 'classic',     difficulty: 'Hard'   },
+  { id: 'quiz',        name: 'Rotaract Quiz',       description: 'Test your Rotary & Rotaract knowledge!',        icon: 'help-circle', category: 'educational', difficulty: 'Medium' },
+  { id: 'flappy',      name: 'Flappy Rotaract',    description: 'Fly through obstacles!',                        icon: 'navigation',  category: 'action',      difficulty: 'Hard'   },
+  { id: 'wordle',      name: 'Rotaract Wordle',    description: 'Guess the Rotary-themed word!',                 icon: 'type',        category: 'word',        difficulty: 'Medium' },
+  { id: 'pong',        name: 'Ping Pong',          description: 'Classic two-player pong!',                      icon: 'circle',      category: 'classic',     difficulty: 'Easy'   },
+  { id: '2048',        name: '2048 Challenge',     description: 'Merge tiles to reach 2048!',                    icon: 'grid',        category: 'puzzle',      difficulty: 'Hard'   },
+  { id: 'tictactoe',   name: 'Tic Tac Toe',        description: 'Classic three in a row!',                       icon: 'hash',        category: 'classic',     difficulty: 'Easy'   },
+  { id: 'typing',      name: 'Speed Typing',       description: 'Type Rotaract quotes fast!',                    icon: 'keyboard',    category: 'skill',       difficulty: 'Medium' },
+  { id: 'minesweeper', name: 'Minesweeper',        description: 'Find all mines safely!',                        icon: 'crosshair',   category: 'puzzle',      difficulty: 'Hard'   },
+  { id: 'breakout',    name: 'Breakout',           description: 'Break all bricks with the ball!',               icon: 'disc',        category: 'action',      difficulty: 'Medium' }
 ];
 
 /* ============================================================
    QUIZ QUESTIONS
    ============================================================ */
 const QUIZ_QUESTIONS = [
-  { question: 'When was Rotaract founded?', options: ['1968', '1985', '1905', '1950'], answer: 0, explanation: 'Rotaract was founded in 1968 in Charlotte, North Carolina, USA.' },
-  { question: 'What is the age range for Rotaract membership?', options: ['18-30', '16-25', '18-35', '21-35'], answer: 0, explanation: 'Rotaract is open to young adults between 18 and 30 years of age.' },
-  { question: 'What is the motto of Rotary International?', options: ['Service Above Self', 'Together We Serve', 'One Rotary', 'Give to Live'], answer: 0, explanation: 'The Rotary motto is "Service Above Self".' },
-  { question: 'When was Rotary International founded?', options: ['1905', '1910', '1915', '1900'], answer: 0, explanation: 'Rotary International was founded on 23 February 1905 by Paul P. Harris in Chicago.' },
-  { question: 'What does "End Polio Now" refer to?', options: ["Rotary's global campaign to eradicate polio", 'A health awareness day', 'A medical conference', 'A government initiative'], answer: 0, explanation: "End Polio Now is Rotary's decades-long global campaign to eradicate poliomyelitis worldwide." },
-  { question: 'What is Rotary International District 3206?', options: ['Coimbatore and Pallakkad region', 'Chennai and Pondicherry region', 'Mumbai and Pune region', 'Bangalore and Mysore region'], answer: 0, explanation: 'RI District 3206 covers the Coimbatore and Pallakkad regions.' },
-  { question: 'What is the club ID of Rotaract Club of Dr. N.G.P Arts & Science College?', options: ['217835', '218735', '217385', '218375'], answer: 0, explanation: 'The club ID is 217835.' },
-  { question: 'What are the avenues of service in Rotaract?', options: ['Club, Community, Professional, International Service', 'Local, Regional, National, International Service', 'Health, Education, Environment, Peace Service', 'Youth, Adult, Senior, Community Service'], answer: 0, explanation: 'The four main avenues of service are Club Service, Community Service, Professional Service, and International Service.' },
-  { question: 'What is the Rotary Foundation?', options: ['The charitable arm of Rotary International', 'The youth wing of Rotary', "The women's division of Rotary", 'The financial department of Rotary'], answer: 0, explanation: 'The Rotary Foundation is the charitable arm of Rotary International that funds programs and scholarships.' },
-  { question: 'What is a Paul Harris Fellow?', options: ['A recognition for significant contributions to Rotary Foundation', 'A Rotary club president', 'A Rotaract member who completes all projects', 'A district governor title'], answer: 0, explanation: 'Paul Harris Fellow is a recognition given to individuals who contribute $1,000 or more to The Rotary Foundation.' },
-  { question: 'What does RYLA stand for?', options: ['Rotary Youth Leadership Awards', 'Rotaract Young Leaders Association', 'Rotary Youth Learning Academy', 'Regional Youth Leadership Assembly'], answer: 0, explanation: 'RYLA stands for Rotary Youth Leadership Awards, a leadership development program.' },
-  { question: 'What is the Four-Way Test of Rotary?', options: ['Truth, Fairness, Goodwill, Beneficial to all', 'Service, Fellowship, Leadership, Ethics', 'Integrity, Trust, Service, Community', 'Peace, Health, Education, Environment'], answer: 0, explanation: 'The Four-Way Test asks: Is it the Truth? Is it Fair? Will it build Goodwill? Will it be Beneficial to all?' },
-  { question: 'What is the charter date of Rotaract Club of Dr. N.G.P Arts & Science College?', options: ['11.02.2020', '11.02.2019', '11.02.2021', '02.11.2020'], answer: 0, explanation: 'The club was chartered on 11th February 2020.' },
+  { question: 'When was Rotaract founded?',                                           options: ['1968', '1985', '1905', '1950'],                                                                          answer: 0, explanation: 'Rotaract was founded in 1968 in Charlotte, North Carolina, USA.' },
+  { question: 'What is the age range for Rotaract membership?',                       options: ['18-30', '16-25', '18-35', '21-35'],                                                                      answer: 0, explanation: 'Rotaract is open to young adults between 18 and 30 years of age.' },
+  { question: 'What is the motto of Rotary International?',                           options: ['Service Above Self', 'Together We Serve', 'One Rotary', 'Give to Live'],                                 answer: 0, explanation: 'The Rotary motto is "Service Above Self".' },
+  { question: 'When was Rotary International founded?',                               options: ['1905', '1910', '1915', '1900'],                                                                          answer: 0, explanation: 'Rotary International was founded on 23 February 1905 by Paul P. Harris in Chicago.' },
+  { question: 'What does "End Polio Now" refer to?',                                  options: ["Rotary's global campaign to eradicate polio", 'A health awareness day', 'A medical conference', 'A government initiative'], answer: 0, explanation: "End Polio Now is Rotary's decades-long global campaign to eradicate poliomyelitis worldwide." },
+  { question: 'What is Rotary International District 3206?',                          options: ['Coimbatore and Pallakkad region', 'Chennai and Pondicherry region', 'Mumbai and Pune region', 'Bangalore and Mysore region'], answer: 0, explanation: 'RI District 3206 covers the Coimbatore and Pallakkad regions.' },
+  { question: 'What is the club ID of Rotaract Club of Dr. N.G.P Arts & Science College?', options: ['217835', '218735', '217385', '218375'],                                                            answer: 0, explanation: 'The club ID is 217835.' },
+  { question: 'What are the avenues of service in Rotaract?',                         options: ['Club, Community, Professional, International Service', 'Local, Regional, National, International Service', 'Health, Education, Environment, Peace Service', 'Youth, Adult, Senior, Community Service'], answer: 0, explanation: 'The four main avenues of service are Club Service, Community Service, Professional Service, and International Service.' },
+  { question: 'What is the Rotary Foundation?',                                       options: ['The charitable arm of Rotary International', 'The youth wing of Rotary', "The women's division of Rotary", 'The financial department of Rotary'], answer: 0, explanation: 'The Rotary Foundation is the charitable arm of Rotary International that funds programs and scholarships.' },
+  { question: 'What is a Paul Harris Fellow?',                                        options: ['A recognition for significant contributions to Rotary Foundation', 'A Rotary club president', 'A Rotaract member who completes all projects', 'A district governor title'], answer: 0, explanation: 'Paul Harris Fellow is a recognition given to individuals who contribute $1,000 or more to The Rotary Foundation.' },
+  { question: 'What does RYLA stand for?',                                            options: ['Rotary Youth Leadership Awards', 'Rotaract Young Leaders Association', 'Rotary Youth Learning Academy', 'Regional Youth Leadership Assembly'], answer: 0, explanation: 'RYLA stands for Rotary Youth Leadership Awards, a leadership development program.' },
+  { question: 'What is the Four-Way Test of Rotary?',                                 options: ['Truth, Fairness, Goodwill, Beneficial to all', 'Service, Fellowship, Leadership, Ethics', 'Integrity, Trust, Service, Community', 'Peace, Health, Education, Environment'], answer: 0, explanation: 'The Four-Way Test asks: Is it the Truth? Is it Fair? Will it build Goodwill? Will it be Beneficial to all?' },
+  { question: 'What is the charter date of Rotaract Club of Dr. N.G.P Arts & Science College?', options: ['11.02.2020', '11.02.2019', '11.02.2021', '02.11.2020'],                                      answer: 0, explanation: 'The club was chartered on 11th February 2020.' },
   { question: 'Which club parents Rotaract Club of Dr. N.G.P Arts & Science College?', options: ['Rotary Club of Coimbatore Meridian', 'Rotary Club of Coimbatore', 'Rotary Club of Coimbatore Central', 'Rotary Club of Coimbatore North'], answer: 0, explanation: 'The club is parented by the Rotary Club of Coimbatore Meridian.' },
-  { question: 'What is RSAMDIO?', options: ['Rotaract and Interact Multi District Interactive Organisation', 'Rotary Senior Advisory and Management District International Office', 'Rotaract Special Activities and Member Development International Organisation', 'Regional Students Association for Member Development and International Outreach'], answer: 0, explanation: 'RSAMDIO stands for Rotaract and Interact Multi District Interactive Organisation.' }
+  { question: 'What is RSAMDIO?',                                                     options: ['Rotaract and Interact Multi District Interactive Organisation', 'Rotary Senior Advisory and Management District International Office', 'Rotaract Special Activities and Member Development International Organisation', 'Regional Students Association for Member Development and International Outreach'], answer: 0, explanation: 'RSAMDIO stands for Rotaract and Interact Multi District Interactive Organisation.' }
 ];
 
 /* ============================================================
@@ -542,17 +634,17 @@ const TYPING_QUOTES = [
    NOTIFICATION TYPES
    ============================================================ */
 const NOTIFICATION_TYPES = {
-  EVENT_APPROVED: 'event_approved',
-  EVENT_CREATED: 'event_created',
-  REPORT_SUBMITTED: 'report_submitted',
-  REPORT_APPROVED: 'report_approved',
-  MEETING_SCHEDULED: 'meeting_scheduled',
+  EVENT_APPROVED:        'event_approved',
+  EVENT_CREATED:         'event_created',
+  REPORT_SUBMITTED:      'report_submitted',
+  REPORT_APPROVED:       'report_approved',
+  MEETING_SCHEDULED:     'meeting_scheduled',
   MEETING_MINUTES_READY: 'meeting_minutes_ready',
-  BIRTHDAY_WISH: 'birthday_wish',
-  BLOOD_REQUEST: 'blood_request',
-  MEMBERSHIP_APPLICATION: 'membership_application',
-  MONTHLY_STATEMENT: 'monthly_statement',
-  SYSTEM: 'system'
+  BIRTHDAY_WISH:         'birthday_wish',
+  BLOOD_REQUEST:         'blood_request',
+  MEMBERSHIP_APPLICATION:'membership_application',
+  MONTHLY_STATEMENT:     'monthly_statement',
+  SYSTEM:                'system'
 };
 
 /* ============================================================
@@ -564,9 +656,9 @@ const DateUtils = {
     const d = new Date(date);
     if (isNaN(d.getTime())) return '';
     const options = {
-      long: { day: 'numeric', month: 'long', year: 'numeric' },
-      short: { day: '2-digit', month: 'short', year: 'numeric' },
-      numeric: { day: '2-digit', month: '2-digit', year: 'numeric' }
+      long:    { day: 'numeric',  month: 'long',  year: 'numeric' },
+      short:   { day: '2-digit',  month: 'short', year: 'numeric' },
+      numeric: { day: '2-digit',  month: '2-digit', year: 'numeric' }
     };
     return d.toLocaleDateString('en-IN', options[format] || options.long);
   },
@@ -586,7 +678,7 @@ const DateUtils = {
 
   daysUntil(date) {
     if (!date) return 0;
-    const now = new Date();
+    const now    = new Date();
     const target = new Date(date);
     now.setHours(0, 0, 0, 0);
     target.setHours(0, 0, 0, 0);
@@ -596,13 +688,13 @@ const DateUtils = {
   isToday(date) {
     if (!date) return false;
     const today = new Date();
-    const d = new Date(date);
+    const d     = new Date(date);
     return d.toDateString() === today.toDateString();
   },
 
   getCurrentRotaryYear() {
-    const now = new Date();
-    const year = now.getFullYear();
+    const now   = new Date();
+    const year  = now.getFullYear();
     const month = now.getMonth() + 1;
     if (month >= 7) {
       return `${year}-${String(year + 1).slice(2)}`;
@@ -613,8 +705,8 @@ const DateUtils = {
 
   getMonthName(month) {
     const months = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January','February','March','April','May','June',
+      'July','August','September','October','November','December'
     ];
     return months[(month - 1)] || '';
   },
@@ -634,7 +726,7 @@ const DateUtils = {
     if (!event) return '';
     try {
       const startDate = new Date(`${event.event_date}T${event.start_time}`);
-      const endDate = event.end_time
+      const endDate   = event.end_time
         ? new Date(`${event.event_date}T${event.end_time}`)
         : new Date(startDate.getTime() + 2 * 60 * 60 * 1000);
 
@@ -648,9 +740,9 @@ const DateUtils = {
         'BEGIN:VEVENT',
         `DTSTART:${formatICSDate(startDate)}`,
         `DTEND:${formatICSDate(endDate)}`,
-        `SUMMARY:${(event.title || '').replace(/,/g, '\\,')}`,
+        `SUMMARY:${(event.title       || '').replace(/,/g, '\\,')}`,
         `DESCRIPTION:${(event.description || '').replace(/\n/g, '\\n').replace(/,/g, '\\,')}`,
-        `LOCATION:${(event.venue || '').replace(/,/g, '\\,')}`,
+        `LOCATION:${(event.venue      || '').replace(/,/g, '\\,')}`,
         'ORGANIZER:mailto:rac.drngpasc@gmail.com',
         'END:VEVENT',
         'END:VCALENDAR'
@@ -684,7 +776,7 @@ const StringUtils = {
 
   sanitize(str) {
     if (str === null || str === undefined) return '';
-    const s = String(str);
+    const s   = String(str);
     const div = document.createElement('div');
     div.appendChild(document.createTextNode(s));
     return div.innerHTML;
@@ -697,8 +789,8 @@ const StringUtils = {
   formatCurrency(amount) {
     const num = parseFloat(amount) || 0;
     return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
+      style:                 'currency',
+      currency:              'INR',
       minimumFractionDigits: 2
     }).format(num);
   },
@@ -706,7 +798,7 @@ const StringUtils = {
   formatFileSize(bytes) {
     if (!bytes) return '0 B';
     const sizes = ['B', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(1024));
+    const i     = Math.floor(Math.log(bytes) / Math.log(1024));
     return `${(bytes / Math.pow(1024, i)).toFixed(1)} ${sizes[i]}`;
   }
 };
@@ -731,7 +823,7 @@ const Validate = {
 
   futureDate(dateStr) {
     if (!dateStr) return false;
-    const date = new Date(dateStr);
+    const date  = new Date(dateStr);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     return date >= today;
@@ -755,7 +847,7 @@ const Storage = {
     const item = {
       value,
       timestamp: Date.now(),
-      expiry: expiryMs ? Date.now() + expiryMs : null
+      expiry:    expiryMs ? Date.now() + expiryMs : null
     };
     try {
       localStorage.setItem(`rac_${key}`, JSON.stringify(item));
@@ -833,13 +925,13 @@ function getSupabaseClient() {
         SUPABASE_ANON_KEY,
         {
           auth: {
-            autoRefreshToken: false,
-            persistSession: false,
-            detectSessionInUrl: false
+            autoRefreshToken:    false,
+            persistSession:      false,
+            detectSessionInUrl:  false
           },
           global: {
             headers: {
-              'apikey': SUPABASE_ANON_KEY,
+              'apikey':        SUPABASE_ANON_KEY,
               'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
             }
           },
@@ -861,6 +953,8 @@ function getSupabaseClient() {
    PERMISSION CHECKER
    ============================================================ */
 const PermissionChecker = {
+
+  /* ── can(role, permission) ─────────────────────────────── */
   can(role, permission) {
     if (!role || !permission) return false;
     const allowed = PERMISSIONS[permission];
@@ -869,34 +963,51 @@ const PermissionChecker = {
     return Array.isArray(allowed) && allowed.includes(role);
   },
 
+  /* ── canAccessAvenue(role, avenue) ─────────────────────── */
   canAccessAvenue(role, avenue) {
     if (!role || !avenue) return false;
+
+    // Roles with full access to every avenue
     const fullAccessRoles = [
       'super_admin', 'advisor', 'president', 'immediate_past_president',
-      'vice_president', 'secretary_administration', 'secretary_communication'
+      'vice_president', 'secretary_administration', 'secretary_communication',
+      'treasurer',
+      'rotary_foundation_chair',   // NEW — read access to all avenues
+      'all_avenue_chair'           // NEW — full control over all avenues
     ];
     if (fullAccessRoles.includes(role)) return true;
+
+    // Individual avenue directors — only their mapped avenue
     const roleAvenue = ROLE_TO_AVENUE[role];
     return roleAvenue === avenue;
   },
 
+  /* ── getAccessibleAvenues(role) ────────────────────────── */
   getAccessibleAvenues(role) {
     if (!role) return [];
+
+    const allAvenueKeys = Object.keys(AVENUES);
+
     const fullAccessRoles = [
       'super_admin', 'advisor', 'president', 'immediate_past_president',
-      'vice_president', 'secretary_administration', 'secretary_communication'
+      'vice_president', 'secretary_administration', 'secretary_communication',
+      'treasurer',
+      'rotary_foundation_chair',   // NEW
+      'all_avenue_chair'           // NEW
     ];
-    if (fullAccessRoles.includes(role)) {
-      return Object.keys(AVENUES);
-    }
+    if (fullAccessRoles.includes(role)) return allAvenueKeys;
+
+    // Individual avenue director
     const roleAvenue = ROLE_TO_AVENUE[role];
     return roleAvenue ? [roleAvenue] : [];
   },
 
+  /* ── hasLevel(role, minLevel) ──────────────────────────── */
   hasLevel(role, minLevel) {
     return (ROLE_HIERARCHY[role] || 0) >= minLevel;
   },
 
+  /* ── isHigherThan(role, compareRole) ───────────────────── */
   isHigherThan(role, compareRole) {
     return (ROLE_HIERARCHY[role] || 0) > (ROLE_HIERARCHY[compareRole] || 0);
   }
@@ -921,17 +1032,17 @@ const ImageUtils = {
 
         if (width > maxWidth || height > maxHeight) {
           const ratio = Math.min(maxWidth / width, maxHeight / height);
-          width = Math.round(width * ratio);
+          width  = Math.round(width  * ratio);
           height = Math.round(height * ratio);
         }
 
         const canvas = document.createElement('canvas');
-        canvas.width = width;
+        canvas.width  = width;
         canvas.height = height;
 
         const ctx = canvas.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
+        ctx.imageSmoothingEnabled  = true;
+        ctx.imageSmoothingQuality  = 'high';
         ctx.drawImage(img, 0, 0, width, height);
 
         canvas.toBlob(
@@ -959,7 +1070,7 @@ const ImageUtils = {
 
   generateFilename(prefix = 'photo', extension = 'jpg') {
     const timestamp = Date.now();
-    const random = Math.random().toString(36).substr(2, 8);
+    const random    = Math.random().toString(36).substr(2, 8);
     return `${prefix}_${timestamp}_${random}.${extension}`;
   },
 
@@ -980,41 +1091,41 @@ const ImageUtils = {
 /* ============================================================
    MAKE EVERYTHING GLOBAL
    ============================================================ */
-window.SUPABASE_URL = SUPABASE_URL;
-window.SUPABASE_ANON_KEY = SUPABASE_ANON_KEY;
-window.SUPABASE_SERVICE_KEY = SUPABASE_SERVICE_KEY;
-window.EMAILJS_CONFIG = EMAILJS_CONFIG;
-window.AI_CONFIG = AI_CONFIG;
-window.CLUB_INFO = CLUB_INFO;
-window.ROLES = ROLES;
-window.ROLE_DISPLAY_NAMES = ROLE_DISPLAY_NAMES;
-window.ROLE_HIERARCHY = ROLE_HIERARCHY;
-window.PERMISSIONS = PERMISSIONS;
-window.AVENUES = AVENUES;
-window.ROLE_TO_AVENUE = ROLE_TO_AVENUE;
-window.STORAGE_BUCKETS = STORAGE_BUCKETS;
-window.FILE_LIMITS = FILE_LIMITS;
-window.MAX_PHOTOS = MAX_PHOTOS;
-window.BLOOD_GROUPS = BLOOD_GROUPS;
-window.ROTARY_GROUPS = ROTARY_GROUPS;
-window.COLLABORATION_TYPES = COLLABORATION_TYPES;
-window.MEETING_TYPES = MEETING_TYPES;
-window.EVENT_STATUS = EVENT_STATUS;
-window.TRANSACTION_CATEGORIES = TRANSACTION_CATEGORIES;
-window.ROTARY_YEARS = ROTARY_YEARS;
-window.GAMES_CONFIG = GAMES_CONFIG;
-window.QUIZ_QUESTIONS = QUIZ_QUESTIONS;
-window.TYPING_QUOTES = TYPING_QUOTES;
-window.NOTIFICATION_TYPES = NOTIFICATION_TYPES;
-window.DateUtils = DateUtils;
-window.StringUtils = StringUtils;
-window.Validate = Validate;
-window.Storage = Storage;
-window.debounce = debounce;
-window.throttle = throttle;
-window.getSupabaseClient = getSupabaseClient;
-window.PermissionChecker = PermissionChecker;
-window.ImageUtils = ImageUtils;
+window.SUPABASE_URL          = SUPABASE_URL;
+window.SUPABASE_ANON_KEY     = SUPABASE_ANON_KEY;
+window.SUPABASE_SERVICE_KEY  = SUPABASE_SERVICE_KEY;
+window.EMAILJS_CONFIG        = EMAILJS_CONFIG;
+window.AI_CONFIG             = AI_CONFIG;
+window.CLUB_INFO             = CLUB_INFO;
+window.ROLES                 = ROLES;
+window.ROLE_DISPLAY_NAMES    = ROLE_DISPLAY_NAMES;
+window.ROLE_HIERARCHY        = ROLE_HIERARCHY;
+window.PERMISSIONS           = PERMISSIONS;
+window.AVENUES               = AVENUES;
+window.ROLE_TO_AVENUE        = ROLE_TO_AVENUE;
+window.STORAGE_BUCKETS       = STORAGE_BUCKETS;
+window.FILE_LIMITS           = FILE_LIMITS;
+window.MAX_PHOTOS            = MAX_PHOTOS;
+window.BLOOD_GROUPS          = BLOOD_GROUPS;
+window.ROTARY_GROUPS         = ROTARY_GROUPS;
+window.COLLABORATION_TYPES   = COLLABORATION_TYPES;
+window.MEETING_TYPES         = MEETING_TYPES;
+window.EVENT_STATUS          = EVENT_STATUS;
+window.TRANSACTION_CATEGORIES= TRANSACTION_CATEGORIES;
+window.ROTARY_YEARS          = ROTARY_YEARS;
+window.GAMES_CONFIG          = GAMES_CONFIG;
+window.QUIZ_QUESTIONS        = QUIZ_QUESTIONS;
+window.TYPING_QUOTES         = TYPING_QUOTES;
+window.NOTIFICATION_TYPES    = NOTIFICATION_TYPES;
+window.DateUtils             = DateUtils;
+window.StringUtils           = StringUtils;
+window.Validate              = Validate;
+window.Storage               = Storage;
+window.debounce              = debounce;
+window.throttle              = throttle;
+window.getSupabaseClient     = getSupabaseClient;
+window.PermissionChecker     = PermissionChecker;
+window.ImageUtils            = ImageUtils;
 
 /* ============================================================
    INITIALIZE EMAILJS
