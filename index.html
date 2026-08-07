@@ -12,72 +12,399 @@
   <meta property="og:type" content="website" />
   <title>Rotaract Club of Dr. N.G.P Arts & Science College</title>
 
-  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400;1,600&display=swap" rel="stylesheet" />
 
-  <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
-
-  <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-
-  <!-- FileSaver — needed for treasury statement download -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-
-  <!-- EmailJS -->
   <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-
-  <!-- SheetJS for Excel treasury statements -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.1/package/dist/xlsx.full.min.js"></script>
 
-  <!-- AOS Animation -->
   <link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css" />
   <script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 
-  <!-- Swiper -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
-  <!-- Main CSS -->
   <link rel="stylesheet" href="css/styles.css" />
-
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" />
 
   <style>
-    /* Social Media SVG Icon Styles */
-    .social-icon-svg {
-      width: 20px;
-      height: 20px;
-      fill: currentColor;
-      flex-shrink: 0;
-      display: block;
+    /* ============================================================
+       GLOBAL RESET
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body { overflow-x: hidden; min-width: 320px; font-family: Poppins, sans-serif; }
+    img  { max-width: 100%; height: auto; }
+    .hidden { display: none !important; }
+
+    /* ============================================================
+       SOCIAL SVG ICONS
+    ============================================================ */
+    .social-icon-svg { width:20px; height:20px; fill:currentColor; flex-shrink:0; display:block; }
+    .footer-social-link .social-icon-svg,
+    .contact-icon-wrap  .social-icon-svg { width:18px; height:18px; }
+
+    /* ============================================================
+       NEWSLETTER CARD
+    ============================================================ */
+    .nl-card {
+      display: flex; flex-direction: column;
+      border-radius: 16px; overflow: hidden;
+      height: 100%;
+      background: var(--neu-bg, #f0f0f3);
+      box-shadow: 6px 6px 12px rgba(0,0,0,.08), -6px -6px 12px rgba(255,255,255,.9);
+      transition: transform .3s ease, box-shadow .3s ease;
     }
-    .social-btn .social-icon-svg { width: 20px; height: 20px; }
-    .footer-social-link .social-icon-svg { width: 18px; height: 18px; }
-    .contact-icon-wrap .social-icon-svg { width: 18px; height: 18px; }
+    [data-theme="dark"] .nl-card {
+      box-shadow: 6px 6px 12px rgba(0,0,0,.3), -6px -6px 12px rgba(255,255,255,.04);
+    }
+    .nl-card:hover { transform: translateY(-5px); }
+
+    /* Preview banner */
+    .nl-preview {
+      position: relative; width: 100%; height: 190px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; padding: 20px; text-align: center;
+      flex-shrink: 0; overflow: hidden;
+    }
+    .nl-preview-badge {
+      position: absolute; top: 10px; left: 10px;
+      background: rgba(0,0,0,.55); color: #fff;
+      font-size: .58rem; font-weight: 700;
+      letter-spacing: .7px; text-transform: uppercase;
+      padding: 3px 10px; border-radius: 20px;
+      font-family: Poppins, sans-serif;
+    }
+    .nl-preview-icon { opacity: .88; flex-shrink: 0; }
+    .nl-preview-title {
+      color: rgba(255,255,255,.93); font-size: .88rem;
+      font-weight: 600; margin: 0; line-height: 1.3;
+      font-family: Poppins, sans-serif;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .nl-preview-month {
+      color: rgba(255,255,255,.62); font-size: .72rem;
+      margin: 0; font-family: Poppins, sans-serif;
+    }
+
+    /* Card body */
+    .nl-body {
+      padding: 14px; display: flex;
+      flex-direction: column; gap: 6px; flex: 1;
+    }
+    .nl-body-title {
+      margin: 0; font-size: .9rem; font-weight: 700;
+      color: var(--text-primary, #1e293b); line-height: 1.4;
+      font-family: Poppins, sans-serif;
+    }
+    .nl-body-meta {
+      display: flex; align-items: center; gap: 5px;
+      font-size: .72rem; color: var(--text-muted, #64748b);
+      font-family: Poppins, sans-serif;
+    }
+    .nl-body-meta svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .nl-body-desc {
+      margin: 0; font-size: .78rem;
+      color: var(--text-secondary, #475569);
+      line-height: 1.5; flex: 1;
+      display: -webkit-box; -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical; overflow: hidden;
+      font-family: Poppins, sans-serif;
+    }
+
+    /* Card action buttons */
+    .nl-actions {
+      display: flex; gap: 8px;
+      padding: 8px 14px 14px;
+    }
+    .nl-btn {
+      flex: 1; display: inline-flex;
+      align-items: center; justify-content: center;
+      gap: 6px; padding: 9px 12px;
+      border-radius: 8px; font-size: .78rem;
+      font-weight: 600; cursor: pointer;
+      transition: all .2s ease; text-decoration: none;
+      font-family: Poppins, sans-serif;
+      white-space: nowrap; border: none;
+      min-width: 80px;
+    }
+    .nl-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .nl-btn-view  { background: var(--primary, #1e3a8a); color: #fff; }
+    .nl-btn-view:hover { opacity: .85; transform: translateY(-1px); }
+    .nl-btn-open  {
+      background: transparent;
+      color: var(--primary, #1e3a8a);
+      border: 2px solid var(--primary, #1e3a8a) !important;
+    }
+    .nl-btn-open:hover { background: var(--primary, #1e3a8a); color: #fff; }
+    .nl-no-url {
+      font-size: .75rem; color: var(--text-muted, #64748b);
+      text-align: center; width: 100%; padding: 6px 0;
+      font-family: Poppins, sans-serif;
+    }
+
+    /* ============================================================
+       NEWSLETTER SWIPER
+    ============================================================ */
+    .newsletters-swiper { padding: 12px 4px 52px !important; overflow: visible !important; }
+    .newsletters-swiper .swiper-wrapper { align-items: stretch; }
+    .newsletters-swiper .swiper-slide  { height: auto !important; display: flex; width: 300px; }
+    .newsletters-swiper .swiper-slide .nl-card { height: 100%; width: 100%; }
+    .newsletters-pagination { bottom: 8px !important; }
+
+    /* ============================================================
+       NEWSLETTER VIEWER MODAL
+    ============================================================ */
+    #nl-viewer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,.88);
+      z-index: 999999;
+      display: flex; align-items: center; justify-content: center;
+      padding: 12px; backdrop-filter: blur(8px);
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    #nl-viewer-overlay.active { opacity: 1; pointer-events: all; }
+
+    #nl-viewer-box {
+      background: var(--neu-bg, #f0f0f3);
+      border-radius: 20px; width: 100%;
+      max-width: 940px; max-height: 92vh;
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 32px 80px rgba(0,0,0,.45);
+      transform: scale(.95); transition: transform .3s ease;
+    }
+    #nl-viewer-overlay.active #nl-viewer-box { transform: scale(1); }
+
+    #nl-viewer-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--neu-border, rgba(0,0,0,.08));
+      flex-shrink: 0;
+    }
+    #nl-viewer-head h3 {
+      flex: 1; font-size: .95rem; font-weight: 700;
+      color: var(--text-primary, #1e293b); margin: 0;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+      font-family: Poppins, sans-serif;
+    }
+    #nl-viewer-btns { display: flex; gap: 8px; flex-shrink: 0; }
+
+    .nlv-btn {
+      display: inline-flex; align-items: center;
+      justify-content: center; gap: 6px;
+      padding: 7px 14px; border-radius: 8px;
+      font-size: .76rem; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      border: none; transition: all .2s;
+      font-family: Poppins, sans-serif; white-space: nowrap;
+    }
+    .nlv-btn svg { width: 13px; height: 13px; flex-shrink: 0; }
+    .nlv-btn-outline {
+      background: transparent; color: var(--primary, #1e3a8a);
+      border: 2px solid var(--primary, #1e3a8a) !important;
+    }
+    .nlv-btn-outline:hover { background: var(--primary, #1e3a8a); color: #fff; }
+    .nlv-btn-solid { background: var(--primary, #1e3a8a); color: #fff; }
+    .nlv-btn-solid:hover { opacity: .85; }
+
+    #nl-viewer-x {
+      background: none; border: none; cursor: pointer;
+      color: var(--text-secondary, #64748b);
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all .2s;
+    }
+    #nl-viewer-x:hover { background: rgba(0,0,0,.08); color: var(--text-primary, #1e293b); }
+    #nl-viewer-x svg { width: 20px; height: 20px; }
+
+    #nl-viewer-content {
+      flex: 1; overflow: hidden; position: relative;
+      background: #1a1a2e; min-height: 440px;
+    }
+    #nl-viewer-content iframe {
+      width: 100%; height: 100%;
+      min-height: 520px; border: none; display: block;
+    }
+
+    .nlv-loader {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 14px; color: #fff;
+      font-family: Poppins, sans-serif; z-index: 2;
+    }
+    .nlv-loader p { margin: 0; font-size: .88rem; opacity: .7; }
+    .nlv-spin {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(255,255,255,.2);
+      border-top-color: #fff; border-radius: 50%;
+      animation: nlv-spin .8s linear infinite;
+    }
+    @keyframes nlv-spin { to { transform: rotate(360deg); } }
+
+    .nlv-ext {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 16px; padding: 48px 32px;
+      text-align: center; color: #fff;
+      height: 100%; min-height: 300px;
+    }
+    .nlv-ext svg { opacity: .75; flex-shrink: 0; }
+    .nlv-ext h4 { font-size: 1.1rem; font-weight: 700; margin: 0; color: #fff; font-family: Poppins, sans-serif; }
+    .nlv-ext p  { font-size: .86rem; color: rgba(255,255,255,.7); margin: 0; line-height: 1.6; max-width: 380px; font-family: Poppins, sans-serif; }
+    .nlv-ext-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; background: var(--primary, #1e3a8a);
+      color: #fff; border-radius: 10px; text-decoration: none;
+      font-size: .86rem; font-weight: 600;
+      transition: all .2s; font-family: Poppins, sans-serif;
+    }
+    .nlv-ext-btn:hover { opacity: .85; transform: translateY(-1px); }
+    .nlv-ext-btn svg { width: 16px; height: 16px; }
+
+    /* ============================================================
+       FULL RESPONSIVE SYSTEM
+    ============================================================ */
+    .container { width: 100%; max-width: 1280px; margin: 0 auto; padding: 0 16px; }
+    .section { padding: 64px 0; }
+
+    @media (min-width: 1440px) { .container { max-width: 1400px; } }
+
+    @media (max-width: 1023px) {
+      .nav-links            { display: none !important; }
+      .mobile-menu-btn      { display: flex !important; }
+      .stats-grid           { grid-template-columns: repeat(2,1fr) !important; }
+      .about-grid           { grid-template-columns: 1fr !important; }
+      .avenues-grid         { grid-template-columns: 1fr !important; }
+      .projects-grid        { grid-template-columns: repeat(2,1fr) !important; }
+      .members-grid         { grid-template-columns: repeat(3,1fr) !important; }
+      .benefits-grid        { grid-template-columns: repeat(2,1fr) !important; }
+      .join-wrapper         { grid-template-columns: 1fr !important; }
+      .blood-wrapper        { grid-template-columns: 1fr !important; }
+      .contact-grid         { grid-template-columns: 1fr !important; }
+      .footer-grid          { grid-template-columns: repeat(2,1fr) !important; gap: 32px; }
+    }
+
+    @media (max-width: 767px) {
+      .nav-container        { padding: 0 12px; }
+      .nav-club-name        { display: none; }
+      .nav-controls         { gap: 6px; }
+      .nav-join-btn span    { display: none; }
+      .nav-admin-btn        { padding: 8px; }
+      .hero                 { padding: 100px 16px 60px; min-height: 100svh; }
+      .hero-content         { padding: 0 8px; }
+      .hero-logo            { width: 90px !important; height: 90px !important; }
+      .hero-title           { font-size: clamp(1.4rem,5vw,2rem); line-height: 1.3; }
+      .hero-subtitle        { font-size: clamp(.85rem,3vw,1rem); }
+      .hero-tagline         { font-size: clamp(1rem,4vw,1.3rem); }
+      .hero-meta            { flex-wrap: wrap; gap: 8px; justify-content: center; }
+      .hero-meta-divider    { display: none; }
+      .hero-meta-item       { font-size: .78rem; }
+      .hero-cta             { flex-direction: column; align-items: center; gap: 12px; }
+      .hero-cta .btn        { width: 100%; max-width: 280px; justify-content: center; }
+      .section-title        { font-size: clamp(1.4rem,5vw,1.8rem); }
+      .section-subtitle     { font-size: clamp(.85rem,3vw,1rem); }
+      .section              { padding: 48px 0; }
+      .about-card-header    { flex-direction: column; text-align: center; gap: 12px; }
+      .about-details-grid   { grid-template-columns: 1fr !important; }
+      .about-social-links   { justify-content: center; }
+      .avenue-tabs          { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; padding-bottom: 8px; gap: 8px; flex-wrap: nowrap !important; display: flex; }
+      .avenue-tabs::-webkit-scrollbar { display: none; }
+      .avenue-tab           { white-space: nowrap; flex-shrink: 0; font-size: .78rem; padding: 8px 14px; }
+      .members-grid         { grid-template-columns: repeat(2,1fr) !important; }
+      .members-filter       { overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; flex-wrap: nowrap !important; display: flex; padding-bottom: 8px; gap: 8px; }
+      .members-filter::-webkit-scrollbar { display: none; }
+      .filter-btn           { white-space: nowrap; flex-shrink: 0; font-size: .78rem; padding: 7px 14px; }
+      .form-row             { grid-template-columns: 1fr !important; }
+      .contact-info-header  { flex-direction: column; gap: 12px; text-align: center; }
+      .contact-logo         { margin: 0 auto; }
+      .contact-social       { justify-content: center; }
+      .map-header           { flex-wrap: wrap; gap: 8px; }
+      .map-container        { height: 250px !important; }
+      .upcoming-grid        { grid-template-columns: 1fr !important; }
+      .modal-container      { margin: 8px; max-height: 95vh; border-radius: 16px; }
+      .modal-header         { padding: 14px 16px; }
+      .modal-body           { padding: 16px; }
+      .modal-details-grid   { grid-template-columns: 1fr !important; }
+      .modal-actions        { flex-direction: column; gap: 8px; }
+      .modal-actions .btn   { width: 100%; justify-content: center; }
+      .member-modal-body    { flex-direction: column !important; align-items: center; text-align: center; }
+      #nl-viewer-head       { padding: 10px 12px; }
+      #nl-viewer-head h3    { font-size: .82rem; }
+      .nlv-btn span         { display: none; }
+      .nlv-btn              { padding: 7px 10px; }
+    }
+
+    @media (max-width: 639px) {
+      .projects-grid  { grid-template-columns: 1fr !important; }
+      .benefits-grid  { grid-template-columns: 1fr !important; }
+      .footer-grid    { grid-template-columns: 1fr !important; gap: 28px; }
+      .footer-quick-actions { flex-wrap: wrap; gap: 8px; }
+      .footer-quick-actions .btn { flex: 1; min-width: calc(50% - 4px); justify-content: center; }
+      .footer-bottom-content { flex-direction: column !important; gap: 8px; text-align: center; }
+    }
+
+    @media (max-width: 479px) {
+      .nav-logo-img           { width: 32px !important; height: 32px !important; }
+      .theme-toggle           { width: 36px; height: 36px; }
+      .nav-join-btn           { padding: 6px 10px; }
+      .hero-badge             { font-size: .72rem; padding: 6px 12px; }
+      .hero-logo              { width: 75px !important; height: 75px !important; }
+      .stat-card              { padding: 16px 12px; }
+      .stat-number            { font-size: clamp(1.5rem,6vw,2rem); }
+      .avenue-tab             { font-size: .72rem; padding: 7px 10px; }
+      .members-grid           { gap: 10px; }
+      .member-card            { padding: 12px 8px; }
+      .member-card-photo      { width: 72px !important; height: 72px !important; }
+      .member-card-name       { font-size: .78rem; }
+      .member-card-portfolio  { font-size: .7rem; }
+      .section-title          { font-size: clamp(1.2rem,5vw,1.5rem); }
+      .section                { padding: 36px 0; }
+      .container              { padding: 0 12px; }
+      .ticker-label span      { display: none; }
+      .back-to-top            { bottom: 80px; right: 12px; width: 40px; height: 40px; }
+      .footer-social          { flex-wrap: wrap; justify-content: center; }
+      .footer-copy, .footer-rotary { font-size: .75rem; }
+      .modal-overlay          { padding: 8px; }
+      .modal-title            { font-size: 1rem; }
+      .chatbot-window         { left: 10px !important; right: 10px !important; bottom: 68px !important; width: auto !important; max-width: none !important; border-radius: 16px; }
+      #nl-viewer-box          { border-radius: 14px; max-height: 96vh; }
+      .nl-actions             { flex-direction: column; }
+      .nl-btn                 { width: 100%; min-width: unset; }
+    }
+
+    @media (max-width: 359px) {
+      .container    { padding: 0 10px; }
+      .hero-title   { font-size: 1.2rem; }
+      .hero-logo    { width: 64px !important; height: 64px !important; }
+      .members-grid { grid-template-columns: 1fr !important; }
+      .stats-grid   { grid-template-columns: 1fr 1fr !important; gap: 8px; }
+    }
+
+    @media (min-width: 768px) and (max-width: 1023px) {
+      .hero-content { max-width: 680px; margin: 0 auto; }
+      .newsletters-swiper .swiper-slide { width: 280px; }
+    }
   </style>
 </head>
 
 <body>
 
 <!-- ============================================================
-     LOADING SCREEN — SINGLE LINE
+     LOADING SCREEN
 ============================================================ -->
 <div id="loading-screen" class="loading-screen">
   <div class="loading-content">
-    <img
-      src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
-      alt="Rotaract Logo"
-      class="loading-logo"
-    />
-    <div class="loading-single-line">
-      <div class="loading-line-track">
-        <div class="loading-line-fill"></div>
-      </div>
-    </div>
+    <img src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" alt="Rotaract Logo" class="loading-logo" />
+    <div class="loading-single-line"><div class="loading-line-track"><div class="loading-line-fill"></div></div></div>
     <p class="loading-text">Rotaract Club of Dr. N.G.P Arts &amp; Science College</p>
   </div>
 </div>
@@ -87,178 +414,81 @@
 ============================================================ -->
 <nav class="navbar" id="navbar">
   <div class="nav-container">
-
-    <!-- Logo -->
     <a href="#home" class="nav-logo" id="nav-logo-link">
-      <img
-        src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
-        alt="Rotaract Club Logo"
-        class="nav-logo-img"
-        id="nav-logo-img"
-      />
+      <img src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" alt="Rotaract Club Logo" class="nav-logo-img" id="nav-logo-img" />
       <div class="nav-logo-text">
-        <span class="nav-club-name" id="nav-club-name">
-          Rotaract Club of Dr. N.G.P Arts &amp; Science College
-        </span>
+        <span class="nav-club-name" id="nav-club-name">Rotaract Club of Dr. N.G.P Arts &amp; Science College</span>
       </div>
     </a>
-
-    <!-- Desktop Nav Links -->
     <ul class="nav-links" id="nav-links">
-      <li><a href="#home" class="nav-link active" data-section="home">
-        <i data-lucide="home" class="nav-icon"></i> Home
-      </a></li>
-      <li><a href="#about" class="nav-link" data-section="about">
-        <i data-lucide="info" class="nav-icon"></i> About
-      </a></li>
-      <li><a href="#projects" class="nav-link" data-section="projects">
-        <i data-lucide="calendar-check" class="nav-icon"></i> Projects
-      </a></li>
-      <li><a href="#members" class="nav-link" data-section="members">
-        <i data-lucide="users" class="nav-icon"></i> Members
-      </a></li>
-      <li><a href="#newsletters" class="nav-link" data-section="newsletters">
-        <i data-lucide="newspaper" class="nav-icon"></i> Bulletin
-      </a></li>
-      <li><a href="#contact" class="nav-link" data-section="contact">
-        <i data-lucide="map-pin" class="nav-icon"></i> Contact
-      </a></li>
+      <li><a href="#home"        class="nav-link active" data-section="home">       <i data-lucide="home"           class="nav-icon"></i> Home</a></li>
+      <li><a href="#about"       class="nav-link"        data-section="about">      <i data-lucide="info"           class="nav-icon"></i> About</a></li>
+      <li><a href="#projects"    class="nav-link"        data-section="projects">   <i data-lucide="calendar-check" class="nav-icon"></i> Projects</a></li>
+      <li><a href="#members"     class="nav-link"        data-section="members">    <i data-lucide="users"          class="nav-icon"></i> Members</a></li>
+      <li><a href="#newsletters" class="nav-link"        data-section="newsletters"><i data-lucide="newspaper"      class="nav-icon"></i> Bulletin</a></li>
+      <li><a href="#contact"     class="nav-link"        data-section="contact">    <i data-lucide="map-pin"        class="nav-icon"></i> Contact</a></li>
     </ul>
-
-    <!-- Right Controls -->
     <div class="nav-controls">
-      <button class="theme-toggle neu-btn" id="theme-toggle" aria-label="Toggle theme" title="Toggle Light/Dark Mode">
-        <i data-lucide="sun" class="theme-icon" id="theme-icon-light"></i>
+      <button class="theme-toggle neu-btn" id="theme-toggle" aria-label="Toggle theme">
+        <i data-lucide="sun"  class="theme-icon"        id="theme-icon-light"></i>
         <i data-lucide="moon" class="theme-icon hidden" id="theme-icon-dark"></i>
       </button>
-      <a href="pages/games.html" class="btn btn-outline nav-admin-btn" target="_blank" title="Play Games">
-        <i data-lucide="gamepad-2"></i>
-      </a>
-      <a href="#join" class="btn btn-primary nav-join-btn">
-        <i data-lucide="user-plus"></i>
-        <span>Join Us</span>
-      </a>
-      <a href="pages/admin.html" class="btn btn-outline nav-admin-btn" title="Admin Login">
-        <i data-lucide="shield-check"></i>
-      </a>
+      <a href="pages/games.html" class="btn btn-outline nav-admin-btn" target="_blank" title="Games"><i data-lucide="gamepad-2"></i></a>
+      <a href="#join" class="btn btn-primary nav-join-btn"><i data-lucide="user-plus"></i><span>Join Us</span></a>
+      <a href="pages/admin.html" class="btn btn-outline nav-admin-btn" title="Admin"><i data-lucide="shield-check"></i></a>
       <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="Toggle Menu">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
+        <span class="hamburger-line"></span><span class="hamburger-line"></span><span class="hamburger-line"></span>
       </button>
     </div>
   </div>
-
-  <!-- Mobile Menu -->
   <div class="mobile-menu" id="mobile-menu">
     <ul class="mobile-nav-links">
-      <li><a href="#home" class="mobile-nav-link" data-section="home">
-        <i data-lucide="home"></i> Home
-      </a></li>
-      <li><a href="#about" class="mobile-nav-link" data-section="about">
-        <i data-lucide="info"></i> About
-      </a></li>
-      <li><a href="#projects" class="mobile-nav-link" data-section="projects">
-        <i data-lucide="calendar-check"></i> Projects
-      </a></li>
-      <li><a href="#members" class="mobile-nav-link" data-section="members">
-        <i data-lucide="users"></i> Members
-      </a></li>
-      <li><a href="#newsletters" class="mobile-nav-link" data-section="newsletters">
-        <i data-lucide="newspaper"></i> Bulletin
-      </a></li>
-      <li><a href="#contact" class="mobile-nav-link" data-section="contact">
-        <i data-lucide="map-pin"></i> Contact
-      </a></li>
-      <li><a href="pages/games.html" class="mobile-nav-link" target="_blank">
-        <i data-lucide="gamepad-2"></i> Games
-      </a></li>
-      <li><a href="#join" class="mobile-nav-link mobile-join">
-        <i data-lucide="user-plus"></i> Join Us
-      </a></li>
-      <li><a href="pages/admin.html" class="mobile-nav-link">
-        <i data-lucide="shield-check"></i> Admin
-      </a></li>
+      <li><a href="#home"        class="mobile-nav-link" data-section="home">       <i data-lucide="home"></i> Home</a></li>
+      <li><a href="#about"       class="mobile-nav-link" data-section="about">      <i data-lucide="info"></i> About</a></li>
+      <li><a href="#projects"    class="mobile-nav-link" data-section="projects">   <i data-lucide="calendar-check"></i> Projects</a></li>
+      <li><a href="#members"     class="mobile-nav-link" data-section="members">    <i data-lucide="users"></i> Members</a></li>
+      <li><a href="#newsletters" class="mobile-nav-link" data-section="newsletters"><i data-lucide="newspaper"></i> Bulletin</a></li>
+      <li><a href="#contact"     class="mobile-nav-link" data-section="contact">    <i data-lucide="map-pin"></i> Contact</a></li>
+      <li><a href="pages/games.html" class="mobile-nav-link" target="_blank">       <i data-lucide="gamepad-2"></i> Games</a></li>
+      <li><a href="#join"        class="mobile-nav-link mobile-join">               <i data-lucide="user-plus"></i> Join Us</a></li>
+      <li><a href="pages/admin.html" class="mobile-nav-link">                       <i data-lucide="shield-check"></i> Admin</a></li>
     </ul>
   </div>
 </nav>
 
 <!-- ============================================================
-     HERO SECTION
+     HERO
 ============================================================ -->
 <section class="hero" id="home">
-  <div class="hero-bg">
-    <div class="hero-gradient"></div>
-    <div class="hero-particles" id="hero-particles"></div>
-  </div>
-
+  <div class="hero-bg"><div class="hero-gradient"></div><div class="hero-particles" id="hero-particles"></div></div>
   <div class="hero-content" data-aos="fade-up" data-aos-duration="1000">
-    <div class="hero-badge">
-      <i data-lucide="award"></i>
-      <span>Rotary International District 3206</span>
-    </div>
-
-    <img
-      src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
-      alt="Club Logo"
-      class="hero-logo"
-      id="hero-logo"
-    />
-
+    <div class="hero-badge"><i data-lucide="award"></i><span>Rotary International District 3206</span></div>
+    <img src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" alt="Club Logo" class="hero-logo" id="hero-logo" />
     <h1 class="hero-title" id="hero-club-name">
-      Rotaract Club of<br />
-      <span class="hero-title-accent">Dr. N.G.P Arts &amp; Science College</span>
+      Rotaract Club of<br /><span class="hero-title-accent">Dr. N.G.P Arts &amp; Science College</span>
     </h1>
-
-    <p class="hero-subtitle" id="hero-subtitle">
-      Parented by Rotary Club of Coimbatore Meridian
-    </p>
-
-    <p class="hero-tagline" id="hero-tagline">Service Above Self</p>
-
+    <p class="hero-subtitle" id="hero-subtitle">Parented by Rotary Club of Coimbatore Meridian</p>
+    <p class="hero-tagline"  id="hero-tagline">Service Above Self</p>
     <div class="hero-meta">
-      <div class="hero-meta-item">
-        <i data-lucide="hash"></i>
-        <span>Club ID: 217835</span>
-      </div>
+      <div class="hero-meta-item"><i data-lucide="hash"></i><span>Club ID: 217835</span></div>
       <div class="hero-meta-divider"></div>
-      <div class="hero-meta-item">
-        <i data-lucide="calendar"></i>
-        <span>Est. 11.02.2020</span>
-      </div>
+      <div class="hero-meta-item"><i data-lucide="calendar"></i><span>Est. 11.02.2020</span></div>
       <div class="hero-meta-divider"></div>
-      <div class="hero-meta-item">
-        <i data-lucide="globe"></i>
-        <span>RI District 3206</span>
-      </div>
+      <div class="hero-meta-item"><i data-lucide="globe"></i><span>RI District 3206</span></div>
     </div>
-
     <div class="hero-cta">
-      <a href="#projects" class="btn btn-primary btn-lg">
-        <i data-lucide="calendar-check"></i>
-        <span>Explore Projects</span>
-      </a>
-      <a href="#join" class="btn btn-outline btn-lg hero-join-btn">
-        <i data-lucide="user-plus"></i>
-        <span>Join Our Club</span>
-      </a>
+      <a href="#projects" class="btn btn-primary btn-lg"><i data-lucide="calendar-check"></i><span>Explore Projects</span></a>
+      <a href="#join"     class="btn btn-outline btn-lg hero-join-btn"><i data-lucide="user-plus"></i><span>Join Our Club</span></a>
     </div>
   </div>
-
-  <div class="hero-scroll-indicator">
-    <div class="scroll-mouse"><div class="scroll-wheel"></div></div>
-    <span>Scroll to explore</span>
-  </div>
+  <div class="hero-scroll-indicator"><div class="scroll-mouse"><div class="scroll-wheel"></div></div><span>Scroll to explore</span></div>
 </section>
 
 <!-- ============================================================
-     TICKER BAR
+     TICKER
 ============================================================ -->
 <div class="ticker-bar" id="ticker-bar">
-  <div class="ticker-label">
-    <i data-lucide="megaphone"></i>
-    <span>Updates</span>
-  </div>
+  <div class="ticker-label"><i data-lucide="megaphone"></i><span>Updates</span></div>
   <div class="ticker-track">
     <div class="ticker-content" id="ticker-content">
       <span class="ticker-item">Welcome to Rotaract Club of Dr. N.G.P Arts &amp; Science College</span>
@@ -275,41 +505,21 @@
 </div>
 
 <!-- ============================================================
-     STATISTICS SECTION
+     STATISTICS
 ============================================================ -->
 <section class="stats-section" id="stats">
   <div class="container">
     <div class="stats-grid" id="stats-grid">
-      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="0">
-        <div class="stat-icon-wrap"><i data-lucide="folder-check" class="stat-icon"></i></div>
-        <div class="stat-number" data-target="0" id="stat-projects">0</div>
-        <div class="stat-label">Projects Completed</div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="--fill:85%"></div></div>
-      </div>
-      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="100">
-        <div class="stat-icon-wrap"><i data-lucide="users" class="stat-icon"></i></div>
-        <div class="stat-number" data-target="0" id="stat-members">0</div>
-        <div class="stat-label">Active Members</div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="--fill:70%"></div></div>
-      </div>
-      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="200">
-        <div class="stat-icon-wrap"><i data-lucide="clock" class="stat-icon"></i></div>
-        <div class="stat-number" data-target="0" id="stat-hours">0</div>
-        <div class="stat-label">Service Hours</div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="--fill:90%"></div></div>
-      </div>
-      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="300">
-        <div class="stat-icon-wrap"><i data-lucide="heart" class="stat-icon"></i></div>
-        <div class="stat-number" data-target="0" id="stat-lives">0</div>
-        <div class="stat-label">Lives Impacted</div>
-        <div class="stat-bar"><div class="stat-bar-fill" style="--fill:95%"></div></div>
-      </div>
+      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="0">  <div class="stat-icon-wrap"><i data-lucide="folder-check" class="stat-icon"></i></div><div class="stat-number" data-target="0" id="stat-projects">0</div><div class="stat-label">Projects Completed</div><div class="stat-bar"><div class="stat-bar-fill" style="--fill:85%"></div></div></div>
+      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="100"><div class="stat-icon-wrap"><i data-lucide="users"        class="stat-icon"></i></div><div class="stat-number" data-target="0" id="stat-members">0</div> <div class="stat-label">Active Members</div>    <div class="stat-bar"><div class="stat-bar-fill" style="--fill:70%"></div></div></div>
+      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="200"><div class="stat-icon-wrap"><i data-lucide="clock"        class="stat-icon"></i></div><div class="stat-number" data-target="0" id="stat-hours">0</div>  <div class="stat-label">Service Hours</div>     <div class="stat-bar"><div class="stat-bar-fill" style="--fill:90%"></div></div></div>
+      <div class="stat-card neu-card" data-aos="fade-up" data-aos-delay="300"><div class="stat-icon-wrap"><i data-lucide="heart"        class="stat-icon"></i></div><div class="stat-number" data-target="0" id="stat-lives">0</div>  <div class="stat-label">Lives Impacted</div>    <div class="stat-bar"><div class="stat-bar-fill" style="--fill:95%"></div></div></div>
     </div>
   </div>
 </section>
 
 <!-- ============================================================
-     ABOUT SECTION
+     ABOUT
 ============================================================ -->
 <section class="section about-section" id="about">
   <div class="container">
@@ -318,147 +528,60 @@
       <h2 class="section-title">Who We Are</h2>
       <p class="section-subtitle">Empowering young professionals through service, leadership, and fellowship</p>
     </div>
-
     <div class="about-grid">
-      <!-- About Main Card -->
       <div class="about-main-card neu-card" data-aos="fade-right">
         <div class="about-card-header">
-          <img
-            src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
-            alt="Club Logo"
-            class="about-logo"
-          />
+          <img src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" alt="Club Logo" class="about-logo" />
           <div>
-            <h3 class="about-club-title" id="about-club-name">
-              Rotaract Club of Dr. N.G.P Arts &amp; Science College
-            </h3>
+            <h3 class="about-club-title" id="about-club-name">Rotaract Club of Dr. N.G.P Arts &amp; Science College</h3>
             <p class="about-parent">Parented by Rotary Club of Coimbatore Meridian</p>
           </div>
         </div>
-
         <div class="about-details-grid">
-          <div class="about-detail-item">
-            <i data-lucide="hash"></i>
-            <div>
-              <span class="detail-label">Club ID</span>
-              <span class="detail-value" id="about-club-id">217835</span>
-            </div>
-          </div>
-          <div class="about-detail-item">
-            <i data-lucide="calendar"></i>
-            <div>
-              <span class="detail-label">Charter Date</span>
-              <span class="detail-value" id="about-charter">11.02.2020</span>
-            </div>
-          </div>
-          <div class="about-detail-item">
-            <i data-lucide="globe"></i>
-            <div>
-              <span class="detail-label">RI District</span>
-              <span class="detail-value">3206 (Coimbatore | Pallakkad)</span>
-            </div>
-          </div>
-          <div class="about-detail-item">
-            <i data-lucide="map-pin"></i>
-            <div>
-              <span class="detail-label">Location</span>
-              <span class="detail-value">Coimbatore, Tamil Nadu</span>
-            </div>
-          </div>
-          <div class="about-detail-item">
-            <i data-lucide="mail"></i>
-            <div>
-              <span class="detail-label">Email</span>
-              <span class="detail-value" id="about-email">rac.drngpasc@gmail.com</span>
-            </div>
-          </div>
-          <div class="about-detail-item">
-            <i data-lucide="at-sign"></i>
-            <div>
-              <span class="detail-label">Social Media</span>
-              <span class="detail-value" id="about-social">@rotaractdrngpasc</span>
-            </div>
-          </div>
+          <div class="about-detail-item"><i data-lucide="hash"></i>    <div><span class="detail-label">Club ID</span>      <span class="detail-value" id="about-club-id">217835</span></div></div>
+          <div class="about-detail-item"><i data-lucide="calendar"></i><div><span class="detail-label">Charter Date</span> <span class="detail-value" id="about-charter">11.02.2020</span></div></div>
+          <div class="about-detail-item"><i data-lucide="globe"></i>   <div><span class="detail-label">RI District</span>  <span class="detail-value">3206 (Coimbatore | Pallakkad)</span></div></div>
+          <div class="about-detail-item"><i data-lucide="map-pin"></i> <div><span class="detail-label">Location</span>     <span class="detail-value">Coimbatore, Tamil Nadu</span></div></div>
+          <div class="about-detail-item"><i data-lucide="mail"></i>    <div><span class="detail-label">Email</span>         <span class="detail-value" id="about-email">rac.drngpasc@gmail.com</span></div></div>
+          <div class="about-detail-item"><i data-lucide="at-sign"></i> <div><span class="detail-label">Social</span>       <span class="detail-value" id="about-social">@rotaractdrngpasc</span></div></div>
         </div>
-
         <div class="about-social-links">
-          <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Instagram">
-            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-            </svg>
-          </a>
-          <a href="https://facebook.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Facebook">
-            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-          </a>
-          <a href="https://linkedin.com/company/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="LinkedIn">
-            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-            </svg>
-          </a>
-          <a href="mailto:rac.drngpasc@gmail.com" class="social-btn neu-btn" title="Email">
-            <i data-lucide="mail"></i>
-          </a>
+          <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Instagram"><svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+          <a href="https://facebook.com/rotaractdrngpasc"  target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Facebook"> <svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="https://linkedin.com/company/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="LinkedIn"><svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="mailto:rac.drngpasc@gmail.com" class="social-btn neu-btn" title="Email"><i data-lucide="mail"></i></a>
         </div>
       </div>
-
-      <!-- Avenues Grid -->
       <div class="avenues-grid" data-aos="fade-left">
         <h3 class="avenues-title">Our Avenues of Service</h3>
-        <div class="avenue-card neu-card" data-avenue="club_service">
-          <div class="avenue-icon-wrap avenue-cs"><i data-lucide="users-2"></i></div>
-          <div class="avenue-info"><h4>Club Service</h4><p>Building fellowship and strengthening our club's internal activities</p></div>
-          <div class="avenue-count" id="count-club-service">0</div>
-        </div>
-        <div class="avenue-card neu-card" data-avenue="community_service">
-          <div class="avenue-icon-wrap avenue-community"><i data-lucide="heart-handshake"></i></div>
-          <div class="avenue-info"><h4>Community Service</h4><p>Serving and uplifting our local communities with impactful projects</p></div>
-          <div class="avenue-count" id="count-community-service">0</div>
-        </div>
-        <div class="avenue-card neu-card" data-avenue="professional_service">
-          <div class="avenue-icon-wrap avenue-pro"><i data-lucide="briefcase"></i></div>
-          <div class="avenue-info"><h4>Professional Service</h4><p>Developing professional skills and ethical conduct among members</p></div>
-          <div class="avenue-count" id="count-professional-service">0</div>
-        </div>
-        <div class="avenue-card neu-card" data-avenue="international_service">
-          <div class="avenue-icon-wrap avenue-intl"><i data-lucide="globe-2"></i></div>
-          <div class="avenue-info"><h4>International Service</h4><p>Fostering international understanding and goodwill across borders</p></div>
-          <div class="avenue-count" id="count-international-service">0</div>
-        </div>
-        <div class="avenue-card neu-card" data-avenue="district_priority_projects">
-          <div class="avenue-icon-wrap avenue-dpp"><i data-lucide="star"></i></div>
-          <div class="avenue-info"><h4>District Priority Projects</h4><p>Contributing to district-wide priority initiatives and goals</p></div>
-          <div class="avenue-count" id="count-dpp">0</div>
-        </div>
+        <div class="avenue-card neu-card" data-avenue="club_service">         <div class="avenue-icon-wrap avenue-cs">       <i data-lucide="users-2"></i></div>       <div class="avenue-info"><h4>Club Service</h4>              <p>Building fellowship and strengthening internal activities</p></div><div class="avenue-count" id="count-club-service">0</div></div>
+        <div class="avenue-card neu-card" data-avenue="community_service">    <div class="avenue-icon-wrap avenue-community"> <i data-lucide="heart-handshake"></i></div><div class="avenue-info"><h4>Community Service</h4>          <p>Serving and uplifting local communities</p></div>              <div class="avenue-count" id="count-community-service">0</div></div>
+        <div class="avenue-card neu-card" data-avenue="professional_service"> <div class="avenue-icon-wrap avenue-pro">        <i data-lucide="briefcase"></i></div>     <div class="avenue-info"><h4>Professional Service</h4>       <p>Developing professional skills and ethics</p></div>            <div class="avenue-count" id="count-professional-service">0</div></div>
+        <div class="avenue-card neu-card" data-avenue="international_service"><div class="avenue-icon-wrap avenue-intl">       <i data-lucide="globe-2"></i></div>       <div class="avenue-info"><h4>International Service</h4>      <p>Fostering international understanding</p></div>               <div class="avenue-count" id="count-international-service">0</div></div>
+        <div class="avenue-card neu-card" data-avenue="district_priority_projects"><div class="avenue-icon-wrap avenue-dpp">   <i data-lucide="star"></i></div>          <div class="avenue-info"><h4>District Priority Projects</h4> <p>Contributing to district-wide goals</p></div>                 <div class="avenue-count" id="count-dpp">0</div></div>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ============================================================
-     UPCOMING PROJECTS (Next 7 Days)
+     UPCOMING
 ============================================================ -->
 <section class="section upcoming-section" id="upcoming">
   <div class="container">
     <div class="section-header" data-aos="fade-up">
       <div class="section-badge"><i data-lucide="calendar-clock"></i><span>Coming Up</span></div>
       <h2 class="section-title">Upcoming Projects</h2>
-      <p class="section-subtitle">Projects happening in the next 7 days — mark your calendar!</p>
+      <p class="section-subtitle">Projects happening in the next 7 days</p>
     </div>
     <div class="upcoming-grid" id="upcoming-grid">
-      <div id="upcoming-placeholder">
-        <div class="neu-card placeholder-card">
-          <i data-lucide="calendar-x"></i>
-          <p>No upcoming projects in the next 7 days</p>
-        </div>
-      </div>
+      <div id="upcoming-placeholder"><div class="neu-card placeholder-card"><i data-lucide="calendar-x"></i><p>No upcoming projects in the next 7 days</p></div></div>
     </div>
   </div>
 </section>
 
 <!-- ============================================================
-     PROJECTS SECTION (Completed - Avenue Wise)
+     PROJECTS
 ============================================================ -->
 <section class="section projects-section" id="projects">
   <div class="container">
@@ -467,61 +590,40 @@
       <h2 class="section-title">Completed Projects</h2>
       <p class="section-subtitle">Explore our impactful initiatives across all avenues of service</p>
     </div>
-
     <div class="avenue-tabs" data-aos="fade-up" data-aos-delay="100">
-      <button class="avenue-tab active" data-filter="all">
-        <i data-lucide="layout-grid"></i><span>All Projects</span>
-      </button>
-      <button class="avenue-tab" data-filter="club_service">
-        <i data-lucide="users-2"></i><span>Club Service</span>
-      </button>
-      <button class="avenue-tab" data-filter="community_service">
-        <i data-lucide="heart-handshake"></i><span>Community Service</span>
-      </button>
-      <button class="avenue-tab" data-filter="professional_service">
-        <i data-lucide="briefcase"></i><span>Professional Service</span>
-      </button>
-      <button class="avenue-tab" data-filter="international_service">
-        <i data-lucide="globe-2"></i><span>International Service</span>
-      </button>
-      <button class="avenue-tab" data-filter="district_priority_projects">
-        <i data-lucide="star"></i><span>District Priority Projects</span>
-      </button>
+      <button class="avenue-tab active" data-filter="all">                        <i data-lucide="layout-grid"></i>   <span>All Projects</span></button>
+      <button class="avenue-tab" data-filter="club_service">                      <i data-lucide="users-2"></i>       <span>Club Service</span></button>
+      <button class="avenue-tab" data-filter="community_service">                 <i data-lucide="heart-handshake"></i><span>Community Service</span></button>
+      <button class="avenue-tab" data-filter="professional_service">              <i data-lucide="briefcase"></i>     <span>Professional Service</span></button>
+      <button class="avenue-tab" data-filter="international_service">             <i data-lucide="globe-2"></i>       <span>International Service</span></button>
+      <button class="avenue-tab" data-filter="district_priority_projects">        <i data-lucide="star"></i>          <span>District Priority Projects</span></button>
     </div>
-
     <div class="projects-grid" id="projects-grid"></div>
-
-    <div class="load-more-wrap" id="load-more-wrap" style="display:none;">
-      <button class="btn btn-outline" id="load-more-btn">
-        <i data-lucide="chevrons-down"></i><span>Load More Projects</span>
-      </button>
+    <div class="load-more-wrap" id="load-more-wrap" style="display:none">
+      <button class="btn btn-outline" id="load-more-btn"><i data-lucide="chevrons-down"></i><span>Load More Projects</span></button>
     </div>
-
-    <div class="no-projects-placeholder" id="no-projects-placeholder" style="display:none;">
-      <div class="neu-card placeholder-card">
-        <i data-lucide="folder-x"></i>
-        <p>No completed projects found for this avenue</p>
-      </div>
+    <div class="no-projects-placeholder" id="no-projects-placeholder" style="display:none">
+      <div class="neu-card placeholder-card"><i data-lucide="folder-x"></i><p>No completed projects found</p></div>
     </div>
   </div>
 </section>
 
 <!-- ============================================================
-     PAST PRESIDENTS & SECRETARIES (Timeline)
+     PAST LEADERS
 ============================================================ -->
 <section class="section leaders-section" id="leaders">
   <div class="container">
     <div class="section-header" data-aos="fade-up">
       <div class="section-badge"><i data-lucide="crown"></i><span>Legacy</span></div>
       <h2 class="section-title">Past Presidents &amp; Secretaries</h2>
-      <p class="section-subtitle">Honoring the leaders who shaped our club's journey</p>
+      <p class="section-subtitle">Honoring the leaders who shaped our journey</p>
     </div>
     <div class="leaders-timeline" id="leaders-timeline"></div>
   </div>
 </section>
 
 <!-- ============================================================
-     MEMBERS SECTION
+     MEMBERS
 ============================================================ -->
 <section class="section members-section" id="members">
   <div class="container">
@@ -530,40 +632,29 @@
       <h2 class="section-title">Meet Our Members</h2>
       <p class="section-subtitle">The passionate individuals driving change in our community</p>
     </div>
-
     <div class="members-filter" data-aos="fade-up" data-aos-delay="100">
-      <button class="filter-btn active" data-filter="all">All Members</button>
-      <button class="filter-btn" data-filter="board">Board Members</button>
-      <button class="filter-btn" data-filter="A+">A+</button>
-      <button class="filter-btn" data-filter="A-">A-</button>
-      <button class="filter-btn" data-filter="B+">B+</button>
-      <button class="filter-btn" data-filter="B-">B-</button>
-      <button class="filter-btn" data-filter="AB+">AB+</button>
-      <button class="filter-btn" data-filter="AB-">AB-</button>
-      <button class="filter-btn" data-filter="O+">O+</button>
-      <button class="filter-btn" data-filter="O-">O-</button>
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="board">Board</button>
+      <button class="filter-btn" data-filter="A+">A+</button><button class="filter-btn" data-filter="A-">A-</button>
+      <button class="filter-btn" data-filter="B+">B+</button><button class="filter-btn" data-filter="B-">B-</button>
+      <button class="filter-btn" data-filter="AB+">AB+</button><button class="filter-btn" data-filter="AB-">AB-</button>
+      <button class="filter-btn" data-filter="O+">O+</button><button class="filter-btn" data-filter="O-">O-</button>
     </div>
-
     <div class="members-search-wrap" data-aos="fade-up" data-aos-delay="150">
       <div class="search-input-wrap neu-inset">
         <i data-lucide="search"></i>
-        <input type="text" id="members-search" placeholder="Search members by name, portfolio, area..." class="search-input" />
+        <input type="text" id="members-search" placeholder="Search members by name, portfolio, area…" class="search-input" />
       </div>
     </div>
-
     <div class="members-grid" id="members-grid"></div>
-
-    <div class="no-members-placeholder" id="no-members-placeholder" style="display:none;">
-      <div class="neu-card placeholder-card">
-        <i data-lucide="user-x"></i>
-        <p>No members found</p>
-      </div>
+    <div class="no-members-placeholder" id="no-members-placeholder" style="display:none">
+      <div class="neu-card placeholder-card"><i data-lucide="user-x"></i><p>No members found</p></div>
     </div>
   </div>
 </section>
 
 <!-- ============================================================
-     BENEFITS OF JOINING
+     BENEFITS
 ============================================================ -->
 <section class="section benefits-section" id="benefits">
   <div class="container">
@@ -573,46 +664,14 @@
       <p class="section-subtitle">Discover the transformative impact of being a Rotaractor</p>
     </div>
     <div class="benefits-grid">
-      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="0">
-        <div class="benefit-icon-wrap"><i data-lucide="network"></i></div>
-        <h3>Global Network</h3>
-        <p>Connect with over 217,000 Rotaractors in 200+ countries across the world through Rotary International</p>
-      </div>
-      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="60">
-        <div class="benefit-icon-wrap"><i data-lucide="trending-up"></i></div>
-        <h3>Leadership Development</h3>
-        <p>Develop vital leadership skills through hands-on experience in organizing and executing real-world projects</p>
-      </div>
-      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="120">
-        <div class="benefit-icon-wrap"><i data-lucide="briefcase"></i></div>
-        <h3>Professional Growth</h3>
-        <p>Build your professional profile with mentorship from Rotary members and industry leaders in your area</p>
-      </div>
-      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="180">
-        <div class="benefit-icon-wrap"><i data-lucide="heart-handshake"></i></div>
-        <h3>Community Impact</h3>
-        <p>Create meaningful change in society by working on impactful service projects that truly transform lives</p>
-      </div>
-      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="240">
-        <div class="benefit-icon-wrap"><i data-lucide="users-2"></i></div>
-        <h3>Fellowship &amp; Friendship</h3>
-        <p>Build lifelong friendships with like-minded young professionals who share your passion for service</p>
-      </div>
-      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="300">
-        <div class="benefit-icon-wrap"><i data-lucide="award"></i></div>
-        <h3>Recognition &amp; Awards</h3>
-        <p>Gain recognition at club, district, and international levels for outstanding contributions and service</p>
-      </div>
-      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="360">
-        <div class="benefit-icon-wrap"><i data-lucide="globe"></i></div>
-        <h3>International Exchange</h3>
-        <p>Participate in international exchange programs, conferences, and Rotary's global peace initiatives</p>
-      </div>
-      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="420">
-        <div class="benefit-icon-wrap"><i data-lucide="shield"></i></div>
-        <h3>Rotary Foundation</h3>
-        <p>Access scholarships, grants, and opportunities through the Rotary Foundation's world-class programs</p>
-      </div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="0">  <div class="benefit-icon-wrap"><i data-lucide="network"></i></div>       <h3>Global Network</h3>       <p>Connect with 217,000+ Rotaractors in 200+ countries</p></div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="60"> <div class="benefit-icon-wrap"><i data-lucide="trending-up"></i></div>    <h3>Leadership</h3>            <p>Develop skills through hands-on real-world projects</p></div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="120"><div class="benefit-icon-wrap"><i data-lucide="briefcase"></i></div>       <h3>Professional Growth</h3>  <p>Build your profile with Rotary mentorship</p></div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="180"><div class="benefit-icon-wrap"><i data-lucide="heart-handshake"></i></div> <h3>Community Impact</h3>    <p>Create meaningful change through service projects</p></div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="240"><div class="benefit-icon-wrap"><i data-lucide="users-2"></i></div>         <h3>Fellowship</h3>           <p>Build lifelong friendships with like-minded people</p></div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="300"><div class="benefit-icon-wrap"><i data-lucide="award"></i></div>           <h3>Recognition</h3>          <p>Gain recognition at club, district, international levels</p></div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="360"><div class="benefit-icon-wrap"><i data-lucide="globe"></i></div>           <h3>Int'l Exchange</h3>       <p>Participate in global programs and conferences</p></div>
+      <div class="benefit-card neu-card" data-aos="fade-up" data-aos-delay="420"><div class="benefit-icon-wrap"><i data-lucide="shield"></i></div>          <h3>Rotary Foundation</h3>   <p>Access scholarships, grants, and opportunities</p></div>
     </div>
   </div>
 </section>
@@ -629,23 +688,55 @@
     </div>
     <div class="newsletters-swiper-wrap" data-aos="fade-up" data-aos-delay="100">
       <div class="swiper newsletters-swiper">
-        <div class="swiper-wrapper" id="newsletters-swiper-wrapper"></div>
+        <div class="swiper-wrapper" id="newsletters-swiper-wrapper">
+          <!-- Cards injected here by JS from Supabase newsletters table -->
+        </div>
         <div class="swiper-pagination newsletters-pagination"></div>
         <div class="swiper-button-prev newsletters-prev"></div>
         <div class="swiper-button-next newsletters-next"></div>
       </div>
     </div>
-    <div id="newsletters-placeholder" style="display:none;">
-      <div class="neu-card placeholder-card">
-        <i data-lucide="file-x"></i>
-        <p>No bulletins published yet</p>
+    <div id="newsletters-placeholder" style="display:none">
+      <div class="neu-card placeholder-card"><i data-lucide="file-x"></i><p>No bulletins published yet</p></div>
+    </div>
+    <div id="newsletters-loading" style="text-align:center;padding:40px 0;display:none">
+      <div style="display:inline-flex;align-items:center;gap:12px;color:var(--text-muted,#64748b);font-family:Poppins,sans-serif;font-size:.9rem">
+        <div class="nlv-spin" style="border-color:rgba(0,0,0,.12);border-top-color:var(--primary,#1e3a8a)"></div>
+        Loading bulletins…
       </div>
     </div>
   </div>
 </section>
 
 <!-- ============================================================
-     JOIN US SECTION
+     NEWSLETTER VIEWER MODAL
+============================================================ -->
+<div id="nl-viewer-overlay">
+  <div id="nl-viewer-box">
+    <div id="nl-viewer-head">
+      <h3 id="nl-viewer-title">Bulletin</h3>
+      <div id="nl-viewer-btns">
+        <a id="nl-viewer-open" href="#" target="_blank" rel="noopener noreferrer"
+           class="nlv-btn nlv-btn-outline" style="display:none">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          <span>Open</span>
+        </a>
+        <a id="nl-viewer-dl" href="#" target="_blank" rel="noopener noreferrer"
+           class="nlv-btn nlv-btn-solid" style="display:none">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Download</span>
+        </a>
+      </div>
+      <button id="nl-viewer-x" aria-label="Close viewer">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="nl-viewer-content"></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     JOIN US
 ============================================================ -->
 <section class="section join-section" id="join">
   <div class="container">
@@ -653,95 +744,29 @@
       <div class="join-info">
         <div class="section-badge"><i data-lucide="user-plus"></i><span>Join Us</span></div>
         <h2 class="section-title">Become a Rotaractor</h2>
-        <p class="join-desc">Join our vibrant community of young leaders committed to making a difference. Fill out the application form and take your first step toward a life of service above self.</p>
-        <div class="join-requirements">
-          <h4>Eligibility</h4>
-          <ul>
-            <li><i data-lucide="check-circle"></i> Age between 18 and 30 years</li>
-            <li><i data-lucide="check-circle"></i> Student or young professional</li>
-            <li><i data-lucide="check-circle"></i> Committed to service above self</li>
-            <li><i data-lucide="check-circle"></i> Willingness to participate actively</li>
-          </ul>
-        </div>
-        <a href="pages/apply.html" class="btn btn-primary btn-lg">
-          <i data-lucide="send"></i><span>Apply for Membership</span>
-        </a>
+        <p class="join-desc">Join our vibrant community of young leaders committed to making a difference.</p>
+        <div class="join-requirements"><h4>Eligibility</h4><ul>
+          <li><i data-lucide="check-circle"></i> Age between 18 and 30 years</li>
+          <li><i data-lucide="check-circle"></i> Student or young professional</li>
+          <li><i data-lucide="check-circle"></i> Committed to service above self</li>
+          <li><i data-lucide="check-circle"></i> Willingness to participate actively</li>
+        </ul></div>
+        <a href="pages/apply.html" class="btn btn-primary btn-lg"><i data-lucide="send"></i><span>Apply for Membership</span></a>
       </div>
-
       <div class="join-form-card neu-card" id="join-form-card">
-        <h3 class="join-form-title">
-          <i data-lucide="file-text"></i> Quick Application
-        </h3>
+        <h3 class="join-form-title"><i data-lucide="file-text"></i> Quick Application</h3>
         <form id="quick-join-form" class="join-form" novalidate>
-          <div class="form-group">
-            <label class="form-label" for="join-name"><i data-lucide="user"></i> Full Name *</label>
-            <div class="input-wrap neu-inset">
-              <input type="text" id="join-name" name="full_name" class="form-input" placeholder="Your full name" required />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="join-email"><i data-lucide="mail"></i> Email Address *</label>
-            <div class="input-wrap neu-inset">
-              <input type="email" id="join-email" name="email" class="form-input" placeholder="your@email.com" required />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="join-phone"><i data-lucide="phone"></i> Phone Number *</label>
-            <div class="input-wrap neu-inset">
-              <input type="tel" id="join-phone" name="phone" class="form-input" placeholder="+91 XXXXX XXXXX" required />
-            </div>
-          </div>
+          <div class="form-group"><label class="form-label" for="join-name"><i data-lucide="user"></i> Full Name *</label><div class="input-wrap neu-inset"><input type="text" id="join-name" name="full_name" class="form-input" placeholder="Your full name" required /></div></div>
+          <div class="form-group"><label class="form-label" for="join-email"><i data-lucide="mail"></i> Email *</label><div class="input-wrap neu-inset"><input type="email" id="join-email" name="email" class="form-input" placeholder="your@email.com" required /></div></div>
+          <div class="form-group"><label class="form-label" for="join-phone"><i data-lucide="phone"></i> Phone *</label><div class="input-wrap neu-inset"><input type="tel" id="join-phone" name="phone" class="form-input" placeholder="+91 XXXXX XXXXX" required /></div></div>
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="join-dob"><i data-lucide="cake"></i> Date of Birth *</label>
-              <div class="input-wrap neu-inset">
-                <input type="date" id="join-dob" name="date_of_birth" class="form-input" required />
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="join-blood"><i data-lucide="droplets"></i> Blood Group *</label>
-              <div class="select-wrap neu-inset">
-                <select id="join-blood" name="blood_group" class="form-select" required>
-                  <option value="">Select</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                </select>
-                <i data-lucide="chevron-down" class="select-arrow"></i>
-              </div>
-            </div>
+            <div class="form-group"><label class="form-label" for="join-dob"><i data-lucide="cake"></i> DOB *</label><div class="input-wrap neu-inset"><input type="date" id="join-dob" name="date_of_birth" class="form-input" required /></div></div>
+            <div class="form-group"><label class="form-label" for="join-blood"><i data-lucide="droplets"></i> Blood Group *</label><div class="select-wrap neu-inset"><select id="join-blood" name="blood_group" class="form-select" required><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select><i data-lucide="chevron-down" class="select-arrow"></i></div></div>
           </div>
-          <div class="form-group">
-            <label class="form-label" for="join-area"><i data-lucide="map-pin"></i> Area / Locality</label>
-            <div class="input-wrap neu-inset">
-              <input type="text" id="join-area" name="area" class="form-input" placeholder="Your area or locality" />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="join-photo"><i data-lucide="camera"></i> Professional Photo *</label>
-            <div class="file-upload-wrap neu-inset" id="join-photo-wrap">
-              <input type="file" id="join-photo" name="professional_photo" class="file-input" accept="image/*" required />
-              <div class="file-upload-ui">
-                <i data-lucide="upload-cloud"></i>
-                <span id="join-photo-label">Click to upload photo (Max 5MB)</span>
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="join-message"><i data-lucide="message-square"></i> Why do you want to join?</label>
-            <div class="input-wrap neu-inset">
-              <textarea id="join-message" name="message" class="form-textarea" rows="3"
-                placeholder="Tell us why you want to join Rotaract..."></textarea>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary btn-full" id="join-submit-btn">
-            <i data-lucide="send"></i><span>Submit Application</span>
-          </button>
+          <div class="form-group"><label class="form-label" for="join-area"><i data-lucide="map-pin"></i> Area / Locality</label><div class="input-wrap neu-inset"><input type="text" id="join-area" name="area" class="form-input" placeholder="Your area" /></div></div>
+          <div class="form-group"><label class="form-label" for="join-photo"><i data-lucide="camera"></i> Photo *</label><div class="file-upload-wrap neu-inset" id="join-photo-wrap"><input type="file" id="join-photo" name="professional_photo" class="file-input" accept="image/*" required /><div class="file-upload-ui"><i data-lucide="upload-cloud"></i><span id="join-photo-label">Upload photo (Max 5MB)</span></div></div></div>
+          <div class="form-group"><label class="form-label" for="join-message"><i data-lucide="message-square"></i> Why join?</label><div class="input-wrap neu-inset"><textarea id="join-message" name="message" class="form-textarea" rows="3" placeholder="Tell us why you want to join…"></textarea></div></div>
+          <button type="submit" class="btn btn-primary btn-full" id="join-submit-btn"><i data-lucide="send"></i><span>Submit Application</span></button>
           <div class="form-message" id="join-form-message"></div>
         </form>
       </div>
@@ -750,7 +775,7 @@
 </section>
 
 <!-- ============================================================
-     BLOOD REQUEST SECTION
+     BLOOD REQUEST
 ============================================================ -->
 <section class="section blood-section" id="blood">
   <div class="container">
@@ -758,111 +783,33 @@
       <div class="blood-info">
         <div class="section-badge blood-badge"><i data-lucide="droplets"></i><span>Blood Donation</span></div>
         <h2 class="section-title">Need Blood?</h2>
-        <p class="blood-desc">In a medical emergency, every second counts. Submit a blood request and our Blood Donation Chair will coordinate with available donors immediately.</p>
+        <p class="blood-desc">In a medical emergency, every second counts. Submit a blood request and our team will coordinate immediately.</p>
         <div class="blood-meta-card neu-card">
-          <div class="blood-meta-item">
-            <i data-lucide="zap"></i>
-            <div><strong>Emergency Response</strong><span>WhatsApp alert sent immediately to our Blood Donation team</span></div>
-          </div>
-          <div class="blood-meta-item">
-            <i data-lucide="users"></i>
-            <div><strong>Donor Network</strong><span>Access our wide network of willing blood donors</span></div>
-          </div>
-          <div class="blood-meta-item">
-            <i data-lucide="clock"></i>
-            <div><strong>24/7 Coordination</strong><span>Our team is always ready to help in emergencies</span></div>
-          </div>
+          <div class="blood-meta-item"><i data-lucide="zap"></i>  <div><strong>Emergency Response</strong><span>WhatsApp alert sent immediately</span></div></div>
+          <div class="blood-meta-item"><i data-lucide="users"></i><div><strong>Donor Network</strong>      <span>Wide network of willing donors</span></div></div>
+          <div class="blood-meta-item"><i data-lucide="clock"></i><div><strong>24/7 Coordination</strong> <span>Always ready to help</span></div></div>
         </div>
       </div>
-
       <div class="blood-form-card neu-card">
         <h3 class="blood-form-title"><i data-lucide="heart-pulse"></i> Blood Request Form</h3>
         <form id="blood-request-form" class="blood-form" novalidate>
-          <div class="form-group">
-            <label class="form-label" for="blood-patient"><i data-lucide="user"></i> Patient Name *</label>
-            <div class="input-wrap neu-inset">
-              <input type="text" id="blood-patient" name="patient_name" class="form-input" placeholder="Patient's full name" required />
-            </div>
+          <div class="form-group"><label class="form-label" for="blood-patient"><i data-lucide="user"></i> Patient Name *</label><div class="input-wrap neu-inset"><input type="text" id="blood-patient" name="patient_name" class="form-input" placeholder="Patient's full name" required /></div></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="blood-group-req"><i data-lucide="droplets"></i> Blood Group *</label><div class="select-wrap neu-inset"><select id="blood-group-req" name="blood_group" class="form-select" required><option value="">Select</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select><i data-lucide="chevron-down" class="select-arrow"></i></div></div>
+            <div class="form-group"><label class="form-label" for="blood-units"><i data-lucide="layers"></i> Units *</label><div class="input-wrap neu-inset"><input type="number" id="blood-units" name="units_required" class="form-input" min="1" max="10" value="1" required /></div></div>
+          </div>
+          <div class="form-group"><label class="form-label" for="blood-hospital"><i data-lucide="building-2"></i> Hospital *</label><div class="input-wrap neu-inset"><input type="text" id="blood-hospital" name="hospital_name" class="form-input" placeholder="Hospital name" required /></div></div>
+          <div class="form-group"><label class="form-label" for="blood-address"><i data-lucide="map-pin"></i> Hospital Address *</label><div class="input-wrap neu-inset"><input type="text" id="blood-address" name="hospital_address" class="form-input" placeholder="Full address" required /></div></div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label" for="blood-contact-name"><i data-lucide="contact"></i> Contact Person *</label><div class="input-wrap neu-inset"><input type="text" id="blood-contact-name" name="contact_name" class="form-input" placeholder="Contact name" required /></div></div>
+            <div class="form-group"><label class="form-label" for="blood-contact-phone"><i data-lucide="phone"></i> Contact Phone *</label><div class="input-wrap neu-inset"><input type="tel" id="blood-contact-phone" name="contact_phone" class="form-input" placeholder="+91 XXXXX XXXXX" required /></div></div>
           </div>
           <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="blood-group-req"><i data-lucide="droplets"></i> Blood Group *</label>
-              <div class="select-wrap neu-inset">
-                <select id="blood-group-req" name="blood_group" class="form-select" required>
-                  <option value="">Select</option>
-                  <option value="A+">A+</option>
-                  <option value="A-">A-</option>
-                  <option value="B+">B+</option>
-                  <option value="B-">B-</option>
-                  <option value="AB+">AB+</option>
-                  <option value="AB-">AB-</option>
-                  <option value="O+">O+</option>
-                  <option value="O-">O-</option>
-                </select>
-                <i data-lucide="chevron-down" class="select-arrow"></i>
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="blood-units"><i data-lucide="layers"></i> Units Required *</label>
-              <div class="input-wrap neu-inset">
-                <input type="number" id="blood-units" name="units_required" class="form-input" min="1" max="10" value="1" required />
-              </div>
-            </div>
+            <div class="form-group"><label class="form-label" for="blood-required-date"><i data-lucide="calendar"></i> Required By *</label><div class="input-wrap neu-inset"><input type="date" id="blood-required-date" name="required_date" class="form-input" required /></div></div>
+            <div class="form-group"><label class="form-label" for="blood-urgency"><i data-lucide="alert-triangle"></i> Urgency</label><div class="select-wrap neu-inset"><select id="blood-urgency" name="urgency_level" class="form-select"><option value="normal">Normal</option><option value="urgent">Urgent</option><option value="critical">Critical</option></select><i data-lucide="chevron-down" class="select-arrow"></i></div></div>
           </div>
-          <div class="form-group">
-            <label class="form-label" for="blood-hospital"><i data-lucide="building-2"></i> Hospital Name *</label>
-            <div class="input-wrap neu-inset">
-              <input type="text" id="blood-hospital" name="hospital_name" class="form-input" placeholder="Hospital name" required />
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="blood-address"><i data-lucide="map-pin"></i> Hospital Address *</label>
-            <div class="input-wrap neu-inset">
-              <input type="text" id="blood-address" name="hospital_address" class="form-input" placeholder="Full hospital address" required />
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="blood-contact-name"><i data-lucide="contact"></i> Contact Person *</label>
-              <div class="input-wrap neu-inset">
-                <input type="text" id="blood-contact-name" name="contact_name" class="form-input" placeholder="Contact person name" required />
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="blood-contact-phone"><i data-lucide="phone"></i> Contact Phone *</label>
-              <div class="input-wrap neu-inset">
-                <input type="tel" id="blood-contact-phone" name="contact_phone" class="form-input" placeholder="+91 XXXXX XXXXX" required />
-              </div>
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label" for="blood-required-date"><i data-lucide="calendar"></i> Required By *</label>
-              <div class="input-wrap neu-inset">
-                <input type="date" id="blood-required-date" name="required_date" class="form-input" required />
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="blood-urgency"><i data-lucide="alert-triangle"></i> Urgency Level</label>
-              <div class="select-wrap neu-inset">
-                <select id="blood-urgency" name="urgency_level" class="form-select">
-                  <option value="normal">Normal</option>
-                  <option value="urgent">Urgent</option>
-                  <option value="critical">Critical - Emergency</option>
-                </select>
-                <i data-lucide="chevron-down" class="select-arrow"></i>
-              </div>
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="blood-additional"><i data-lucide="file-text"></i> Additional Information</label>
-            <div class="input-wrap neu-inset">
-              <textarea id="blood-additional" name="additional_info" class="form-textarea" rows="2" placeholder="Any additional details..."></textarea>
-            </div>
-          </div>
-          <button type="submit" class="btn btn-danger btn-full" id="blood-submit-btn">
-            <i data-lucide="send"></i><span>Submit Blood Request</span>
-          </button>
+          <div class="form-group"><label class="form-label" for="blood-additional"><i data-lucide="file-text"></i> Additional Info</label><div class="input-wrap neu-inset"><textarea id="blood-additional" name="additional_info" class="form-textarea" rows="2" placeholder="Any details…"></textarea></div></div>
+          <button type="submit" class="btn btn-danger btn-full" id="blood-submit-btn"><i data-lucide="send"></i><span>Submit Blood Request</span></button>
           <div class="form-message" id="blood-form-message"></div>
         </form>
       </div>
@@ -871,7 +818,7 @@
 </section>
 
 <!-- ============================================================
-     CONTACT & MAP SECTION
+     CONTACT
 ============================================================ -->
 <section class="section contact-section" id="contact">
   <div class="container">
@@ -880,105 +827,32 @@
       <h2 class="section-title">Contact Us</h2>
       <p class="section-subtitle">Reach out to us or visit our campus</p>
     </div>
-
     <div class="contact-grid" data-aos="fade-up" data-aos-delay="100">
       <div class="contact-info-card neu-card">
         <div class="contact-info-header">
-          <img
-            src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
-            alt="Club Logo"
-            class="contact-logo"
-          />
-          <div>
-            <h3 id="contact-club-name">Rotaract Club of Dr. N.G.P Arts &amp; Science College</h3>
-            <p>Parented by Rotary Club of Coimbatore Meridian</p>
-          </div>
+          <img src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" alt="Club Logo" class="contact-logo" />
+          <div><h3 id="contact-club-name">Rotaract Club of Dr. N.G.P Arts &amp; Science College</h3><p>Parented by Rotary Club of Coimbatore Meridian</p></div>
         </div>
-
         <div class="contact-details">
-          <div class="contact-detail-item">
-            <div class="contact-icon-wrap"><i data-lucide="map-pin"></i></div>
-            <div>
-              <span class="contact-label">Address</span>
-              <address id="contact-address">
-                Dr. N.G.P. Arts and Science College,<br />
-                Autonomous and Affiliated to Bharathiar University,<br />
-                Dr.N.G.P. - Kalapatti Road,<br />
-                Coimbatore - 641048. Tamil Nadu.
-              </address>
-            </div>
-          </div>
-          <div class="contact-detail-item">
-            <div class="contact-icon-wrap"><i data-lucide="mail"></i></div>
-            <div>
-              <span class="contact-label">Email</span>
-              <a href="mailto:rac.drngpasc@gmail.com" class="contact-link" id="contact-email">rac.drngpasc@gmail.com</a>
-            </div>
-          </div>
-          <div class="contact-detail-item">
-            <div class="contact-icon-wrap">
-              <svg class="social-icon-svg" style="width:18px;height:18px;" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-              </svg>
-            </div>
-            <div>
-              <span class="contact-label">Social Media</span>
-              <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="contact-link">@rotaractdrngpasc</a>
-            </div>
-          </div>
-          <div class="contact-detail-item">
-            <div class="contact-icon-wrap"><i data-lucide="hash"></i></div>
-            <div>
-              <span class="contact-label">Club ID</span>
-              <span>217835 | Rotary International District 3206</span>
-            </div>
-          </div>
+          <div class="contact-detail-item"><div class="contact-icon-wrap"><i data-lucide="map-pin"></i></div><div><span class="contact-label">Address</span><address id="contact-address">Dr. N.G.P. Arts and Science College,<br />Autonomous — Affiliated to Bharathiar University,<br />Dr.N.G.P. - Kalapatti Road,<br />Coimbatore - 641048, Tamil Nadu.</address></div></div>
+          <div class="contact-detail-item"><div class="contact-icon-wrap"><i data-lucide="mail"></i></div><div><span class="contact-label">Email</span><a href="mailto:rac.drngpasc@gmail.com" class="contact-link" id="contact-email">rac.drngpasc@gmail.com</a></div></div>
+          <div class="contact-detail-item"><div class="contact-icon-wrap"><svg class="social-icon-svg" style="width:18px;height:18px" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></div><div><span class="contact-label">Social</span><a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="contact-link">@rotaractdrngpasc</a></div></div>
+          <div class="contact-detail-item"><div class="contact-icon-wrap"><i data-lucide="hash"></i></div><div><span class="contact-label">Club ID</span><span>217835 | RI District 3206</span></div></div>
         </div>
-
         <div class="contact-social">
-          <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Instagram">
-            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-            </svg>
-          </a>
-          <a href="https://facebook.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Facebook">
-            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-          </a>
-          <a href="https://linkedin.com/company/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="LinkedIn">
-            <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-            </svg>
-          </a>
-          <a href="mailto:rac.drngpasc@gmail.com" class="social-btn neu-btn" title="Email">
-            <i data-lucide="mail"></i>
-          </a>
+          <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Instagram"><svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+          <a href="https://facebook.com/rotaractdrngpasc"  target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="Facebook"> <svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+          <a href="https://linkedin.com/company/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="social-btn neu-btn" title="LinkedIn"><svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          <a href="mailto:rac.drngpasc@gmail.com" class="social-btn neu-btn" title="Email"><i data-lucide="mail"></i></a>
         </div>
       </div>
-
-      <!-- Map -->
       <div class="contact-map-wrap neu-card" data-aos="fade-left" data-aos-delay="200">
         <div class="map-header">
-          <i data-lucide="navigation"></i>
-          <span>Find Us on Map</span>
-          <a href="https://maps.google.com/?q=Dr.+N.G.P.+Arts+and+Science+College,+Coimbatore"
-             target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm">
-            <i data-lucide="external-link"></i><span>Open in Maps</span>
-          </a>
+          <i data-lucide="navigation"></i><span>Find Us on Map</span>
+          <a href="https://maps.google.com/?q=Dr.+N.G.P.+Arts+and+Science+College,+Coimbatore" target="_blank" rel="noopener noreferrer" class="btn btn-outline btn-sm"><i data-lucide="external-link"></i><span>Open in Maps</span></a>
         </div>
         <div class="map-container" id="map-container">
-          <iframe
-            id="map-embed"
-            src="https://maps.google.com/maps?q=Dr.+N.G.P.+Arts+and+Science+College,+Dr.N.G.P.+Kalapatti+Road,+Coimbatore+641048&output=embed"
-            width="100%"
-            height="100%"
-            style="border:0;"
-            allowfullscreen=""
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade"
-            title="Rotaract Club of Dr. N.G.P Arts & Science College Location">
-          </iframe>
+          <iframe id="map-embed" src="https://maps.google.com/maps?q=Dr.+N.G.P.+Arts+and+Science+College,+Dr.N.G.P.+Kalapatti+Road,+Coimbatore+641048&output=embed" width="100%" height="100%" style="border:0" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="College Location"></iframe>
         </div>
       </div>
     </div>
@@ -989,262 +863,136 @@
      FOOTER
 ============================================================ -->
 <footer class="footer" id="footer">
-  <div class="footer-top">
-    <div class="container">
-      <div class="footer-grid">
-
-        <div class="footer-brand">
-          <img
-            src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713318/ngp_logo_whiteAsset_4_2x-8_rgwwq1.png"
-            alt="Rotaract Logo White"
-            class="footer-logo"
-            id="footer-logo"
-          />
-          <h3 class="footer-club-name" id="footer-club-name">
-            Rotaract Club of Dr. N.G.P Arts &amp; Science College
-          </h3>
-          <p class="footer-tagline" id="footer-vision">
-            To develop future leaders committed to service above self
-          </p>
-          <div class="footer-social">
-            <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Instagram">
-              <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
-              </svg>
-            </a>
-            <a href="https://facebook.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Facebook">
-              <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-              </svg>
-            </a>
-            <a href="https://linkedin.com/company/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="LinkedIn">
-              <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-              </svg>
-            </a>
-            <a href="https://youtube.com/@rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="YouTube">
-              <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-              </svg>
-            </a>
-            <a href="https://x.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="X (Twitter)">
-              <svg class="social-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-              </svg>
-            </a>
-          </div>
-        </div>
-
-        <div class="footer-links-col">
-          <h4 class="footer-col-title">Quick Links</h4>
-          <ul class="footer-links">
-            <li><a href="#home"><i data-lucide="chevron-right"></i> Home</a></li>
-            <li><a href="#about"><i data-lucide="chevron-right"></i> About Us</a></li>
-            <li><a href="#projects"><i data-lucide="chevron-right"></i> Projects</a></li>
-            <li><a href="#members"><i data-lucide="chevron-right"></i> Members</a></li>
-            <li><a href="#newsletters"><i data-lucide="chevron-right"></i> Bulletins</a></li>
-            <li><a href="#leaders"><i data-lucide="chevron-right"></i> Past Leaders</a></li>
-            <li><a href="#contact"><i data-lucide="chevron-right"></i> Contact</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-links-col">
-          <h4 class="footer-col-title">Avenues of Service</h4>
-          <ul class="footer-links">
-            <li><a href="#projects" data-scroll-filter="club_service"><i data-lucide="chevron-right"></i> Club Service</a></li>
-            <li><a href="#projects" data-scroll-filter="community_service"><i data-lucide="chevron-right"></i> Community Service</a></li>
-            <li><a href="#projects" data-scroll-filter="professional_service"><i data-lucide="chevron-right"></i> Professional Service</a></li>
-            <li><a href="#projects" data-scroll-filter="international_service"><i data-lucide="chevron-right"></i> International Service</a></li>
-            <li><a href="#projects" data-scroll-filter="district_priority_projects"><i data-lucide="chevron-right"></i> District Priority Projects</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-info-col">
-          <h4 class="footer-col-title">Club Information</h4>
-          <div class="footer-info-items">
-            <div class="footer-info-item"><i data-lucide="hash"></i><span>Club ID: 217835</span></div>
-            <div class="footer-info-item"><i data-lucide="calendar"></i><span>Charter: 11.02.2020</span></div>
-            <div class="footer-info-item"><i data-lucide="globe"></i><span>Rotary International District 3206</span></div>
-            <div class="footer-info-item"><i data-lucide="map-pin"></i><span>Coimbatore | Pallakkad</span></div>
-            <div class="footer-info-item">
-              <i data-lucide="mail"></i>
-              <a href="mailto:rac.drngpasc@gmail.com">rac.drngpasc@gmail.com</a>
-            </div>
-            <div class="footer-info-item"><i data-lucide="at-sign"></i><span>@rotaractdrngpasc</span></div>
-          </div>
-          <div class="footer-quick-actions">
-            <a href="#join" class="btn btn-primary btn-sm"><i data-lucide="user-plus"></i><span>Join Us</span></a>
-            <a href="#blood" class="btn btn-danger btn-sm"><i data-lucide="droplets"></i><span>Blood Request</span></a>
-            <a href="pages/games.html" class="btn btn-outline btn-sm" target="_blank">
-              <i data-lucide="gamepad-2"></i><span>Games</span>
-            </a>
-          </div>
-        </div>
-
+  <div class="footer-top"><div class="container"><div class="footer-grid">
+    <div class="footer-brand">
+      <img src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713318/ngp_logo_whiteAsset_4_2x-8_rgwwq1.png" alt="Logo" class="footer-logo" id="footer-logo" />
+      <h3 class="footer-club-name" id="footer-club-name">Rotaract Club of Dr. N.G.P Arts &amp; Science College</h3>
+      <p class="footer-tagline" id="footer-vision">To develop future leaders committed to service above self</p>
+      <div class="footer-social">
+        <a href="https://instagram.com/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Instagram"><svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+        <a href="https://facebook.com/rotaractdrngpasc"  target="_blank" rel="noopener noreferrer" class="footer-social-link" title="Facebook"> <svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+        <a href="https://linkedin.com/company/rotaractdrngpasc" target="_blank" rel="noopener noreferrer" class="footer-social-link" title="LinkedIn"><svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+        <a href="https://youtube.com/@rotaractdrngpasc"   target="_blank" rel="noopener noreferrer" class="footer-social-link" title="YouTube">  <svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg></a>
+        <a href="https://x.com/rotaractdrngpasc"          target="_blank" rel="noopener noreferrer" class="footer-social-link" title="X">         <svg class="social-icon-svg" viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
       </div>
     </div>
-  </div>
-
-  <div class="footer-bottom">
-    <div class="container">
-      <div class="footer-bottom-content">
-        <p class="footer-copy">
-          &copy; <span id="footer-year"></span>
-          Rotaract Club of Dr. N.G.P Arts &amp; Science College. All rights reserved.
-        </p>
-        <p class="footer-rotary">
-          <i data-lucide="heart" class="heart-icon"></i>
-          Parented by Rotary Club of Coimbatore Meridian | Rotary International District 3206
-        </p>
+    <div class="footer-links-col"><h4 class="footer-col-title">Quick Links</h4><ul class="footer-links">
+      <li><a href="#home">       <i data-lucide="chevron-right"></i> Home</a></li>
+      <li><a href="#about">      <i data-lucide="chevron-right"></i> About Us</a></li>
+      <li><a href="#projects">   <i data-lucide="chevron-right"></i> Projects</a></li>
+      <li><a href="#members">    <i data-lucide="chevron-right"></i> Members</a></li>
+      <li><a href="#newsletters"><i data-lucide="chevron-right"></i> Bulletins</a></li>
+      <li><a href="#leaders">    <i data-lucide="chevron-right"></i> Past Leaders</a></li>
+      <li><a href="#contact">    <i data-lucide="chevron-right"></i> Contact</a></li>
+    </ul></div>
+    <div class="footer-links-col"><h4 class="footer-col-title">Avenues</h4><ul class="footer-links">
+      <li><a href="#projects" data-scroll-filter="club_service">             <i data-lucide="chevron-right"></i> Club Service</a></li>
+      <li><a href="#projects" data-scroll-filter="community_service">        <i data-lucide="chevron-right"></i> Community</a></li>
+      <li><a href="#projects" data-scroll-filter="professional_service">     <i data-lucide="chevron-right"></i> Professional</a></li>
+      <li><a href="#projects" data-scroll-filter="international_service">    <i data-lucide="chevron-right"></i> International</a></li>
+      <li><a href="#projects" data-scroll-filter="district_priority_projects"><i data-lucide="chevron-right"></i> DPP</a></li>
+    </ul></div>
+    <div class="footer-info-col"><h4 class="footer-col-title">Club Info</h4>
+      <div class="footer-info-items">
+        <div class="footer-info-item"><i data-lucide="hash"></i>    <span>Club ID: 217835</span></div>
+        <div class="footer-info-item"><i data-lucide="calendar"></i><span>Charter: 11.02.2020</span></div>
+        <div class="footer-info-item"><i data-lucide="globe"></i>   <span>RI District 3206</span></div>
+        <div class="footer-info-item"><i data-lucide="map-pin"></i> <span>Coimbatore | Pallakkad</span></div>
+        <div class="footer-info-item"><i data-lucide="mail"></i>    <a href="mailto:rac.drngpasc@gmail.com">rac.drngpasc@gmail.com</a></div>
+        <div class="footer-info-item"><i data-lucide="at-sign"></i> <span>@rotaractdrngpasc</span></div>
+      </div>
+      <div class="footer-quick-actions">
+        <a href="#join"  class="btn btn-primary btn-sm"><i data-lucide="user-plus"></i><span>Join Us</span></a>
+        <a href="#blood" class="btn btn-danger  btn-sm"><i data-lucide="droplets"></i><span>Blood Request</span></a>
+        <a href="pages/games.html" class="btn btn-outline btn-sm" target="_blank"><i data-lucide="gamepad-2"></i><span>Games</span></a>
       </div>
     </div>
-  </div>
+  </div></div></div>
+  <div class="footer-bottom"><div class="container"><div class="footer-bottom-content">
+    <p class="footer-copy">&copy; <span id="footer-year"></span> Rotaract Club of Dr. N.G.P Arts &amp; Science College. All rights reserved.</p>
+    <p class="footer-rotary"><i data-lucide="heart" class="heart-icon"></i> Parented by Rotary Club of Coimbatore Meridian | RI District 3206</p>
+  </div></div></div>
 </footer>
 
-<!-- ============================================================
-     PROJECT DETAIL MODAL
-============================================================ -->
-<div class="modal-overlay" id="project-modal-overlay">
-  <div class="modal-container neu-card" id="project-modal">
-    <div class="modal-header">
-      <div class="modal-title-area">
-        <div class="modal-avenue-badge" id="modal-avenue-badge"></div>
-        <h2 class="modal-title" id="modal-project-title"></h2>
-      </div>
-      <button class="modal-close neu-btn" id="modal-close-btn"><i data-lucide="x"></i></button>
+<!-- PROJECT MODAL -->
+<div class="modal-overlay" id="project-modal-overlay"><div class="modal-container neu-card" id="project-modal">
+  <div class="modal-header"><div class="modal-title-area"><div class="modal-avenue-badge" id="modal-avenue-badge"></div><h2 class="modal-title" id="modal-project-title"></h2></div><button class="modal-close neu-btn" id="modal-close-btn"><i data-lucide="x"></i></button></div>
+  <div class="modal-body" id="modal-body">
+    <div class="modal-poster-wrap" id="modal-poster-wrap"><div class="modal-poster-swiper swiper" id="modal-poster-swiper"><div class="swiper-wrapper" id="modal-poster-wrapper"></div><div class="swiper-pagination"></div><div class="swiper-button-prev"></div><div class="swiper-button-next"></div></div></div>
+    <div class="modal-details-grid">
+      <div class="modal-detail-item"><i data-lucide="calendar"></i><div><span class="modal-detail-label">Date</span>        <span class="modal-detail-value" id="modal-date"></span></div></div>
+      <div class="modal-detail-item"><i data-lucide="clock"></i>   <div><span class="modal-detail-label">Time</span>        <span class="modal-detail-value" id="modal-time"></span></div></div>
+      <div class="modal-detail-item"><i data-lucide="map-pin"></i> <div><span class="modal-detail-label">Venue</span>       <span class="modal-detail-value" id="modal-venue"></span></div></div>
+      <div class="modal-detail-item"><i data-lucide="user-check"></i><div><span class="modal-detail-label">Chair</span>     <span class="modal-detail-value" id="modal-chair"></span></div></div>
+      <div class="modal-detail-item" id="modal-secretary-wrap">    <i data-lucide="user"></i>      <div><span class="modal-detail-label">Secretary</span>    <span class="modal-detail-value" id="modal-secretary"></span></div></div>
+      <div class="modal-detail-item" id="modal-collaboration-wrap"><i data-lucide="handshake"></i><div><span class="modal-detail-label">Collaboration</span><span class="modal-detail-value" id="modal-collaboration"></span></div></div>
+      <div class="modal-detail-item" id="modal-attendance-wrap">   <i data-lucide="users"></i>    <div><span class="modal-detail-label">Attendance</span>   <span class="modal-detail-value" id="modal-attendance"></span></div></div>
+      <div class="modal-detail-item" id="modal-beneficiaries-wrap"><i data-lucide="heart"></i>    <div><span class="modal-detail-label">Beneficiaries</span><span class="modal-detail-value" id="modal-beneficiaries"></span></div></div>
     </div>
-    <div class="modal-body" id="modal-body">
-      <div class="modal-poster-wrap" id="modal-poster-wrap">
-        <div class="modal-poster-swiper swiper" id="modal-poster-swiper">
-          <div class="swiper-wrapper" id="modal-poster-wrapper"></div>
-          <div class="swiper-pagination"></div>
-          <div class="swiper-button-prev"></div>
-          <div class="swiper-button-next"></div>
-        </div>
-      </div>
-      <div class="modal-details-grid">
-        <div class="modal-detail-item"><i data-lucide="calendar"></i><div><span class="modal-detail-label">Date</span><span class="modal-detail-value" id="modal-date"></span></div></div>
-        <div class="modal-detail-item"><i data-lucide="clock"></i><div><span class="modal-detail-label">Time</span><span class="modal-detail-value" id="modal-time"></span></div></div>
-        <div class="modal-detail-item"><i data-lucide="map-pin"></i><div><span class="modal-detail-label">Venue</span><span class="modal-detail-value" id="modal-venue"></span></div></div>
-        <div class="modal-detail-item"><i data-lucide="user-check"></i><div><span class="modal-detail-label">Event Chair</span><span class="modal-detail-value" id="modal-chair"></span></div></div>
-        <div class="modal-detail-item" id="modal-secretary-wrap"><i data-lucide="user"></i><div><span class="modal-detail-label">Event Secretary</span><span class="modal-detail-value" id="modal-secretary"></span></div></div>
-        <div class="modal-detail-item" id="modal-collaboration-wrap"><i data-lucide="handshake"></i><div><span class="modal-detail-label">Collaboration</span><span class="modal-detail-value" id="modal-collaboration"></span></div></div>
-        <div class="modal-detail-item" id="modal-attendance-wrap"><i data-lucide="users"></i><div><span class="modal-detail-label">Attendance</span><span class="modal-detail-value" id="modal-attendance"></span></div></div>
-        <div class="modal-detail-item" id="modal-beneficiaries-wrap"><i data-lucide="heart"></i><div><span class="modal-detail-label">Beneficiaries</span><span class="modal-detail-value" id="modal-beneficiaries"></span></div></div>
-      </div>
-      <div class="modal-description-section"><h4><i data-lucide="file-text"></i> About This Project</h4><p id="modal-description"></p></div>
-      <div class="modal-photos-section" id="modal-photos-section"><h4><i data-lucide="image"></i> Action Photographs</h4><div class="modal-photos-grid" id="modal-photos-grid"></div></div>
-      <div class="modal-actions">
-        <button class="btn btn-outline" id="modal-add-calendar-btn"><i data-lucide="calendar-plus"></i><span>Add to Calendar</span></button>
-        <button class="btn btn-outline" id="modal-share-btn"><i data-lucide="share-2"></i><span>Share Project</span></button>
+    <div class="modal-description-section"><h4><i data-lucide="file-text"></i> About This Project</h4><p id="modal-description"></p></div>
+    <div class="modal-photos-section" id="modal-photos-section"><h4><i data-lucide="image"></i> Action Photographs</h4><div class="modal-photos-grid" id="modal-photos-grid"></div></div>
+    <div class="modal-actions"><button class="btn btn-outline" id="modal-add-calendar-btn"><i data-lucide="calendar-plus"></i><span>Add to Calendar</span></button><button class="btn btn-outline" id="modal-share-btn"><i data-lucide="share-2"></i><span>Share</span></button></div>
+  </div>
+</div></div>
+
+<!-- MEMBER MODAL -->
+<div class="modal-overlay" id="member-modal-overlay"><div class="modal-container neu-card member-modal" id="member-modal">
+  <button class="modal-close neu-btn" id="member-modal-close"><i data-lucide="x"></i></button>
+  <div class="member-modal-body">
+    <div class="member-modal-photo-wrap"><img src="" alt="" class="member-modal-photo" id="member-modal-photo" /><div class="member-blood-badge" id="member-modal-blood"></div></div>
+    <div class="member-modal-info"><h2 id="member-modal-name"></h2><p class="member-modal-portfolio" id="member-modal-portfolio"></p>
+      <div class="member-modal-details">
+        <div class="member-modal-detail" id="member-modal-ri-wrap">   <i data-lucide="hash"></i>   <span id="member-modal-ri"></span></div>
+        <div class="member-modal-detail" id="member-modal-area-wrap">  <i data-lucide="map-pin"></i><span id="member-modal-area"></span></div>
+        <div class="member-modal-detail" id="member-modal-email-wrap"> <i data-lucide="mail"></i>   <a id="member-modal-email" href="#"></a></div>
+        <div class="member-modal-detail" id="member-modal-phone-wrap"> <i data-lucide="phone"></i>  <span id="member-modal-phone"></span></div>
       </div>
     </div>
   </div>
-</div>
+</div></div>
 
-<!-- ============================================================
-     MEMBER DETAIL MODAL
-============================================================ -->
-<div class="modal-overlay" id="member-modal-overlay">
-  <div class="modal-container neu-card member-modal" id="member-modal">
-    <button class="modal-close neu-btn" id="member-modal-close"><i data-lucide="x"></i></button>
-    <div class="member-modal-body">
-      <div class="member-modal-photo-wrap">
-        <img src="" alt="" class="member-modal-photo" id="member-modal-photo" />
-        <div class="member-blood-badge" id="member-modal-blood"></div>
-      </div>
-      <div class="member-modal-info">
-        <h2 id="member-modal-name"></h2>
-        <p class="member-modal-portfolio" id="member-modal-portfolio"></p>
-        <div class="member-modal-details">
-          <div class="member-modal-detail" id="member-modal-ri-wrap"><i data-lucide="hash"></i><span id="member-modal-ri"></span></div>
-          <div class="member-modal-detail" id="member-modal-area-wrap"><i data-lucide="map-pin"></i><span id="member-modal-area"></span></div>
-          <div class="member-modal-detail" id="member-modal-email-wrap"><i data-lucide="mail"></i><a id="member-modal-email" href="#"></a></div>
-          <div class="member-modal-detail" id="member-modal-phone-wrap"><i data-lucide="phone"></i><span id="member-modal-phone"></span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<!-- LIGHTBOX -->
+<div class="lightbox-overlay" id="lightbox-overlay"><div class="lightbox-content">
+  <button class="lightbox-close" id="lightbox-close"><i data-lucide="x"></i></button>
+  <button class="lightbox-prev"  id="lightbox-prev"> <i data-lucide="chevron-left"></i></button>
+  <img src="" alt="" class="lightbox-img" id="lightbox-img" />
+  <button class="lightbox-next"  id="lightbox-next"> <i data-lucide="chevron-right"></i></button>
+  <div class="lightbox-caption" id="lightbox-caption"></div>
+</div></div>
 
-<!-- ============================================================
-     PHOTO LIGHTBOX
-============================================================ -->
-<div class="lightbox-overlay" id="lightbox-overlay">
-  <div class="lightbox-content">
-    <button class="lightbox-close" id="lightbox-close"><i data-lucide="x"></i></button>
-    <button class="lightbox-prev" id="lightbox-prev"><i data-lucide="chevron-left"></i></button>
-    <img src="" alt="" class="lightbox-img" id="lightbox-img" />
-    <button class="lightbox-next" id="lightbox-next"><i data-lucide="chevron-right"></i></button>
-    <div class="lightbox-caption" id="lightbox-caption"></div>
-  </div>
-</div>
-
-<!-- ============================================================
-     TOAST NOTIFICATIONS
-============================================================ -->
+<!-- TOASTS -->
 <div class="toast-container" id="toast-container"></div>
 
-<!-- ============================================================
-     BACK TO TOP
-============================================================ -->
-<button class="back-to-top neu-btn" id="back-to-top" aria-label="Back to top">
-  <i data-lucide="chevron-up"></i>
-</button>
+<!-- BACK TO TOP -->
+<button class="back-to-top neu-btn" id="back-to-top" aria-label="Back to top"><i data-lucide="chevron-up"></i></button>
 
-<!-- ============================================================
-     AI CHATBOT
-============================================================ -->
-<div class="chatbot-fab" id="chatbot-fab" title="Chat with Rotaract AI Assistant">
-  <i data-lucide="message-circle" class="chatbot-fab-icon"></i>
-  <span class="chatbot-fab-badge" id="chatbot-badge">AI</span>
-</div>
-
+<!-- CHATBOT -->
+<div class="chatbot-fab" id="chatbot-fab" title="Chat with Rotaract AI"><i data-lucide="message-circle" class="chatbot-fab-icon"></i><span class="chatbot-fab-badge" id="chatbot-badge">AI</span></div>
 <div class="chatbot-window" id="chatbot-window">
   <div class="chatbot-header">
-    <div class="chatbot-header-info">
-      <div class="chatbot-avatar"><i data-lucide="bot"></i></div>
-      <div>
-        <h4>Rotaract AI Assistant</h4>
-        <span class="chatbot-status"><span class="status-dot"></span>Online</span>
-      </div>
-    </div>
-    <div class="chatbot-header-actions">
-      <button class="chatbot-btn" id="chatbot-clear-btn" title="Clear chat"><i data-lucide="trash-2"></i></button>
-      <button class="chatbot-btn" id="chatbot-close-btn" title="Close"><i data-lucide="x"></i></button>
-    </div>
+    <div class="chatbot-header-info"><div class="chatbot-avatar"><i data-lucide="bot"></i></div><div><h4>Rotaract AI Assistant</h4><span class="chatbot-status"><span class="status-dot"></span>Online</span></div></div>
+    <div class="chatbot-header-actions"><button class="chatbot-btn" id="chatbot-clear-btn" title="Clear"><i data-lucide="trash-2"></i></button><button class="chatbot-btn" id="chatbot-close-btn" title="Close"><i data-lucide="x"></i></button></div>
   </div>
   <div class="chatbot-messages" id="chatbot-messages">
-    <div class="chatbot-message bot">
-      <div class="chatbot-avatar-sm"><i data-lucide="bot"></i></div>
-      <div class="chatbot-bubble">
-        <p>Hello! I am the Rotaract AI Assistant for <strong>Rotaract Club of Dr. N.G.P Arts &amp; Science College</strong>.</p>
-        <p>I can answer all your questions about Rotary International, Rotaract, Rotary International District 3206, RSAMDIO, End Polio, and everything related to our club.</p>
-        <p>How can I assist you today?</p>
-      </div>
+    <div class="chatbot-message bot"><div class="chatbot-avatar-sm"><i data-lucide="bot"></i></div>
+      <div class="chatbot-bubble"><p>Hello! I am the Rotaract AI Assistant for <strong>Rotaract Club of Dr. N.G.P Arts &amp; Science College</strong>. How can I help you?</p></div>
     </div>
   </div>
   <div class="chatbot-quick-prompts" id="chatbot-quick-prompts">
     <button class="quick-prompt" data-prompt="What is Rotaract?">What is Rotaract?</button>
-    <button class="quick-prompt" data-prompt="Tell me about RI District 3206">About District 3206</button>
+    <button class="quick-prompt" data-prompt="Tell me about RI District 3206">District 3206</button>
     <button class="quick-prompt" data-prompt="What is End Polio Now?">End Polio Now</button>
-    <button class="quick-prompt" data-prompt="What is RSAMDIO?">What is RSAMDIO?</button>
+    <button class="quick-prompt" data-prompt="What is RSAMDIO?">RSAMDIO</button>
     <button class="quick-prompt" data-prompt="How to join Rotaract?">How to Join?</button>
   </div>
   <div class="chatbot-input-area">
-    <div class="chatbot-input-wrap neu-inset">
-      <input type="text" id="chatbot-input" placeholder="Ask anything about Rotary &amp; Rotaract..." class="chatbot-input" />
-      <button class="chatbot-send-btn" id="chatbot-send-btn"><i data-lucide="send"></i></button>
-    </div>
-    <p class="chatbot-powered">
-      <i data-lucide="cpu"></i>
-      Powered by AI | Rotaract Club of Dr. N.G.P Arts &amp; Science College
-    </p>
+    <div class="chatbot-input-wrap neu-inset"><input type="text" id="chatbot-input" placeholder="Ask anything about Rotary &amp; Rotaract…" class="chatbot-input" /><button class="chatbot-send-btn" id="chatbot-send-btn"><i data-lucide="send"></i></button></div>
+    <p class="chatbot-powered"><i data-lucide="cpu"></i> Powered by AI | Rotaract Club of Dr. N.G.P Arts &amp; Science College</p>
   </div>
 </div>
 
 <!-- ============================================================
-     SCRIPTS — Exact order is critical
+     SCRIPTS
 ============================================================ -->
 <script src="js/config.js"></script>
 <script src="js/email-service.js"></script>
@@ -1254,90 +1002,377 @@
 <script src="js/public.js"></script>
 <script src="js/app.js"></script>
 
+<!-- ============================================================
+     NEWSLETTER ENGINE — exact column names from Supabase:
+     id | title | month | pdf_url | description | is_published
+     published_at | created_by | created_at | updated_at
+============================================================ -->
 <script>
-(function () {
-  'use strict';
+(function(){
+'use strict';
 
-  /* ========== INSTANT THEME APPLY ========== */
-  try {
-    var saved = localStorage.getItem('rac_theme');
-    if (saved) {
-      var parsed = JSON.parse(saved);
-      if (parsed && parsed.value) {
-        document.documentElement.setAttribute('data-theme', parsed.value);
-        if (parsed.value === 'dark') {
-          var li = document.getElementById('theme-icon-light');
-          var di = document.getElementById('theme-icon-dark');
-          if (li) li.classList.add('hidden');
-          if (di) di.classList.remove('hidden');
-        }
-      }
+/* ── Theme ── */
+try{
+  var _t=localStorage.getItem('rac_theme');
+  if(_t){var _p=JSON.parse(_t);if(_p&&_p.value){document.documentElement.setAttribute('data-theme',_p.value);if(_p.value==='dark'){var _li=document.getElementById('theme-icon-light'),_di=document.getElementById('theme-icon-dark');if(_li)_li.classList.add('hidden');if(_di)_di.classList.remove('hidden')}}}
+}catch(e){}
+
+/* ── AOS + Lucide ── */
+if(typeof AOS!=='undefined')AOS.init({duration:800,easing:'ease-out-cubic',once:true,offset:60});
+function RI(){if(typeof lucide!=='undefined')lucide.createIcons()}
+RI();
+
+/* ── Footer year ── */
+var _fy=document.getElementById('footer-year');if(_fy)_fy.textContent=new Date().getFullYear();
+
+/* ══════════════════════════════════════════════════════════
+   NEWSLETTER VIEWER ENGINE
+══════════════════════════════════════════════════════════ */
+function detectType(u){
+  if(!u)return'unknown';
+  u=u.toLowerCase().trim();
+  if(u.includes('drive.google.com'))return'gdrive';
+  if(u.includes('docs.google.com'))return'gdocs';
+  if(u.endsWith('.pdf')||u.includes('/pdf')||u.includes('type=pdf')||u.includes('.pdf?'))return'pdf';
+  if(u.includes('issuu.com'))return'issuu';
+  if(u.includes('fliphtml5')||u.includes('flipsnack')||u.includes('anyflip'))return'flip';
+  if(u.includes('canva.com'))return'canva';
+  if(u.includes('dropbox.com'))return'dropbox';
+  if(u.includes('onedrive')||u.includes('1drv.ms'))return'onedrive';
+  if(/\.(jpe?g|png|gif|webp|svg)(\?|$)/.test(u))return'image';
+  return'link';
+}
+
+function toEmbed(u,t){
+  if(!u)return null;
+  u=u.trim();
+  if(t==='gdrive'){
+    // /file/d/ID/view or /file/d/ID/edit → /file/d/ID/preview
+    var m=u.match(/\/d\/([a-zA-Z0-9_-]+)/);
+    if(m)return'https://drive.google.com/file/d/'+m[1]+'/preview';
+    // ?id=ID format
+    var m2=u.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+    if(m2)return'https://drive.google.com/file/d/'+m2[1]+'/preview';
+    // open?id= format
+    var m3=u.match(/open\?id=([a-zA-Z0-9_-]+)/);
+    if(m3)return'https://drive.google.com/file/d/'+m3[1]+'/preview';
+  }
+  if(t==='gdocs')return u.replace(/\/edit.*$/,'/preview').replace(/\/view.*$/,'/preview');
+  if(t==='pdf')return'https://docs.google.com/viewer?url='+encodeURIComponent(u)+'&embedded=true';
+  if(t==='dropbox')return u.replace('www.dropbox.com','dl.dropboxusercontent.com').replace('?dl=0','').replace('?dl=1','');
+  if(t==='issuu'||t==='flip'||t==='canva')return u;
+  return null;
+}
+
+/* SVG helpers */
+var SVG_EYE='<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+var SVG_EXT='<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
+var SVG_DOC='<svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>';
+var SVG_CAL='<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+
+function openViewer(d){
+  /* d = { title, pdf_url } — exact column names */
+  var url=(d.pdf_url||d.file_url||d.link_url||d.url||'').trim();
+  var title=(d.title||'Bulletin').trim();
+  var type=detectType(url);
+  var embed=toEmbed(url,type);
+
+  document.getElementById('nl-viewer-title').textContent=title;
+
+  var ob=document.getElementById('nl-viewer-open');
+  var db=document.getElementById('nl-viewer-dl');
+  if(ob){ob.href=url||'#';ob.style.display=url?'inline-flex':'none'}
+  if(db){db.href=url||'#';db.style.display=url?'inline-flex':'none'}
+
+  var body=document.getElementById('nl-viewer-content');
+  body.innerHTML='';
+
+  if(type==='image'&&url){
+    var img=document.createElement('img');
+    img.src=url;img.alt=title;
+    img.style.cssText='width:100%;height:100%;object-fit:contain;background:#000;display:block';
+    body.appendChild(img);
+
+  }else if(embed){
+    /* loading indicator */
+    var ld=document.createElement('div');ld.className='nlv-loader';ld.id='_nlvld';
+    ld.innerHTML='<div class="nlv-spin"></div><p>Loading bulletin…</p>';
+    body.appendChild(ld);
+
+    var ifr=document.createElement('iframe');
+    ifr.src=embed;ifr.title=title;ifr.allowFullscreen=true;
+    ifr.setAttribute('loading','lazy');
+    ifr.setAttribute('sandbox','allow-scripts allow-same-origin allow-forms allow-popups allow-top-navigation');
+    ifr.style.cssText='width:100%;height:100%;min-height:520px;border:none;display:block';
+    ifr.addEventListener('load',function(){var l=document.getElementById('_nlvld');if(l)l.remove()});
+    body.appendChild(ifr);
+
+    /* 8s fallback — if still loading show external view */
+    setTimeout(function(){var l=document.getElementById('_nlvld');if(l){l.remove();showExt(body,url,type)}},8000);
+
+  }else{
+    showExt(body,url,type);
+  }
+
+  document.getElementById('nl-viewer-overlay').classList.add('active');
+  document.body.style.overflow='hidden';
+  RI();
+}
+
+function showExt(body,url,type){
+  var labels={gdrive:'Google Drive',gdocs:'Google Docs',pdf:'PDF',issuu:'Issuu',flip:'Flipbook',canva:'Canva',dropbox:'Dropbox',onedrive:'OneDrive',link:'Link',unknown:'Document'};
+  body.innerHTML=
+    '<div class="nlv-ext">'+
+    '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>'+
+    '<h4>'+(labels[type]||'Document')+'</h4>'+
+    '<p>This bulletin cannot be previewed here.<br>Open it in a new tab to view.</p>'+
+    (url?'<a href="'+url+'" target="_blank" rel="noopener noreferrer" class="nlv-ext-btn">Open Bulletin '+SVG_EXT.replace('13','16').replace('13','16')+'</a>':'')+
+    '</div>';
+}
+
+function closeViewer(){
+  var o=document.getElementById('nl-viewer-overlay');if(!o)return;
+  o.classList.remove('active');
+  document.body.style.overflow='';
+  setTimeout(function(){var b=document.getElementById('nl-viewer-content');if(b)b.innerHTML=''},320);
+}
+
+/* Viewer controls */
+document.getElementById('nl-viewer-x').addEventListener('click',closeViewer);
+document.getElementById('nl-viewer-overlay').addEventListener('click',function(e){if(e.target===this)closeViewer()});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeViewer()});
+
+/* Global exposure */
+window.openNewsletterViewer=openViewer;
+window.closeNewsletterViewer=closeViewer;
+
+/* ══════════════════════════════════════════════════════════
+   NEWSLETTER CARD RENDERER
+   Uses exact Supabase columns:
+   id, title, month, pdf_url, description,
+   is_published, published_at, created_by, created_at, updated_at
+══════════════════════════════════════════════════════════ */
+var COLORS=[
+  'linear-gradient(135deg,#1e3a8a 0%,#3b82f6 100%)',
+  'linear-gradient(135deg,#7c3aed 0%,#a78bfa 100%)',
+  'linear-gradient(135deg,#0f766e 0%,#34d399 100%)',
+  'linear-gradient(135deg,#b45309 0%,#fbbf24 100%)',
+  'linear-gradient(135deg,#be123c 0%,#fb7185 100%)',
+  'linear-gradient(135deg,#4338ca 0%,#818cf8 100%)',
+  'linear-gradient(135deg,#065f46 0%,#6ee7b7 100%)',
+];
+
+var TYPE_LABEL={
+  gdrive:'Google Drive',gdocs:'Google Docs',pdf:'PDF',
+  issuu:'Issuu',flip:'Flipbook',canva:'Canva',
+  dropbox:'Dropbox',onedrive:'OneDrive',image:'Image',
+  link:'Link',unknown:'Link'
+};
+
+function renderCards(newsletters){
+  var wrapper=document.getElementById('newsletters-swiper-wrapper');
+  var placeholder=document.getElementById('newsletters-placeholder');
+  var loading=document.getElementById('newsletters-loading');
+
+  if(loading)loading.style.display='none';
+  if(!wrapper)return;
+
+  /* Filter only published */
+  var published=newsletters.filter(function(n){
+    return n.is_published===true||n.is_published===1||n.is_published==='true';
+  });
+
+  if(!published.length){
+    wrapper.innerHTML='';
+    if(placeholder)placeholder.style.display='block';
+    return;
+  }
+  if(placeholder)placeholder.style.display='none';
+  wrapper.innerHTML='';
+
+  published.forEach(function(nl,i){
+    /* ── exact column mapping ── */
+    var url    = (nl.pdf_url||'').trim();
+    var title  = (nl.title||'Bulletin').trim();
+    var month  = nl.month||'';
+    var desc   = nl.description||'';
+    var pubAt  = nl.published_at||nl.created_at||'';
+
+    /* format date */
+    var dateStr='';
+    if(pubAt){
+      try{dateStr=new Date(pubAt).toLocaleDateString('en-IN',{year:'numeric',month:'short',day:'numeric'})}catch(e){dateStr=pubAt}
     }
-  } catch (e) {}
 
-  /* ========== AOS ========== */
-  if (typeof AOS !== 'undefined') {
-    AOS.init({
-      duration: 800,
-      easing: 'ease-out-cubic',
-      once: true,
-      offset: 60
+    var type=detectType(url);
+    var typeLabel=TYPE_LABEL[type]||'Link';
+    var color=COLORS[i%COLORS.length];
+
+    /* Safe strings for onclick */
+    var safeTitle=title.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    var safeUrl=(url||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+
+    var slide=document.createElement('div');
+    slide.className='swiper-slide';
+    slide.dataset.fileUrl=url;
+    slide.dataset.title=title;
+
+    slide.innerHTML=
+      '<div class="nl-card">'+
+
+        /* preview banner */
+        '<div class="nl-preview" style="background:'+color+'">'+
+          '<span class="nl-preview-badge">'+typeLabel+'</span>'+
+          SVG_DOC+
+          '<p class="nl-preview-title">'+escH(title)+'</p>'+
+          (month?'<p class="nl-preview-month">'+escH(month)+'</p>':'')+
+        '</div>'+
+
+        /* body */
+        '<div class="nl-body">'+
+          '<h4 class="nl-body-title">'+escH(title)+'</h4>'+
+          (dateStr?'<p class="nl-body-meta">'+SVG_CAL+' '+dateStr+'</p>':
+            month?'<p class="nl-body-meta">'+SVG_CAL+' '+escH(month)+'</p>':'')+
+          (desc?'<p class="nl-body-desc">'+escH(desc)+'</p>':'<div style="flex:1"></div>')+
+        '</div>'+
+
+        /* action buttons */
+        '<div class="nl-actions">'+
+          (url?
+            '<button type="button" class="nl-btn nl-btn-view" '+
+              'onclick="window.openNewsletterViewer({title:\''+safeTitle+'\',pdf_url:\''+safeUrl+'\'})">'+
+              SVG_EYE+'View'+
+            '</button>'+
+            '<a href="'+escA(url)+'" target="_blank" rel="noopener noreferrer" class="nl-btn nl-btn-open">'+
+              SVG_EXT+'Open'+
+            '</a>'
+          :'<p class="nl-no-url">No link available</p>')+
+        '</div>'+
+
+      '</div>';
+
+    wrapper.appendChild(slide);
+  });
+
+  /* Init Swiper */
+  var sEl=document.querySelector('.newsletters-swiper');
+  if(sEl&&sEl.swiper){try{sEl.swiper.destroy(true,true)}catch(e){}}
+
+  if(typeof Swiper!=='undefined'){
+    new Swiper('.newsletters-swiper',{
+      slidesPerView:'auto',
+      spaceBetween:20,
+      grabCursor:true,
+      centeredSlides:false,
+      loop:published.length>3,
+      pagination:{el:'.newsletters-pagination',clickable:true},
+      navigation:{prevEl:'.newsletters-prev',nextEl:'.newsletters-next'},
+      breakpoints:{
+        320:{slidesPerView:1.12,spaceBetween:12},
+        480:{slidesPerView:1.4, spaceBetween:14},
+        640:{slidesPerView:1.9, spaceBetween:16},
+        768:{slidesPerView:2.3, spaceBetween:18},
+        1024:{slidesPerView:3,  spaceBetween:20},
+        1280:{slidesPerView:3.5,spaceBetween:22},
+      }
     });
   }
 
-  /* ========== LUCIDE ========== */
-  if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
+  RI();
+}
+
+/* Escape helpers */
+function escH(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function escA(s){return String(s).replace(/"/g,'&quot;')}
+
+/* ══════════════════════════════════════════════════════════
+   SUPABASE FETCH — newsletters table
+   Columns: id, title, month, pdf_url, description,
+            is_published, published_at, created_by,
+            created_at, updated_at
+══════════════════════════════════════════════════════════ */
+function getClient(){
+  /* Try window.supabaseClient first (set by config.js) */
+  if(window.supabaseClient&&window.supabaseClient.from)return window.supabaseClient;
+  /* Try raw createClient */
+  if(window.supabase&&window.supabase.createClient){
+    var url=window.SUPABASE_URL||(window.CONFIG&&window.CONFIG.SUPABASE_URL)||null;
+    var key=window.SUPABASE_ANON_KEY||(window.CONFIG&&window.CONFIG.SUPABASE_ANON_KEY)||null;
+    if(url&&key)return window.supabase.createClient(url,key);
+  }
+  return null;
+}
+
+function fetchNewsletters(){
+  var loading=document.getElementById('newsletters-loading');
+  if(loading)loading.style.display='block';
+
+  var sb=getClient();
+  if(!sb){
+    console.warn('[Newsletters] Supabase client not ready, retrying…');
+    setTimeout(fetchNewsletters,600);
+    return;
   }
 
-  /* ========== FOOTER YEAR ========== */
-  var fy = document.getElementById('footer-year');
-  if (fy) fy.textContent = new Date().getFullYear();
-
-  /* ========== GUARANTEED LOADING SCREEN REMOVAL ========== */
-
-  // Fallback 1: Force hide after 4 seconds
-  window._loadingFallback = setTimeout(function () {
-    var s = document.getElementById('loading-screen');
-    if (s && !s.classList.contains('hidden')) {
-      s.classList.add('hidden');
-    }
-  }, 4000);
-
-  // Fallback 2: Window load event
-  window.addEventListener('load', function () {
-    setTimeout(function () {
-      var s = document.getElementById('loading-screen');
-      if (s && !s.classList.contains('hidden')) {
-        s.classList.add('hidden');
+  sb.from('newsletters')
+    .select('id,title,month,pdf_url,description,is_published,published_at,created_at')
+    .eq('is_published',true)            /* only published bulletins */
+    .order('published_at',{ascending:false,nullsFirst:false})
+    .then(function(res){
+      if(res.error){
+        console.error('[Newsletters] Query error:',res.error.message);
+        /* fallback: fetch all and filter client-side */
+        return sb.from('newsletters')
+                 .select('id,title,month,pdf_url,description,is_published,published_at,created_at')
+                 .order('created_at',{ascending:false});
       }
-      if (window._loadingFallback) {
-        clearTimeout(window._loadingFallback);
+      return res;
+    })
+    .then(function(res){
+      if(res&&res.data){
+        console.log('[Newsletters] Fetched',res.data.length,'rows from Supabase');
+        renderCards(res.data);
+      }else{
+        console.warn('[Newsletters] Empty result');
+        renderCards([]);
       }
-    }, 600);
-  });
+    })
+    .catch(function(err){
+      console.error('[Newsletters] Fetch failed:',err);
+      renderCards([]);
+    });
+}
 
-  // Fallback 3: On any JS error
-  window.addEventListener('error', function () {
-    var s = document.getElementById('loading-screen');
-    if (s) s.classList.add('hidden');
-  });
+/* ── Run ── */
+function tryFetch(){
+  var sb=getClient();
+  if(sb){fetchNewsletters()}
+  else{setTimeout(tryFetch,500)}
+}
 
-  // Fallback 4: On unhandled promise rejection
-  window.addEventListener('unhandledrejection', function () {
-    var s = document.getElementById('loading-screen');
-    if (s) s.classList.add('hidden');
-  });
+/* Expose for public.js / app.js */
+window.fetchNewsletters=fetchNewsletters;
+window.renderNewsletterCards=renderCards;
 
-  // Fallback 5: DOMContentLoaded safety net
-  document.addEventListener('DOMContentLoaded', function () {
-    setTimeout(function () {
-      var s = document.getElementById('loading-screen');
-      if (s && !s.classList.contains('hidden')) {
-        s.classList.add('hidden');
-      }
-    }, 3000);
-  });
+/* Multiple trigger points */
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(tryFetch,500)});
+}else{
+  setTimeout(tryFetch,300);
+}
+window.addEventListener('load',function(){
+  /* Re-fetch in case config.js loaded late */
+  setTimeout(tryFetch,800);
+});
+
+/* ══════════════════════════════════════════════════════════
+   LOADING SCREEN
+══════════════════════════════════════════════════════════ */
+window._ldf=setTimeout(function(){var s=document.getElementById('loading-screen');if(s)s.classList.add('hidden')},4000);
+window.addEventListener('load',function(){setTimeout(function(){var s=document.getElementById('loading-screen');if(s)s.classList.add('hidden');clearTimeout(window._ldf)},600)});
+window.addEventListener('error',function(){var s=document.getElementById('loading-screen');if(s)s.classList.add('hidden')});
+window.addEventListener('unhandledrejection',function(){var s=document.getElementById('loading-screen');if(s)s.classList.add('hidden')});
+document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){var s=document.getElementById('loading-screen');if(s&&!s.classList.contains('hidden'))s.classList.add('hidden')},3000)});
 
 })();
 </script>
