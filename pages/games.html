@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#9C1C42" />
+  <meta name="description"
+        content="Games Portal - Rotaract Club of Dr. N.G.P Arts & Science College" />
+  <title>Games | Rotaract Club of Dr. N.G.P Arts & Science College</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+  <script src="https://unpkg.com/lucide@0.383.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+  <link rel="stylesheet" href="../css/styles.css" />
+  <link rel="icon" type="image/png"
+        href="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png" />
+
+  <style>
+    :root {
+      --accent:#9C1C42;
+      --accent-light:#e8f0ff;
+      --accent-rgb:0,85,255;
+      --bg-page:#E8E8E8;
+      --bg-card:#EFEFEF;
+      --bg-secondary:#E0E0E0;
+      --text-heading:#1A1A2E;
+      --text-primary:#3A3A3A;
+      --text-secondary:#55504F;
+      --text-muted:#888899;
+      --border-color:#D0D0D0;
+      --border:#D0D0D0;
+      --success:#38A169;
+      --success-light:#C6F6D5;
+      --warning:#D69E2E;
+      --warning-light:#FEFCBF;
+      --danger:#E53E3E;
+      --danger-light:#FED7D7;
+      --neu-shadow:6px 6px 12px #C5C5C5,-6px -6px 12px #FBFBFB;
+      --neu-shadow-sm:3px 3px 6px #C5C5C5,-3px -3px 6px #FBFBFB;
+      --neu-shadow-lg:10px 10px 20px #C0C0C0,-10px -10px 20px #FFFFFF;
+      --neu-inset:inset 4px 4px 8px #C5C5C5,inset -4px -4px 8px #FBFBFB;
+      --transition:all 0.22s ease;
+      --border-radius:14px;
+      --border-radius-sm:8px;
+      --border-radius-lg:20px;
+      --border-radius-full:999px;
+    }
+    [data-theme="dark"] {
+      --accent:#F06FA3;
+      --accent-light:#1a3a3a;
+      --accent-rgb:77,238,234;
+      --bg-page:#13141F;
+      --bg-card:#1A1B26;
+      --bg-secondary:#22233A;
+      --text-heading:#EAEFFB;
+      --text-primary:#DAD6D7;
+      --text-secondary:#9B9596;
+      --text-muted:#756F70;
+      --border-color:#2A2B3D;
+      --border:#2A2B3D;
+      --success:#48BB78;
+      --success-light:#1a3a2a;
+      --warning:#ECC94B;
+      --warning-light:#3a3010;
+      --danger:#FC8181;
+      --danger-light:#3a1a1a;
+      --neu-shadow:6px 6px 12px #0D0E18,-6px -6px 12px #212234;
+      --neu-shadow-sm:3px 3px 6px #0D0E18,-3px -3px 6px #212234;
+      --neu-shadow-lg:10px 10px 20px #0A0B14,-10px -10px 20px #242536;
+      --neu-inset:inset 4px 4px 8px #0D0E18,inset -4px -4px 8px #212234;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html,body{height:100%;overflow-x:hidden;font-family:'Poppins',sans-serif;}
+    body{background:var(--bg-page);color:var(--text-primary);min-height:100vh;}
+    a{text-decoration:none;color:inherit;}
+    .hidden{display:none!important;}
+    .neu-card{background:var(--bg-card);border-radius:var(--border-radius);box-shadow:var(--neu-shadow);}
+
+    .btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--border-radius-sm);font-family:'Poppins',sans-serif;font-size:0.84rem;font-weight:600;cursor:pointer;border:2px solid transparent;transition:var(--transition);white-space:nowrap;line-height:1;}
+    .btn i,.btn svg{width:16px;height:16px;flex-shrink:0;}
+    .btn-sm{padding:6px 13px;font-size:0.78rem;}
+    .btn-sm i,.btn-sm svg{width:14px;height:14px;}
+    .btn-primary{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:var(--neu-shadow-sm);}
+    .btn-primary:hover{opacity:0.88;transform:translateY(-1px);}
+    .btn-outline{background:var(--bg-card);color:var(--text-primary);border-color:var(--border-color);box-shadow:var(--neu-shadow-sm);}
+    .btn-outline:hover{border-color:var(--accent);color:var(--accent);}
+    .neu-btn{display:inline-flex;align-items:center;justify-content:center;background:var(--bg-card);border:none;border-radius:var(--border-radius-sm);cursor:pointer;box-shadow:var(--neu-shadow-sm);transition:var(--transition);color:var(--text-primary);padding:8px;}
+    .neu-btn:hover{color:var(--accent);}
+
+    .gp{min-height:100vh;display:flex;flex-direction:column;}
+
+    .gh{background:var(--bg-card);box-shadow:var(--neu-shadow-sm);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:200;}
+    .gh-left{display:flex;align-items:center;gap:14px;}
+    .gh-logo{width:40px;height:40px;object-fit:contain;flex-shrink:0;}
+    .gh-title h1{font-size:1.05rem;font-weight:800;color:var(--text-heading);display:flex;align-items:center;gap:8px;line-height:1.2;}
+    .gh-title h1 i,.gh-title h1 svg{width:20px;height:20px;color:var(--accent);}
+    .gh-title p{font-size:0.7rem;color:var(--text-muted);font-weight:500;margin-top:2px;}
+    .gh-right{display:flex;align-items:center;gap:10px;}
+
+    .gc{max-width:1200px;margin:0 auto;padding:28px 24px 48px;flex:1;}
+
+    .gi{text-align:center;margin-bottom:32px;padding:44px 24px;background:linear-gradient(135deg,var(--accent-light),var(--bg-secondary));border-radius:var(--border-radius-lg);box-shadow:var(--neu-shadow);position:relative;overflow:hidden;}
+    .gi::before{content:'';position:absolute;top:-50%;right:-15%;width:280px;height:280px;background:radial-gradient(circle,rgba(var(--accent-rgb),0.12) 0%,transparent 70%);border-radius:50%;pointer-events:none;}
+    .gi h2{font-size:1.65rem;font-weight:800;color:var(--text-heading);margin-bottom:10px;position:relative;display:flex;align-items:center;justify-content:center;gap:10px;}
+    .gi h2 i,.gi h2 svg{width:28px;height:28px;color:var(--accent);}
+    .gi p{font-size:0.9rem;color:var(--text-secondary);max-width:480px;margin:0 auto;line-height:1.75;position:relative;}
+
+    .cf{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:28px;}
+    .cf-btn{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;border-radius:var(--border-radius-full);background:var(--bg-card);color:var(--text-secondary);font-size:0.78rem;font-weight:600;box-shadow:var(--neu-shadow-sm);border:2px solid transparent;cursor:pointer;transition:var(--transition);font-family:'Poppins',sans-serif;}
+    .cf-btn i,.cf-btn svg{width:13px;height:13px;}
+    .cf-btn:hover{color:var(--accent);background:var(--accent-light);}
+    .cf-btn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+    #games-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:18px;}
+
+    .glb{margin-top:48px;}
+    .glb-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+    .glb-hdr h3{display:flex;align-items:center;gap:8px;font-size:1rem;font-weight:700;color:var(--text-heading);}
+    .glb-hdr h3 i,.glb-hdr h3 svg{width:20px;height:20px;color:var(--accent);}
+    .glb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;}
+    .lb-card{padding:16px;display:flex;align-items:center;gap:12px;transition:var(--transition);}
+    .lb-card:hover{transform:translateY(-2px);}
+    .lb-rank{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:800;flex-shrink:0;}
+    .lb-rank.gold{background:linear-gradient(135deg,#FFD700,#FFA500);color:#fff;}
+    .lb-rank.silver{background:linear-gradient(135deg,#C0C0C0,#808080);color:#fff;}
+    .lb-rank.bronze{background:linear-gradient(135deg,#CD7F32,#8B4513);color:#fff;}
+    .lb-rank.normal{background:var(--bg-secondary);color:var(--text-muted);}
+    .lb-info{flex:1;overflow:hidden;}
+    .lb-name{font-size:0.82rem;font-weight:600;color:var(--text-heading);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .lb-sub{font-size:0.72rem;color:var(--text-muted);}
+    .lb-pts{font-size:1.05rem;font-weight:800;color:var(--accent);}
+
+    .gf{text-align:center;padding:32px 24px;border-top:1px solid var(--border-color);}
+    .gf p{font-size:0.78rem;color:var(--text-muted);line-height:1.8;}
+    .gf a{color:var(--accent);font-weight:600;}
+    .gf a:hover{text-decoration:underline;}
+
+    .tc{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;pointer-events:none;}
+    .toast{pointer-events:all;display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-radius:var(--border-radius-sm);background:var(--bg-card);box-shadow:var(--neu-shadow-lg);min-width:240px;max-width:340px;animation:tIn 0.3s ease;border-left:4px solid var(--accent);}
+    .toast.out{animation:tOut 0.3s ease forwards;}
+    .t-body{flex:1;}
+    .t-title{font-size:0.85rem;font-weight:700;color:var(--text-heading);}
+    .t-msg{font-size:0.78rem;color:var(--text-secondary);margin-top:2px;}
+    @keyframes tIn{from{opacity:0;transform:translateX(40px);}to{opacity:1;transform:translateX(0);}}
+    @keyframes tOut{from{opacity:1;transform:translateX(0);}to{opacity:0;transform:translateX(40px);}}
+
+    #game-play-area{display:none;}
+
+    #gcf-empty{grid-column:1/-1;text-align:center;padding:48px 24px;color:var(--text-muted);font-size:0.9rem;}
+
+    @media(max-width:768px){
+      .gh{flex-wrap:wrap;padding:12px 16px;}
+      .gh-right{width:100%;justify-content:flex-end;}
+      #games-grid{grid-template-columns:1fr;}
+      .gi{padding:30px 16px;}
+      .gi h2{font-size:1.3rem;}
+      .gc{padding:16px 14px 36px;}
+      .glb-grid{grid-template-columns:1fr;}
+    }
+    @media(max-width:480px){
+      .cf{justify-content:flex-start;flex-wrap:nowrap;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scrollbar-width:none;}
+      .cf::-webkit-scrollbar{display:none;}
+      .cf-btn{flex-shrink:0;}
+      .gh-title p{display:none;}
+      .btn-sm span{display:none;}
+      .btn-sm{padding:7px;}
+    }
+
+    /* Responsive hardening: keeps the page usable from small phones to large displays */
+    img,svg{max-width:100%;}
+    button,a{touch-action:manipulation;}
+    .gc{width:min(1200px,100%);}
+    .gh-title,.gh-left,.gh-right{min-width:0;}
+    .gh-title h1,.gh-title p{overflow-wrap:anywhere;}
+    #games-grid>*{min-width:0;}
+    .toast{width:min(340px,calc(100vw - 24px));min-width:0;}
+    @media (max-width:1024px){
+      .gc{padding:24px 20px 42px;}
+      #games-grid{grid-template-columns:repeat(auto-fill,minmax(260px,1fr));}
+      .glb-grid{grid-template-columns:repeat(auto-fill,minmax(190px,1fr));}
+    }
+    @media (max-width:768px){
+      .gh{align-items:flex-start;}
+      .gh-left{flex:1 1 auto;}
+      .gh-right{width:auto;margin-left:auto;flex:0 0 auto;}
+      .gh-title h1{font-size:1rem;}
+      .gi{margin-bottom:24px;}
+      .glb{margin-top:36px;}
+    }
+    @media (max-width:600px){
+      .gh{padding:10px 12px;gap:10px;}
+      .gh-left{gap:10px;}
+      .gh-logo{width:36px;height:36px;}
+      .gh-title h1{font-size:.92rem;gap:6px;}
+      .gh-title h1 i,.gh-title h1 svg{width:18px;height:18px;}
+      .gh-right{gap:7px;}
+      .btn-sm{min-height:38px;}
+      .gc{padding:14px 12px 32px;}
+      .gi{padding:26px 14px;border-radius:16px;}
+      .gi h2{font-size:1.18rem;line-height:1.35;}
+      .gi p{font-size:.82rem;line-height:1.65;}
+      #games-grid{grid-template-columns:1fr;gap:14px;}
+      .glb-grid{grid-template-columns:1fr;gap:10px;}
+      .glb-hdr{align-items:center;}
+      .glb-hdr h3{font-size:.92rem;}
+      .gf{padding:24px 14px;}
+      .gf p{font-size:.72rem;}
+      .tc{left:12px;right:12px;bottom:12px;}
+      .toast{width:100%;max-width:none;}
+    }
+    @media (max-width:400px){
+      .gh-title h1{font-size:.84rem;}
+      .gh-title h1 i,.gh-title h1 svg{display:none;}
+      .gh-right{gap:5px;}
+      .btn-sm{padding:7px;}
+      .neu-btn{flex-shrink:0;}
+      .gi h2{font-size:1.05rem;}
+      .cf{margin-left:-2px;margin-right:-2px;padding-left:2px;padding-right:2px;}
+      .cf-btn{padding:7px 13px;font-size:.74rem;}
+      .lb-card{padding:13px 12px;}
+      .lb-pts{font-size:.95rem;}
+    }
+    @media (orientation:landscape) and (max-height:600px){
+      .gh{position:relative;}
+      .gi{padding:20px 16px;margin-bottom:18px;}
+      .gc{padding-top:14px;padding-bottom:24px;}
+      .gi h2{font-size:1.12rem;}
+      .gi p{font-size:.8rem;}
+      .glb{margin-top:28px;}
+    }
+    @media (hover:none){
+      .btn:hover,.cf-btn:hover,.lb-card:hover{transform:none;}
+    }
+
+  </style>
+</head>
+<body>
+<div class="gp">
+
+  <!-- HEADER -->
+  <header class="gh">
+    <div class="gh-left">
+      <a href="../index.html" aria-label="Home">
+        <img src="https://res.cloudinary.com/qxbjvkq6/image/upload/v1784713317/ngp_logo_colourAsset_2_2x-8_lu8zgf.png"
+             alt="Rotaract Logo" class="gh-logo" />
+      </a>
+      <div class="gh-title">
+        <h1><i data-lucide="gamepad-2"></i>Games Portal</h1>
+        <p>Rotaract Club of Dr. N.G.P Arts &amp; Science College</p>
+      </div>
+    </div>
+    <div class="gh-right">
+      <button class="neu-btn" id="themeToggle" title="Toggle Theme"
+              style="width:38px;height:38px;border-radius:50%;">
+        <i data-lucide="sun"  id="iconLight" style="width:17px;height:17px;"></i>
+        <i data-lucide="moon" id="iconDark"  style="width:17px;height:17px;" class="hidden"></i>
+      </button>
+      <a href="../index.html" class="btn btn-outline btn-sm">
+        <i data-lucide="home"></i><span>Home</span>
+      </a>
+      <a href="../index.html#join" class="btn btn-primary btn-sm">
+        <i data-lucide="user-plus"></i><span>Join Club</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="gc">
+    <div id="games-list-area">
+
+      <!-- Intro -->
+      <div class="gi">
+        <h2><i data-lucide="gamepad-2"></i>Rotaract Gaming Zone</h2>
+        <p>Take a break and enjoy our collection of fun games! Challenge yourself and compete for the highest scores.</p>
+      </div>
+
+      <!-- Category Filter
+           Values match config.js GAMES_CONFIG categories exactly:
+           classic, puzzle, action, educational, word, skill -->
+      <div class="cf" id="catFilter"></div>
+
+      <!-- Games Grid — filled by games.js -->
+      <div id="games-grid"></div>
+
+      <!-- Leaderboard -->
+      <div class="glb">
+        <div class="glb-hdr">
+          <h3><i data-lucide="trophy"></i>Your High Scores</h3>
+          <button class="btn btn-outline btn-sm" id="clearBtn">
+            <i data-lucide="trash-2"></i><span>Clear Scores</span>
+          </button>
+        </div>
+        <div class="glb-grid" id="lbGrid"></div>
+      </div>
+
+    </div>
+    <div id="game-play-area"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="gf">
+    <p>
+      <strong>Rotaract Club of Dr. N.G.P Arts &amp; Science College</strong><br />
+      Parented by Rotary Club of Coimbatore Meridian
+      <span style="margin:0 4px;">|</span>Club ID: 217835
+      <span style="margin:0 4px;">|</span>Rotary International District 3206
+      <br /><br />
+      <a href="../index.html">Back to Main Website</a>
+      <span style="margin:0 6px;">|</span>
+      <a href="../index.html#join">Join Our Club</a>
+      <span style="margin:0 6px;">|</span>
+      <a href="../index.html#contact">Contact Us</a>
+    </p>
+  </footer>
+
+</div>
+<div class="tc" id="toastBox"></div>
+
+<!-- SCRIPTS: config.js MUST load before games.js -->
+<script src="../js/config.js"></script>
+<script src="../js/games.js"></script>
+
+<script>
+/* ════════════════════════════════════════════════════════
+   PAGE SCRIPT — runs after config.js + games.js loaded
+   Does NOT redeclare anything from those files.
+════════════════════════════════════════════════════════ */
+
+/* ─── 1. Build category filter buttons dynamically
+         from GAMES_CONFIG so they always match ──────── */
+(function buildCategoryFilter() {
+  var container = document.getElementById('catFilter');
+  if (!container) return;
+  var cfg = window.GAMES_CONFIG;
+  if (!cfg || !cfg.length) return;
+
+  /* Collect unique categories preserving order */
+  var seen = {};
+  var cats = [];
+  for (var i = 0; i < cfg.length; i++) {
+    var c = cfg[i].category;
+    if (c && !seen[c]) {
+      seen[c] = true;
+      cats.push(c);
+    }
+  }
+
+  /* Icon map for known categories */
+  var icons = {
+    classic:      'star',
+    puzzle:       'grid-3x3',
+    action:       'zap',
+    educational:  'book-open',
+    word:         'type',
+    skill:        'target'
+  };
+
+  /* Build "All" button + one per category */
+  var html =
+    '<button class="cf-btn active" data-cat="all">' +
+      '<i data-lucide="layout-grid"></i> All' +
+    '</button>';
+
+  for (var j = 0; j < cats.length; j++) {
+    var cat  = cats[j];
+    var icon = icons[cat] || 'folder';
+    var label = cat.charAt(0).toUpperCase() + cat.slice(1);
+
+    html +=
+      '<button class="cf-btn" data-cat="' + cat + '">' +
+        '<i data-lucide="' + icon + '"></i> ' + label +
+      '</button>';
+  }
+
+  container.innerHTML = html;
+
+  /* Attach click handlers */
+  var btns = container.querySelectorAll('.cf-btn');
+  for (var k = 0; k < btns.length; k++) {
+    btns[k].addEventListener('click', function () {
+      var category = this.getAttribute('data-cat');
+      doFilter(category, this);
+    });
+  }
+
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+})();
+
+
+/* ─── 2. Filter function ─────────────────────────────── */
+function doFilter(category, clickedBtn) {
+  /* Update active button */
+  var allBtns = document.querySelectorAll('.cf-btn');
+  for (var i = 0; i < allBtns.length; i++) {
+    allBtns[i].classList.remove('active');
+  }
+  if (clickedBtn) clickedBtn.classList.add('active');
+
+  /* Filter cards
+     Debug confirmed: cards have class "gcard" and attribute data-gcat */
+  var grid = document.getElementById('games-grid');
+  if (!grid) return;
+
+  var children = grid.children;
+  var visible  = 0;
+
+  for (var j = 0; j < children.length; j++) {
+    var card = children[j];
+
+    /* Skip the empty-state element */
+    if (card.id === 'gcf-empty') continue;
+
+    var cardCat = card.getAttribute('data-gcat');
+
+    if (category === 'all') {
+      card.style.display = '';
+      visible++;
+    } else if (cardCat === category) {
+      card.style.display = '';
+      visible++;
+    } else {
+      card.style.display = 'none';
+    }
+  }
+
+  /* Empty state */
+  var emptyEl = document.getElementById('gcf-empty');
+
+  if (visible === 0 && category !== 'all') {
+    if (!emptyEl) {
+      emptyEl = document.createElement('div');
+      emptyEl.id = 'gcf-empty';
+      grid.appendChild(emptyEl);
+    }
+    var catLabel = category.charAt(0).toUpperCase() + category.slice(1);
+    emptyEl.innerHTML =
+      '<div style="display:flex;justify-content:center;margin-bottom:12px;">' +
+        '<i data-lucide="search" style="width:32px;height:32px;opacity:0.35;"></i>' +
+      '</div>' +
+      '<p>No games in the <strong>' + catLabel + '</strong> category.</p>';
+    emptyEl.style.display = '';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+  } else if (emptyEl) {
+    emptyEl.style.display = 'none';
+  }
+}
+
+/* Also expose as filterGames for backward compatibility
+   in case any onclick attributes reference it */
+window.filterGames = doFilter;
+
+
+/* ─── 3. Theme toggle ─────────────────────────────────── */
+(function initTheme() {
+  /* Read saved theme */
+  var saved = null;
+  try {
+    if (window.Storage) {
+      saved = window.Storage.get('theme');
+    }
+  } catch (e) {}
+
+  if (saved === 'dark' || saved === 'light') {
+    document.documentElement.setAttribute('data-theme', saved);
+    toggleIcons(saved);
+  }
+
+  var btn = document.getElementById('themeToggle');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      var cur  = document.documentElement.getAttribute('data-theme') || 'light';
+      var next = cur === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      toggleIcons(next);
+      if (window.Storage && typeof window.Storage.set === 'function') {
+         window.Storage.set('theme', next);
+       } else {
+         localStorage.setItem('theme', next);
+       }
+      if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+  }
+})();
+
+function toggleIcons(theme) {
+  var li = document.getElementById('iconLight');
+  var di = document.getElementById('iconDark');
+  if (!li || !di) return;
+  if (theme === 'dark') {
+    li.classList.add('hidden');
+    di.classList.remove('hidden');
+  } else {
+    li.classList.remove('hidden');
+    di.classList.add('hidden');
+  }
+}
+
+
+/* ─── 4. Leaderboard ──────────────────────────────────── */
+function renderLB() {
+  var grid = document.getElementById('lbGrid');
+  if (!grid) return;
+
+  var scores = {};
+  try {
+    if (window.Storage && typeof window.Storage.get === 'function') scores = window.Storage.get('game_high_scores') || {};
+     else scores = JSON.parse(localStorage.getItem('game_high_scores') || '{}');
+  } catch (e) { scores = {}; }
+
+  /* Build sorted entries */
+  var entries = [];
+  var keys = Object.keys(scores);
+  for (var i = 0; i < keys.length; i++) {
+    var v = scores[keys[i]];
+    if (typeof v === 'number' && v > 0) {
+      entries.push({ id: keys[i], score: v });
+    }
+  }
+  entries.sort(function (a, b) { return b.score - a.score; });
+
+  /* Empty */
+  if (entries.length === 0) {
+    grid.innerHTML =
+      '<div class="neu-card" style="padding:40px;text-align:center;grid-column:1/-1;">' +
+        '<div style="display:flex;justify-content:center;margin-bottom:12px;">' +
+          '<i data-lucide="gamepad-2" style="width:40px;height:40px;color:var(--text-muted);opacity:0.35;"></i>' +
+        '</div>' +
+        '<p style="color:var(--text-muted);font-size:0.88rem;line-height:1.6;">' +
+          'No scores yet!<br>Play some games to see your scores here.' +
+        '</p>' +
+      '</div>';
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    return;
+  }
+
+  /* Name map */
+  var nameMap = {};
+  var cfg = window.GAMES_CONFIG;
+  if (cfg) {
+    for (var j = 0; j < cfg.length; j++) {
+      nameMap[cfg[j].id] = cfg[j].name;
+    }
+  }
+
+  var rankMeta = [
+    { cls: 'gold',   icon: 'crown' },
+    { cls: 'silver', icon: 'medal' },
+    { cls: 'bronze', icon: 'award' }
+  ];
+
+  var html = '';
+  for (var m = 0; m < entries.length; m++) {
+    var e    = entries[m];
+    var name = nameMap[e.id] || e.id;
+    var meta = rankMeta[m] || { cls: 'normal', icon: '' };
+    var ri   = meta.icon
+      ? '<i data-lucide="' + meta.icon + '" style="width:15px;height:15px;"></i>'
+      : String(m + 1);
+
+    html +=
+      '<div class="lb-card neu-card">' +
+        '<div class="lb-rank ' + meta.cls + '">' + ri + '</div>' +
+        '<div class="lb-info">' +
+          '<div class="lb-name">' + name + '</div>' +
+          '<div class="lb-sub">High Score</div>' +
+        '</div>' +
+        '<div class="lb-pts">' + e.score.toLocaleString() + '</div>' +
+      '</div>';
+  }
+
+  grid.innerHTML = html;
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+}
+
+renderLB();
+
+/* Auto-refresh leaderboard when returning from a game */
+(function () {
+  var listArea = document.getElementById('games-list-area');
+  if (listArea && typeof MutationObserver !== 'undefined') {
+    new MutationObserver(function () {
+      if (listArea.style.display !== 'none') renderLB();
+    }).observe(listArea, { attributes: true, attributeFilter: ['style'] });
+  }
+})();
+
+
+/* ─── 5. Clear scores ─────────────────────────────────── */
+(function () {
+  var btn = document.getElementById('clearBtn');
+  if (btn) {
+    btn.addEventListener('click', function () {
+      if (!confirm('Clear all high scores? This cannot be undone.')) return;
+
+      if (window.Storage) {
+        window.Storage.remove('game_high_scores');
+      }
+
+      if (window.gamesManager) {
+        window.gamesManager.highScores = {};
+        if (typeof window.gamesManager._renderList === 'function') {
+          window.gamesManager._renderList();
+        }
+      }
+
+      renderLB();
+      showToast('Scores Cleared', 'All high scores have been reset.');
+    });
+  }
+})();
+
+
+/* ─── 6. Toast helper ─────────────────────────────────── */
+function showToast(title, msg) {
+  var box = document.getElementById('toastBox');
+  if (!box) return;
+  var el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML =
+    '<div style="flex-shrink:0;margin-top:2px;">' +
+      '<i data-lucide="check-circle" style="width:18px;height:18px;color:var(--accent);"></i>' +
+    '</div>' +
+    '<div class="t-body">' +
+      '<div class="t-title">' + title + '</div>' +
+      (msg ? '<div class="t-msg">' + msg + '</div>' : '') +
+    '</div>';
+  box.appendChild(el);
+  if (typeof lucide !== 'undefined') lucide.createIcons();
+  setTimeout(function () {
+    el.classList.add('out');
+    setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 350);
+  }, 3000);
+}
+
+
+/* ─── 7. Init Lucide icons ────────────────────────────── */
+if (typeof lucide !== 'undefined') lucide.createIcons();
+</script>
+</body>
+</html>
