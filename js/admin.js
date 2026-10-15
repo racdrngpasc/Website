@@ -1743,7 +1743,10 @@ class AdminDashboard {
           </select></div><span></span></div>`;
       }).join('')}</div>`;
       if (f.type === 'testmail') return `<div class="set-row"><div class="set-meta"><label>Send a test mail</label><p class="set-hint">Goes only to your own address (${esc(this.admin?.email || 'your account')}) using the current mail settings.</p></div>
-        <div class="set-control is-end"><button class="btn btn-outline" onclick="adminDashboard._sendTestMail()"><i data-lucide="send"></i><span>Send test</span></button></div></div>`;
+        <div class="set-control is-end" style="flex-wrap:wrap;">
+          <button class="btn btn-outline" onclick="adminDashboard._sendTestMail()"><i data-lucide="send"></i><span>Send test</span></button>
+          <button class="btn btn-primary" onclick="adminDashboard._sendTestAttachmentMail()"><i data-lucide="paperclip"></i><span>Test with attachments</span></button>
+        </div></div>`;
       if (f.type === 'backup') return `<div class="set-row"><div class="set-meta"><label>Export settings</label><p class="set-hint">Downloads every setting as a JSON file.</p></div>
         <div class="set-control is-end"><button class="btn btn-outline" onclick="adminDashboard._exportSettings()"><i data-lucide="download"></i><span>Export</span></button></div></div>
         <div class="set-row"><div class="set-meta"><label>Import settings</label><p class="set-hint">Applies values from a JSON file exported here. Existing values with the same key are replaced.</p></div>
@@ -1824,6 +1827,29 @@ class AdminDashboard {
       html_message: '<p>This is a test mail. If you can read it, your mail settings work.</p>'
     });
     this.showToast(ok ? `Test mail sent to ${to}` : 'Test mail failed — check the mail function logs', ok ? 'success' : 'error');
+  }
+
+  /** Sends a mail to the signed-in admin only, with an Excel file (and an image) attached,
+      and says exactly what to fix if the attachment mailer is not working. */
+  async _sendTestAttachmentMail() {
+    const to = this.admin?.email;
+    const es = window.emailService;
+    if (!to || !es) { this.showToast('Mail service or your e-mail address is missing', 'error'); return; }
+    this.showToast('Sending a test mail with attachments…', 'info', 3000);
+    const end = new Date(), start = new Date(end.getTime() - 30 * 864e5);
+    const logo = (this._settingsCache || []).find(x => x.key === 'logo_colour_url')?.value;
+    const attachments = [
+      { kind: 'doc', doc: 'treasury', format: 'xlsx', name: 'Test_Attachment',
+        params: { from_date: start.toLocalISODate(), to_date: end.toLocalISODate() } }
+    ];
+    if (logo && /^https:\/\//i.test(logo)) attachments.push({ kind: 'url', url: logo, name: 'Test_Image' });
+    const ok = await es.sendWithAttachments({
+      subject: 'Test mail with attachments — club portal',
+      html_body: '<p>This is a test of the attachment mailer.</p><p>If you can open the attached Excel file, posters, reports and minutes will reach members with their files too.</p>',
+      email_type: 'general', recipient_group: to, attachments
+    });
+    if (ok) this.showToast(`Sent to ${to}. Open it and check the attached file.`, 'success', 8000);
+    else this.showToast(es._explainMailError(es._lastAttachmentError), 'error', 12000);
   }
 
   _exportSettings() {
