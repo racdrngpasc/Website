@@ -310,6 +310,22 @@ class EmailService {
       style="max-width:100%;height:auto;border-radius:10px;border:0;display:inline-block;" /></div>`;
   }
 
+  /** Turn a raw mailer error into the exact thing to fix */
+  _explainMailError(raw) {
+    const t = String(raw || '');
+    if (/not set/i.test(t))
+      return 'The attachment mailer is not connected: add the secrets GAS_WEBAPP_URL and GAS_SHARED_SECRET in Supabase → Edge Functions → Secrets (see README_DEPLOY.md).';
+    if (/unauthori[sz]ed/i.test(t))
+      return 'The Apps Script rejected the request: GAS_SHARED_SECRET in Supabase must be exactly the same as SHARED_SECRET in the Apps Script project properties.';
+    if (/quota/i.test(t))
+      return 'The club Gmail has reached its daily sending limit. Try again tomorrow.';
+    if (/Apps Script: (200|30\d|40\d)|Unexpected token|<html/i.test(t))
+      return 'The Apps Script web-app link is not working: deploy it as a Web app (Execute as: Me, Who has access: Anyone) and copy the /exec link into GAS_WEBAPP_URL.';
+    if (/Failed to fetch|network|404/i.test(t))
+      return 'The send-mail-attachments function could not be reached: deploy it with "supabase functions deploy send-mail-attachments".';
+    return t ? `Reason: ${t}` : 'The attachment mailer failed — check the send-mail-attachments function logs.';
+  }
+
   /** Tell the admin when a mail went out without its attachments (silent failures hid this before) */
   _warn(message) {
     console.warn('[EmailService]', message);
@@ -399,9 +415,7 @@ class EmailService {
         recipient_group: route.to.join(','), cc: route.cc.join(','), ...meta
       });
       if (ok) return true;
-      this._warn('Sending WITHOUT attachments — the attachment mailer failed' +
-        (this._lastAttachmentError ? ` (${this._lastAttachmentError})` : '') +
-        '. Check the send-mail-attachments function and the Apps Script settings.');
+      this._warn('Sent WITHOUT attachments. ' + this._explainMailError(this._lastAttachmentError));
     }
     let sent = 0;
     for (const addr of route.to) {
