@@ -1838,14 +1838,15 @@ class AdminDashboard {
     this.showToast('Sending a test mail with attachments…', 'info', 3000);
     const end = new Date(), start = new Date(end.getTime() - 30 * 864e5);
     const logo = (this._settingsCache || []).find(x => x.key === 'logo_colour_url')?.value;
+    const range = { from_date: start.toLocalISODate(), to_date: end.toLocalISODate() };
     const attachments = [
-      { kind: 'doc', doc: 'treasury', format: 'xlsx', name: 'Test_Attachment',
-        params: { from_date: start.toLocalISODate(), to_date: end.toLocalISODate() } }
+      { kind: 'doc', doc: 'treasury', format: 'pdf',  name: 'Test_Statement', params: range },   // the real PDF template
+      { kind: 'doc', doc: 'treasury', format: 'xlsx', name: 'Test_Statement', params: range }    // and the Excel workbook
     ];
     if (logo && /^https:\/\//i.test(logo)) attachments.push({ kind: 'url', url: logo, name: 'Test_Image' });
     const ok = await es.sendWithAttachments({
       subject: 'Test mail with attachments — club portal',
-      html_body: '<p>This is a test of the attachment mailer.</p><p>If you can open the attached Excel file, posters, reports and minutes will reach members with their files too.</p>',
+      html_body: '<p>This is a test of the attachment mailer.</p><p>If you can open the attached PDF and Excel file, posters, reports and minutes will reach members with their files too.</p>',
       email_type: 'general', recipient_group: to, attachments
     });
     if (ok) this.showToast(`Sent to ${to}. Open it and check the attached file.`, 'success', 8000);
