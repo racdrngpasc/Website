@@ -269,7 +269,8 @@ class EmailService {
         return false;
       }
       this._lastAttachmentError = null;
-      if (result.skipped?.length) this._warn('Mail sent, but some attachments were skipped: ' + result.skipped.join('; '));
+      if (result.skipped?.length) this._warn('Mail sent, but some attachments could not be added: ' + result.skipped.join('; '));
+      if (result.notes?.length)   this._warn(result.notes.join(' | '));
       return true;
     } catch (err) {
       console.error('[EmailService] attachment mail error:', err);
