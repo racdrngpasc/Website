@@ -371,10 +371,98 @@ class EmailService {
     return prefix ? String(subject).replace(/^\[Rotaract[^\]]*\]\s*/i, '').replace(/^/, prefix + ' ') : subject;
   }
 
-  _appendSignature(html) {
-    const sig = String(this._getSetting('mail_signature', '') || '').trim();
-    if (!sig) return html;
-    const block = `<p style="margin:24px 0 0;padding-top:12px;border-top:1px solid #eee;color:#666;font-size:13px;white-space:pre-line;">${StringUtils.sanitize(sig)}</p>`;
+  /* ============================================================
+     MAIL END SIGNATURE — the person who pressed "send"
+       Name · portfolio(s) · RI ID · club · group · RI district
+     (documents keep their own signature blocks — only the mail body changes)
+     ============================================================ */
+  async _senderProfile() {
+    const admin = window.authManager?.getAdmin?.();
+    if (!admin?.id) return null;
+    this._profileCache = this._profileCache || {};
+    const hit = this._profileCache[admin.id];
+    if (hit && Date.now() - hit.at < 5 * 60 * 1000) return hit.value;
+
+    const db = this._getDb();
+    let au = null, member = null, portfolioNames = [];
+    try {
+      const r = await db.from('admin_users').select('*').eq('id', admin.id).single();
+      au = r.data || null;
+    } catch (e) { /* use the session copy */ }
+    au = { ...admin, ...(au || {}) };
+
+    // the person's member record holds the RI ID
+    try {
+      if (au.member_id) {
+        member = (await db.from('members').select('*').eq('id', au.member_id).single()).data || null;
+      }
+      if (!member && au.email) {
+        for (const em of [au.email, String(au.email).toLowerCase()]) {
+          const r = await db.from('members').select('*').eq('email', em).limit(1);
+          if (r.data?.[0]) { member = r.data[0]; break; }
+        }
+      }
+      if (!member && au.full_name) {
+        const r = await db.from('members').select('*').ilike('full_name', String(au.full_name).trim()).limit(1);
+        member = r.data?.[0] || null;
+      }
+    } catch (e) { /* no member record */ }
+
+    // portfolios: the admin's own (Site Settings → Portfolios), else the member's titles, else role names
+    try {
+      const ids = [...new Set([au.portfolio_id, ...(Array.isArray(au.portfolio_ids) ? au.portfolio_ids : [])].filter(Boolean))];
+      if (ids.length) {
+        const r = await db.from('admin_portfolios').select('id, name, sort_order').in('id', ids);
+        const byId = new Map((r.data || []).map(p => [p.id, p.name]));
+        portfolioNames = ids.map(id => byId.get(id)).filter(Boolean);
+      }
+    } catch (e) { /* portfolio table not created yet */ }
+    let titles = portfolioNames;
+    if (!titles.length && member) titles = RoleUtils.titles(member);
+    if (!titles.length) titles = RoleUtils.labels(au);
+
+    const value = {
+      name  : String(au.full_name || member?.full_name || '').trim(),
+      titles: [...new Set(titles.map(t => String(t).trim()).filter(Boolean))],
+      riId  : String(member?.ri_id || au.ri_id || '').trim()
+    };
+    this._profileCache[admin.id] = { at: Date.now(), value };
+    return value;
+  }
+
+  _signatureHTML(profile) {
+    if (!profile?.name) return '';
+    const e = (v) => this._esc(v);
+    const club     = this._getSetting('club_name', CLUB_INFO.name);
+    const group    = String(this._getSetting('current_group', '') || '').trim();
+    const district = (String(this._getSetting('district', '') || '').match(/\d{3,5}/) || ['3206'])[0];
+    const lines = [
+      `<div style="font-size:12px;color:#8a8a8a;margin-bottom:6px;">With regards,</div>`,
+      `<div style="font-size:15px;font-weight:700;color:#2b1a20;line-height:1.3;">${e(profile.name)}</div>`,
+      profile.titles.length ? `<div style="font-size:13px;font-weight:700;color:#D41367;line-height:1.4;">${profile.titles.map(e).join(' &amp; ')}</div>` : '',
+      profile.riId ? `<div style="font-size:13px;color:#444;">RI ID: ${e(profile.riId)}</div>` : '',
+      `<div style="font-size:13px;color:#444;">${e(club)}</div>`,
+      `<div style="font-size:13px;color:#444;">${group ? `Group ${e(group)} &nbsp;|&nbsp; ` : ''}RI District ${e(district)}</div>`
+    ].filter(Boolean).join('');
+    return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:28px;">
+      <tr><td style="border-top:1px solid #eeeeee;padding-top:16px;font-family:Arial,Helvetica,sans-serif;line-height:1.6;">
+        <div style="border-left:3px solid #D41367;padding-left:12px;">${lines}</div>
+      </td></tr></table>`;
+  }
+
+  /** Puts the sender's signature at the end of the mail body. */
+  _appendSignature(html, profile) {
+    let block = '';
+    if (String(this._getSetting('mail_sender_signature', 'true')) !== 'false' && profile?.name) {
+      block = this._signatureHTML(profile);
+    }
+    if (!block) {
+      // automatic mails (nobody signed in) → the optional fixed line from Site Settings
+      const sig = String(this._getSetting('mail_signature', '') || '').trim();
+      if (sig) block = `<p style="margin:24px 0 0;padding-top:12px;border-top:1px solid #eee;color:#666;font-size:13px;white-space:pre-line;">${StringUtils.sanitize(sig)}</p>`;
+    }
+    if (!block) return html.replace('<!--MAIL_SIGNATURE-->', '');
+    if (html.includes('<!--MAIL_SIGNATURE-->')) return html.replace('<!--MAIL_SIGNATURE-->', block);
     return /<\/body>/i.test(html) ? html.replace(/<\/body>/i, block + '</body>') : html + block;
   }
 
@@ -405,7 +493,7 @@ class EmailService {
       return true;
     }
     subject  = this._applySubjectPrefix(subject);
-    htmlBody = this._appendSignature(htmlBody);
+    htmlBody = this._appendSignature(htmlBody, await this._senderProfile());
     const files = this._prepareAttachments(attachments);
 
     // With attachments → Google Apps Script mailer (via edge function).
@@ -503,6 +591,7 @@ class EmailService {
           <td style="padding:28px;
                      font-family:Arial,Helvetica,sans-serif;">
             ${bodyContent}
+            <!--MAIL_SIGNATURE-->
           </td>
         </tr>
         <!-- FOOTER -->
