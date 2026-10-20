@@ -1645,7 +1645,9 @@ class AdminDashboard {
           { key: 'mail_attach_excel', label: 'Attach Excel (attendance / treasury)', type: 'toggle', def: 'true' } ] },
         { icon: 'type', title: 'Message style', desc: 'Applied to every outgoing club mail', fields: [
           { key: 'mail_subject_prefix', label: 'Subject prefix', hint: 'Replaces the default “[Rotaract]”. Example: [NGP Rotaract]' },
-          { key: 'mail_signature', label: 'Signature line', type: 'textarea', hint: 'Added at the end of each mail' },
+          { key: 'mail_sender_signature', label: 'Sign mails with the sender’s details', type: 'toggle', def: 'true',
+            hint: 'The end of every mail shows the person who pressed Send: name, portfolio(s), RI ID, club, group and RI district' },
+          { key: 'mail_signature', label: 'Fallback signature line', type: 'textarea', hint: 'Used only for automatic mails where nobody is signed in' },
           { key: 'club_email', label: 'Reply-to address', type: 'email' } ] },
         { icon: 'flask-conical', title: 'Test', desc: 'Send a sample mail only to yourself', fields: [ { type: 'testmail' } ] } ] },
 
