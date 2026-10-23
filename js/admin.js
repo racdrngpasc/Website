@@ -1795,18 +1795,43 @@ class AdminDashboard {
     this._switchSettingsTab(this._settingsTab, document.querySelector('.admin-settings-tab.active'));
   }
 
+  /** Save one setting. Reports the REAL reason when the database refuses (before, failures looked like success). */
+  async _persistSetting(key, v) {
+    const stamp = { updated_by: this.admin.id, updated_at: new Date().toISOString() };
+    const attempt = async (withStamp) => {
+      // 1. change the existing row (select() returns the rows that really changed)
+      const upd = await this.db.from('club_settings')
+        .update(withStamp ? { value: v, ...stamp } : { value: v }).eq('key', key).select('key');
+      if (upd.error) return { ok: false, error: upd.error };
+      if (upd.data && upd.data.length) return { ok: true };
+      // 2. no row changed → it is new (or the database silently refused the update): try to create it
+      const ins = await this.db.from('club_settings')
+        .insert(withStamp ? { key, value: v, ...stamp } : { key, value: v }).select('key');
+      if (ins.error) return { ok: false, error: ins.error };
+      return { ok: true };
+    };
+    let res = await attempt(true);
+    if (!res.ok && /updated_by|updated_at|column/i.test(res.error?.message || '')) res = await attempt(false);
+    return res;
+  }
+
+  _explainSaveError(err) {
+    const t = `${err?.code || ''} ${err?.message || ''}`;
+    if (/row-level security|42501|permission denied|23505|duplicate key/i.test(t))
+      return 'the database is blocking changes to club_settings. Run sql/004_fix_settings_access.sql in the Supabase SQL editor, then try again.';
+    if (/JWT|apikey|401/i.test(t)) return 'the Supabase key was rejected — check SUPABASE_ANON_KEY in config.js.';
+    if (/fetch|network/i.test(t)) return 'no connection to Supabase.';
+    return err?.message || 'unknown error';
+  }
+
   async _saveSetting(key, value) {
     const v = String(value ?? '').trim();
     if (/(_email)$/.test(key) && key !== 'mail_extra_recipients' && v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) {
       this.showToast('That does not look like a valid e-mail address', 'error'); return false;
     }
     try {
-      /* upsert: a brand-new key must be created, not silently ignored */
-      const { error } = await this.db.from('club_settings').upsert(
-        { key, value: v, updated_by: this.admin.id, updated_at: new Date().toISOString() },
-        { onConflict: 'key' }
-      );
-      if (error) throw error;
+      const res = await this._persistSetting(key, v);
+      if (!res.ok) throw res.error;
       this._settingsCache = this._settingsCache || [];
       const row = this._settingsCache.find(s => s.key === key);
       if (row) row.value = v; else this._settingsCache.push({ key, value: v });
@@ -1814,8 +1839,8 @@ class AdminDashboard {
       this.showToast('Saved', 'success', 1600);
       return true;
     } catch (e) {
-      console.error('save setting:', e);
-      this.showToast('Failed to save setting', 'error');
+      console.error('save setting:', key, e);
+      this.showToast(`Not saved: ${this._explainSaveError(e)}`, 'error', 10000);
       return false;
     }
   }
@@ -1871,13 +1896,15 @@ class AdminDashboard {
       const entries = Object.entries(data).filter(([k, v]) => /^[a-z0-9_]+$/.test(k) && !/(secret|password|private)/i.test(k) && typeof v !== 'object');
       if (!entries.length) { this.showToast('No usable settings found in that file', 'error'); return; }
       if (!confirm(`Import ${entries.length} settings? Existing values with the same key will be replaced.`)) return;
-      const { error } = await this.db.from('club_settings').upsert(
-        entries.map(([key, value]) => ({ key, value: String(value ?? ''), updated_by: this.admin.id, updated_at: new Date().toISOString() })),
-        { onConflict: 'key' });
-      if (error) throw error;
+      let failed = 0, firstError = null;
+      for (const [key, value] of entries) {
+        const res = await this._persistSetting(key, String(value ?? ''));
+        if (!res.ok) { failed++; firstError = firstError || res.error; }
+      }
+      if (failed) throw firstError;
       this.showToast(`Imported ${entries.length} settings`, 'success');
       this._renderSettings(document.getElementById('admin-content') || document.querySelector('.admin-content'));
-    } catch (e) { console.error(e); this.showToast('Import failed — is it a valid settings file?', 'error'); }
+    } catch (e) { console.error(e); this.showToast(`Import stopped: ${this._explainSaveError(e)}`, 'error', 10000); }
   }
 
   /* ============================================================
