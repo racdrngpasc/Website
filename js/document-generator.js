@@ -6,6 +6,176 @@
 
 'use strict';
 
+/* ============================================================
+   LOCAL TREASURY STATEMENT (PDF + Word built in the browser)
+   Used automatically when the Supabase "generate-document" function is not the current version
+   (or cannot answer), so statements always start from the club's opening balance. Works for every language
+   because the browser draws the text. Numbers come from TreasuryLedger — the same source as Excel and the mail.
+   ============================================================ */
+const LocalStatement = (() => {
+  const CRIMSON = '#9C1C42', DARK = '#43061F', PINK = '#FBF1F5', INK = '#2E2327', MUTED = '#7A6670';
+  const FONT = '"Segoe UI","Noto Sans","Noto Sans Tamil","Noto Sans Devanagari","Nirmala UI",Roboto,Arial,sans-serif';
+  const cur = (n) => 'Rs. ' + Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const dshort = (iso) => { const d = new Date(String(iso).slice(0, 10) + 'T00:00:00'); return isNaN(d) ? String(iso || '') : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }); };
+  const esc = (t) => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+  /* ---------- tiny ZIP writer (stored, no compression) — enough for a .docx ---------- */
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = (u8) => { let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function zip(files) {
+    const enc = new TextEncoder(), parts = [], central = []; let offset = 0;
+    const now = new Date(), time = (now.getHours() << 11) | (now.getMinutes() << 5) | (now.getSeconds() >> 1), date = ((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate();
+    files.forEach(f => {
+      const name = enc.encode(f.name), data = typeof f.data === 'string' ? enc.encode(f.data) : f.data, crc = crc32(data);
+      const lh = new DataView(new ArrayBuffer(30));
+      lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true); lh.setUint16(10, time, true); lh.setUint16(12, date, true);
+      lh.setUint32(14, crc, true); lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+      parts.push(new Uint8Array(lh.buffer), name, data);
+      const ch = new DataView(new ArrayBuffer(46));
+      ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true); ch.setUint16(12, time, true); ch.setUint16(14, date, true);
+      ch.setUint32(16, crc, true); ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true); ch.setUint16(28, name.length, true); ch.setUint32(42, offset, true);
+      central.push(new Uint8Array(ch.buffer), name);
+      offset += 30 + name.length + data.length;
+    });
+    const cdSize = central.reduce((s, p) => s + p.length, 0), end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true); end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+    return new Blob([...parts, ...central, new Uint8Array(end.buffer)], { type: 'application/zip' });
+  }
+
+  /* ---------- Word (.docx) ---------- */
+  function buildDocx(st, from, to, club) {
+    const P = (text, o = {}) => `<w:p><w:pPr><w:spacing w:before="${o.before || 0}" w:after="${o.after || 80}"/>${o.center ? '<w:jc w:val="center"/>' : ''}</w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Nirmala UI" w:eastAsia="Microsoft YaHei"/>${o.bold ? '<w:b/>' : ''}<w:color w:val="${o.color || '2E2327'}"/><w:sz w:val="${o.size || 21}"/></w:rPr><w:t xml:space="preserve">${esc(text)}</w:t></w:r></w:p>`;
+    const cell = (text, w, o = {}) => `<w:tc><w:tcPr><w:tcW w:w="${w}" w:type="dxa"/>${o.fill ? `<w:shd w:val="clear" w:color="auto" w:fill="${o.fill}"/>` : ''}<w:tcMar><w:top w:w="50" w:type="dxa"/><w:bottom w:w="50" w:type="dxa"/><w:left w:w="80" w:type="dxa"/><w:right w:w="80" w:type="dxa"/></w:tcMar></w:tcPr>` +
+      `<w:p><w:pPr><w:spacing w:after="0"/>${o.right ? '<w:jc w:val="right"/>' : ''}</w:pPr><w:r><w:rPr><w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Nirmala UI" w:eastAsia="Microsoft YaHei"/>${o.bold ? '<w:b/>' : ''}<w:color w:val="${o.color || '2E2327'}"/><w:sz w:val="${o.size || 18}"/></w:rPr><w:t xml:space="preserve">${esc(text)}</w:t></w:r></w:p></w:tc>`;
+    const borders = '<w:tblBorders><w:top w:val="single" w:sz="4" w:color="E8D5DC"/><w:left w:val="single" w:sz="4" w:color="E8D5DC"/><w:bottom w:val="single" w:sz="4" w:color="E8D5DC"/><w:right w:val="single" w:sz="4" w:color="E8D5DC"/><w:insideH w:val="single" w:sz="4" w:color="E8D5DC"/><w:insideV w:val="single" w:sz="4" w:color="E8D5DC"/></w:tblBorders>';
+    const widths = [600, 1400, 4600, 1900, 1300, 1500, 1500, 1700];            // 14 500 twips ≈ landscape A4 text width
+    const head = ['S.No', 'Date', 'Particular', 'Category', 'Voucher', 'Income', 'Expense', 'Balance'];
+    const row = (cells, o = {}) => `<w:tr>${cells.map((c, i) => cell(c, widths[i], { ...o, right: i >= 5 })).join('')}</w:tr>`;
+    const sum = [['Opening Balance', cur(st.opening)], ['Total Income', cur(st.income)], ['Total Expense', cur(st.expense)], ['Closing Balance', cur(st.closing)]];
+    const sumW = 3400;
+    const sumTable = `<w:tbl><w:tblPr><w:tblW w:w="${sumW * 4}" w:type="dxa"/>${borders}<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid>${sum.map(() => `<w:gridCol w:w="${sumW}"/>`).join('')}</w:tblGrid>` +
+      `<w:tr>${sum.map(s => cell(s[0].toUpperCase(), sumW, { fill: 'FBF1F5', bold: true, color: '7A6670', size: 16 })).join('')}</w:tr>` +
+      `<w:tr>${sum.map((s, i) => cell(s[1], sumW, { bold: true, size: 26, color: i === 2 ? 'C53030' : i === 1 ? '1F8A5B' : '9C1C42' })).join('')}</w:tr></w:tbl>`;
+    const rows = [row(head, { fill: '9C1C42', bold: true, color: 'FFFFFF' })];
+    rows.push(row(['', dshort(from), 'Opening Balance b/f' + (st.setting && st.setting.note ? ' — ' + st.setting.note : ''), '', '', '', '', cur(st.opening)], { fill: 'FBF1F5', bold: true }));
+    st.rows.forEach((t, i) => {
+      const inc = t.transaction_type === 'income', a = parseFloat(t.amount) || 0;
+      rows.push(`<w:tr>${[String(i + 1), dshort(t.transaction_date), t.particular || '', t.category || '', t.voucher_number || '', inc ? cur(a) : '', inc ? '' : cur(a), cur(t.balance)]
+        .map((c, k) => cell(c, widths[k], { right: k >= 5, fill: i % 2 ? 'FCF8FA' : '', color: k === 5 ? '1F8A5B' : k === 6 ? 'C53030' : '2E2327' })).join('')}</w:tr>`);
+    });
+    rows.push(row(['', '', 'TOTAL  ·  CLOSING BALANCE', '', '', cur(st.income), cur(st.expense), cur(st.closing)], { fill: 'F3DDE6', bold: true }));
+    const table = `<w:tbl><w:tblPr><w:tblW w:w="${widths.reduce((a, b) => a + b, 0)}" w:type="dxa"/>${borders}<w:tblLayout w:type="fixed"/></w:tblPr><w:tblGrid>${widths.map(w => `<w:gridCol w:w="${w}"/>`).join('')}</w:tblGrid>${rows.join('')}</w:tbl>`;
+    const body = P(club, { bold: true, size: 34, color: '9C1C42', center: true, after: 40 }) + P('TREASURY STATEMENT', { bold: true, size: 26, color: '43061F', center: true, after: 40 }) +
+      P(`Period: ${dshort(from)} to ${dshort(to)}`, { center: true, color: '7A6670', after: 200 }) + sumTable + P('', { after: 120 }) + table +
+      P(`Generated on ${new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}`, { before: 200, color: '7A6670', size: 16 });
+    const ns = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"';
+    return zip([
+      { name: '[Content_Types].xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>' },
+      { name: '_rels/.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>' },
+      { name: 'word/document.xml', data: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document ${ns}><w:body>${body}<w:sectPr><w:pgSz w:w="16838" w:h="11906" w:orient="landscape"/><w:pgMar w:top="900" w:right="1100" w:bottom="900" w:left="1100" w:header="500" w:footer="500" w:gutter="0"/></w:sectPr></w:body></w:document>` }
+    ]).slice(0, undefined, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+  }
+
+  /* ---------- PDF: pages drawn on a canvas (any language), packed as JPEG pages ---------- */
+  async function buildPdf(st, from, to, club) {
+    if (!CanvasRenderingContext2D.prototype.roundRect) {          // older browsers
+      CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h) { this.rect(x, y, w, h); };
+    }
+    const W = 1754, H = 1240, M = 70, pages = [];       // A4 landscape @150 dpi
+    const cols = [{ k: 'n', w: 70, a: 'l' }, { k: 'd', w: 150, a: 'l' }, { k: 'p', w: 520, a: 'l' }, { k: 'c', w: 210, a: 'l' }, { k: 'v', w: 120, a: 'l' }, { k: 'i', w: 190, a: 'r' }, { k: 'e', w: 190, a: 'r' }, { k: 'b', w: 0, a: 'r' }];
+    cols[7].w = W - 2 * M - cols.slice(0, 7).reduce((s, c) => s + c.w, 0);
+    let cv, ctx, y;
+    const newPage = () => {
+      cv = document.createElement('canvas'); cv.width = W; cv.height = H; ctx = cv.getContext('2d'); pages.push(cv);
+      ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, W, H);
+      ctx.fillStyle = CRIMSON; ctx.fillRect(0, 0, W, 14);
+      y = 56;
+    };
+    const wrapText = (t, maxW, font) => { ctx.font = font; const words = String(t || '').split(/\s+/); const lines = []; let cur = ''; words.forEach(w => { const test = cur ? cur + ' ' + w : w; if (ctx.measureText(test).width <= maxW || !cur) cur = test; else { lines.push(cur); cur = w; } }); if (cur) lines.push(cur); return lines.length ? lines : ['']; };
+    const header = () => {
+      let x = M;
+      ctx.fillStyle = DARK; ctx.fillRect(M, y, W - 2 * M, 112);
+      ctx.fillStyle = CRIMSON; ctx.fillRect(M, y, 14, 112);
+      ctx.fillStyle = '#FFFFFF'; ctx.font = `700 40px ${FONT}`; ctx.fillText(club, M + 40, y + 52);
+      ctx.fillStyle = '#FFD98A'; ctx.font = `700 22px ${FONT}`; ctx.fillText('TREASURY STATEMENT', M + 40, y + 88);
+      ctx.fillStyle = 'rgba(255,255,255,.85)'; ctx.font = `500 24px ${FONT}`; ctx.textAlign = 'right'; ctx.fillText(`${dshort(from)}  –  ${dshort(to)}`, W - M - 30, y + 88); ctx.textAlign = 'left';
+      y += 140;
+    };
+    const summary = () => {
+      const items = [['OPENING BALANCE', st.opening, DARK], ['TOTAL INCOME', st.income, '#1F8A5B'], ['TOTAL EXPENSE', st.expense, '#C53030'], ['CLOSING BALANCE', st.closing, CRIMSON]];
+      const gap = 18, w = (W - 2 * M - gap * 3) / 4;
+      items.forEach((it, i) => {
+        const x = M + i * (w + gap);
+        ctx.fillStyle = PINK; ctx.beginPath(); ctx.roundRect(x, y, w, 110, 14); ctx.fill();
+        ctx.fillStyle = it[2]; ctx.fillRect(x, y + 14, 6, 82);
+        ctx.fillStyle = MUTED; ctx.font = `700 19px ${FONT}`; ctx.fillText(it[0], x + 26, y + 38);
+        ctx.fillStyle = it[2]; ctx.font = `800 36px ${FONT}`; ctx.fillText(cur(it[1]), x + 26, y + 84);
+      });
+      y += 140;
+    };
+    const tableHead = () => {
+      ctx.fillStyle = CRIMSON; ctx.fillRect(M, y, W - 2 * M, 48);
+      let x = M; ctx.fillStyle = '#FFFFFF'; ctx.font = `700 21px ${FONT}`;
+      ['S.No', 'Date', 'Particular', 'Category', 'Voucher', 'Income', 'Expense', 'Balance'].forEach((h, i) => {
+        const c = cols[i]; ctx.textAlign = c.a === 'r' ? 'right' : 'left'; ctx.fillText(h, c.a === 'r' ? x + c.w - 14 : x + 14, y + 32); x += c.w;
+      });
+      ctx.textAlign = 'left'; y += 48;
+    };
+    const drawRow = (cells, o = {}) => {
+      const font = `${o.bold ? 700 : 500} 21px ${FONT}`;
+      const wrapped = cells.map((t, i) => wrapText(t, cols[i].w - 28, font));
+      const lines = Math.max(...wrapped.map(w => w.length)), h = lines * 28 + 20;
+      if (y + h > H - 90) { footer(); newPage(); tableHead(); }
+      if (o.fill) { ctx.fillStyle = o.fill; ctx.fillRect(M, y, W - 2 * M, h); }
+      ctx.strokeStyle = '#EFE2E8'; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(M, y + h); ctx.lineTo(W - M, y + h); ctx.stroke();
+      let x = M; ctx.font = font;
+      wrapped.forEach((ws, i) => {
+        const c = cols[i]; ctx.fillStyle = i === 5 && o.col ? '#1F8A5B' : i === 6 && o.col ? '#C53030' : INK; ctx.textAlign = c.a === 'r' ? 'right' : 'left';
+        ws.forEach((ln, k) => ctx.fillText(ln, c.a === 'r' ? x + c.w - 14 : x + 14, y + 32 + k * 28)); x += c.w;
+      });
+      ctx.textAlign = 'left'; y += h;
+    };
+    const footer = () => { ctx.fillStyle = MUTED; ctx.font = `500 18px ${FONT}`; ctx.fillText(`${club}  ·  Treasury Statement`, M, H - 36); };
+    newPage(); header(); summary(); tableHead();
+    drawRow(['', dshort(from), 'Opening Balance b/f' + (st.setting && st.setting.note ? ' — ' + st.setting.note : ''), '', '', '', '', cur(st.opening)], { bold: true, fill: PINK });
+    st.rows.forEach((t, i) => {
+      const inc = t.transaction_type === 'income', a = parseFloat(t.amount) || 0;
+      drawRow([String(i + 1), dshort(t.transaction_date), t.particular || '', t.category || '', t.voucher_number || '', inc ? cur(a) : '', inc ? '' : cur(a), cur(t.balance)], { col: true, fill: i % 2 ? '#FCF8FA' : '' });
+    });
+    drawRow(['', '', 'TOTAL  ·  CLOSING BALANCE', '', '', cur(st.income), cur(st.expense), cur(st.closing)], { bold: true, fill: '#F3DDE6', col: true });
+    footer();
+    pages.forEach((p, i) => { const c = p.getContext('2d'); c.fillStyle = MUTED; c.font = `500 18px ${FONT}`; c.textAlign = 'right'; c.fillText(`Page ${i + 1} of ${pages.length}`, W - M, H - 36); });
+
+    /* assemble a PDF: one JPEG image per page */
+    const enc = new TextEncoder(), chunks = [], offsets = []; let len = 0;
+    const add = (d) => { const u = typeof d === 'string' ? enc.encode(d) : d; chunks.push(u); len += u.length; };
+    const obj = (n, d) => { offsets[n] = len; add(`${n} 0 obj\n`); add(d); add('\nendobj\n'); };
+    add('%PDF-1.4\n%\xE2\xE3\xCF\xD3\n');
+    const jpgs = [];
+    for (const p of pages) { const blob = await new Promise(r => p.toBlob(r, 'image/jpeg', 0.88)); jpgs.push(new Uint8Array(await blob.arrayBuffer())); }
+    const n = pages.length, pw = 842, ph = Math.round(842 * H / W);
+    obj(1, '<< /Type /Catalog /Pages 2 0 R >>');
+    obj(2, `<< /Type /Pages /Count ${n} /Kids [${pages.map((_, i) => `${3 + i * 3} 0 R`).join(' ')}] >>`);
+    jpgs.forEach((j, i) => {
+      const pg = 3 + i * 3, ct = pg + 1, im = pg + 2, content = `q ${pw} 0 0 ${ph} 0 0 cm /Im0 Do Q`;
+      obj(pg, `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${pw} ${ph}] /Contents ${ct} 0 R /Resources << /XObject << /Im0 ${im} 0 R >> >> >>`);
+      obj(ct, `<< /Length ${content.length} >>\nstream\n${content}\nendstream`);
+      offsets[im] = len; add(`${im} 0 obj\n<< /Type /XObject /Subtype /Image /Width ${W} /Height ${H} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${j.length} >>\nstream\n`); add(j); add('\nendstream\nendobj\n');
+    });
+    const total = 3 + n * 3, xref = len;
+    add(`xref\n0 ${total}\n0000000000 65535 f \n`);
+    for (let i = 1; i < total; i++) add(String(offsets[i]).padStart(10, '0') + ' 00000 n \n');
+    add(`trailer\n<< /Size ${total} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`);
+    return new Blob(chunks, { type: 'application/pdf' });
+  }
+
+  return { buildDocx, buildPdf };
+})();
+window.LocalStatement = LocalStatement;
+
+/* the edge function answers { version } — anything older (or silent) is treated as outdated */
+const DOC_FUNCTION_MIN_VERSION = '2026-11-04';
+
 class DocumentGenerator {
   constructor() {
     this.db      = getSupabaseClient();
@@ -95,6 +265,7 @@ class DocumentGenerator {
      CALL EDGE FUNCTION AND DOWNLOAD DOCX
      ============================================================ */
   async _callEdgeFunction(functionName, payload, fallbackFilename, formatOverride) {
+    if (!(await this._serverIsCurrent())) this._warnOutdatedOnce();
     const ALIAS = {
       'generate-event-report'     : 'event_report',
       'generate-monthly-report'   : 'monthly_report',
@@ -159,6 +330,14 @@ class DocumentGenerator {
   /* ============================================================
      DOWNLOAD BLOB HELPER
      ============================================================ */
+  /** once per page: tell the admin that the Supabase document function needs updating (non-English PDF text, opening balance …) */
+  _warnOutdatedOnce() {
+    if (this._warnedOutdated) return; this._warnedOutdated = true;
+    try {
+      window.adminDashboard?.showToast('Your Supabase document function is outdated: non-English text in PDF reports can show as “?”. Deploy supabase/functions/generate-document (see README). Treasury PDF/Word statements are built in the portal and stay correct.', 'warning', 12000);
+    } catch (e) { /* silent */ }
+  }
+
   _downloadBlob(blob, filename) {
     if (typeof saveAs !== 'undefined') {
       saveAs(blob, filename);
@@ -474,12 +653,53 @@ class DocumentGenerator {
   /* ============================================================
      TREASURY STATEMENT AS WORD / PDF  (cranberry layout)
      ============================================================ */
+  /** Is the deployed "generate-document" function the current version (opening balance from Site Settings)? Cached per page. */
+  async _serverIsCurrent() {
+    if (this._fnCurrent !== undefined) return this._fnCurrent;
+    try {
+      const res = await fetch(`${this.baseUrl}/generate-document`, { method: 'POST', headers: this.headers, body: JSON.stringify({ action: 'version' }) });
+      const j = res.ok ? await res.json() : null;
+      this._fnCurrent = !!(j && j.version && String(j.version) >= DOC_FUNCTION_MIN_VERSION);
+    } catch (e) { this._fnCurrent = false; }
+    return this._fnCurrent;
+  }
+
+  _downloadBlob(blob, filename) {
+    if (typeof saveAs !== 'undefined') { saveAs(blob, filename); return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+
+  /** PDF / Word statement built in the browser from the shared ledger (opening balance + earlier entries). */
+  async _localTreasuryDocument(fromDate, toDate, format) {
+    const st = await TreasuryLedger.statement(this.db, fromDate, toDate);
+    if (!st.rows.length && !st.opening) throw new Error('No transactions found for the selected period');
+    await this.loadSettings();
+    const club = (typeof CLUB_INFO !== 'undefined' && CLUB_INFO.name) || 'Rotaract Club';
+    const base = `Treasury_Statement_${fromDate}_to_${toDate}`;
+    if (format === 'docx') this._downloadBlob(LocalStatement.buildDocx(st, fromDate, toDate, club), `${base}.docx`);
+    else this._downloadBlob(await LocalStatement.buildPdf(st, fromDate, toDate, club), `${base}.pdf`);
+  }
+
   async generateTreasuryDocument(fromDate, toDate, format = 'pdf') {
     if (!fromDate || !toDate) throw new Error('fromDate and toDate are required');
+    format = format === 'docx' ? 'docx' : 'pdf';
     this._showProgress('Generating treasury statement...');
     try {
-      await this._callEdgeFunction('treasury', { from_date: fromDate, to_date: toDate },
-        `Treasury_Statement_${fromDate}_to_${toDate}`, format === 'docx' ? 'docx' : 'pdf');
+      /* the server function must be the current version, otherwise the opening balance would be wrong */
+      if (await this._serverIsCurrent()) {
+        try {
+          await this._callEdgeFunction('treasury', { from_date: fromDate, to_date: toDate },
+            `Treasury_Statement_${fromDate}_to_${toDate}`, format);
+          this._showSuccess('Treasury statement downloaded!');
+          return true;
+        } catch (serverError) {
+          console.warn('Server statement failed, building it in the browser:', serverError);
+        }
+      } else {
+        console.info('generate-document is not the current version — building the statement in the browser');
+      }
+      await this._localTreasuryDocument(fromDate, toDate, format);
       this._showSuccess('Treasury statement downloaded!');
       return true;
     } catch (err) {
