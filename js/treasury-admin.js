@@ -70,6 +70,15 @@ class TreasuryAdminManager {
       </div>`;
     document.body.appendChild(ov);
     if (window.lucide) lucide.createIcons();
+    /* an old-style "Opening Balance" income entry would be counted twice (once here, once as income) */
+    TreasuryLedger.openingLikeEntries(this.db).then(list => {
+      if (!list.length || !document.getElementById('ob-overlay')) return;
+      const box = document.createElement('div'); box.className = 'reset-note is-error';
+      box.innerHTML = `<strong>Possible double counting:</strong> ${list.length} income entr${list.length === 1 ? 'y looks' : 'ies look'} like an opening balance
+        (${list.slice(0, 3).map(t => `“${StringUtils.sanitize(t.particular || t.category)}” ${StringUtils.formatCurrency(t.amount)}`).join(', ')}).
+        These are counted as income. Delete or edit them — or keep this opening balance at 0 — so the amount is not counted twice.`;
+      ov.querySelector('.reset-actions').before(box);
+    });
     ov.querySelector('#ob-cancel').onclick = () => ov.remove();
     ov.addEventListener('mousedown', (e) => { if (e.target === ov) ov.remove(); });
     ov.querySelector('#ob-save').onclick = async (ev) => {
