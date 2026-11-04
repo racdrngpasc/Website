@@ -584,6 +584,20 @@ const TreasuryLedger = {
     return rows;
   },
 
+  /** Income entries that look like an old-style "opening balance" transaction — they would be counted twice with the opening balance setting. */
+  async openingLikeEntries(db) {
+    try {
+      const { data } = await db.from('treasury_transactions').select('id,transaction_date,particular,category,amount,transaction_type')
+        .eq('transaction_type', 'income').or('particular.ilike.%opening%,category.ilike.%opening%,particular.ilike.%brought forward%,particular.ilike.%b/f%').limit(10);
+      return (data || []).filter(t => /opening|brought forward|b\/f/i.test(`${t.particular || ''} ${t.category || ''}`));
+    } catch (e) {
+      try {                                                        // client-side fallback when .or() is unavailable
+        const { data } = await db.from('treasury_transactions').select('id,transaction_date,particular,category,amount,transaction_type').eq('transaction_type', 'income').limit(2000);
+        return (data || []).filter(t => /opening|brought forward|b\/f/i.test(`${t.particular || ''} ${t.category || ''}`)).slice(0, 10);
+      } catch (e2) { return []; }
+    }
+  },
+
   /** { opening, income, expense, closing, rows:[{...tx, balance}], setting } for [fromDate, toDate] */
   async statement(db, fromDate, toDate) {
     const setting = await this.settings(db);
