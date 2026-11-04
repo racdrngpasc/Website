@@ -589,13 +589,12 @@ class EmailService {
     table,td{mso-table-lspace:0;mso-table-rspace:0;}
     img{-ms-interpolation-mode:bicubic;border:0;outline:none;text-decoration:none;max-width:100%;height:auto;}
     a{color:#B30F57;}
+    /* phones: the mail is simply full width — no frame, no shadow, no coloured margin */
     @media only screen and (max-width:620px){
-      .em-outer{padding:0 !important;}
-      .em-card{border-radius:0 !important;box-shadow:none !important;}
       .em-hdr{padding:26px 18px 22px !important;}
-      .em-pad{padding:22px 16px !important;}
-      .em-ftr{padding:22px 16px !important;}
-      .em-h1{font-size:17px !important;}
+      .em-pad{padding:24px 18px !important;}
+      .em-ftr{padding:22px 18px !important;}
+      .em-h1{font-size:18px !important;}
       .em-lbl,.em-val{display:block !important;width:100% !important;box-sizing:border-box !important;}
       .em-lbl{padding:10px 12px 2px !important;border-bottom:0 !important;font-size:11px !important;text-transform:uppercase;letter-spacing:.05em;}
       .em-val{padding:2px 12px 11px !important;}
@@ -605,6 +604,12 @@ class EmailService {
       .em-tbl{font-size:11px !important;}
       .em-tbl td,.em-tbl th{padding:7px 5px !important;}
       .em-big{font-size:20px !important;}
+      .bd-h1{font-size:30px !important;}
+    }
+    /* larger screens: a soft grey page with a centred card */
+    @media only screen and (min-width:621px){
+      .em-outer{background-color:#F4F1F3 !important;padding:28px 12px !important;}
+      .em-card{border-radius:14px !important;box-shadow:0 6px 24px rgba(67,6,31,0.10) !important;}
     }`;
   }
 
@@ -645,15 +650,15 @@ class EmailService {
   <title>${this._esc(subject)}</title>
   <style>${this._emailCss()}</style>
 </head>
-<body style="margin:0;padding:0;width:100%;background-color:#F4EEF1;font-family:${FF};-webkit-font-smoothing:antialiased;">
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;color:#F4EEF1;">
+<body style="margin:0;padding:0;width:100%;background-color:#ffffff;font-family:${FF};-webkit-font-smoothing:antialiased;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;font-size:1px;line-height:1px;color:#ffffff;">
     ${this._esc(subject)} &mdash; ${this._esc(clubName)}
   </div>
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="em-outer"
-         style="background-color:#F4EEF1;padding:26px 12px;">
+         style="background-color:#ffffff;padding:0;">
     <tr><td align="center">
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="em-card"
-             style="max-width:640px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 10px 36px rgba(67,6,31,0.12);">
+             style="max-width:640px;width:100%;background:#ffffff;border-radius:0;overflow:hidden;">
         <!-- ribbon -->
         <tr><td style="font-size:0;line-height:0;">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
@@ -1641,49 +1646,32 @@ class EmailService {
         'logo_colour_url', CLUB_INFO.logos?.colour ?? ''
       );
       const logoUrl  = this._isValidHttpsUrl(rawLogo) ? rawLogo : '';
-      const firstName = this._esc(
-        String(member.full_name || 'Rotaractor').trim().split(/\s+/)[0]
-      );
-      const year = new Date().getFullYear();
+      const fullName = String(member.full_name || 'Rotaractor').replace(/\s+/g, ' ').trim();   // "Rtr. Kavin" — the whole name, not just the first word
+      const nameHtml = this._esc(fullName);
+      const FF = this._FF, year = new Date().getFullYear();
 
-      /* Icons are drawn with plain HTML/CSS (no emoji, no images, no SVG)
-         so they render the same in Gmail, Outlook, Apple Mail and phones. */
+      /* graphics are plain HTML/CSS (no emoji, no remote images) so they look the same in every mail app */
       const logoHtml = logoUrl
-        ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 18px;">
-                  <tr><td style="background:#ffffff;border-radius:50%;padding:7px;line-height:0;">
-                    <img src="${logoUrl}" alt="${safeClub}" width="52" height="52"
-                         style="display:block;border:0;outline:none;border-radius:50%;width:52px;height:52px;" />
-                  </td></tr>
-                </table>`
+        ? `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 16px;">
+             <tr><td style="background:#ffffff;border-radius:50%;padding:6px;line-height:0;">
+               <img src="${logoUrl}" alt="${safeClub}" width="48" height="48" style="display:block;border-radius:50%;width:48px;height:48px;" />
+             </td></tr></table>`
         : '';
 
-      const confetti = (cols) => cols.map((c, i) =>
-        `<td width="${i % 2 ? 10 : 14}" height="${i % 2 ? 10 : 14}" style="background:${c};font-size:0;line-height:0;border-radius:${i % 3 === 0 ? '50%' : '2px'};">&nbsp;</td><td width="14" style="font-size:0;line-height:0;">&nbsp;</td>`
-      ).join('');
-      const confettiRow = (cols) =>
-        `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>${confetti(cols)}</tr></table>`;
+      const dots = (cols) => `<table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto;"><tr>${cols.map((c, i) =>
+        `<td width="${i % 2 ? 9 : 12}" height="${i % 2 ? 9 : 12}" style="background:${c};font-size:0;line-height:0;border-radius:${i % 3 === 0 ? '50%' : '2px'};">&nbsp;</td><td width="12" style="font-size:0;line-height:0;">&nbsp;</td>`).join('')}</tr></table>`;
 
       const cakeIcon = `
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 20px;">
-                  <tr><td align="center" style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.28);border-radius:50%;width:118px;height:118px;" width="118" height="118" valign="middle">
-                    <div style="width:12px;height:17px;margin:0 auto;background:#FFC857;border-radius:50% 50% 50% 50% / 62% 62% 38% 38%;box-shadow:0 0 12px 3px rgba(255,200,87,0.65);"></div>
-                    <div style="width:6px;height:15px;margin:2px auto 0;background:#FFFFFF;border-radius:2px;"></div>
-                    <div style="width:54px;height:15px;margin:0 auto;background:#FBC4DA;border-radius:9px 9px 0 0;border-bottom:3px solid #FFFFFF;"></div>
-                    <div style="width:72px;height:16px;margin:0 auto;background:#F06FA3;border-bottom:3px solid #FFFFFF;"></div>
-                    <div style="width:90px;height:17px;margin:0 auto;background:#D41367;border-radius:0 0 7px 7px;"></div>
-                    <div style="width:104px;height:5px;margin:3px auto 0;background:rgba(255,255,255,0.85);border-radius:3px;"></div>
-                  </td></tr>
-                </table>`;
-
-      const pillar = (glyph, title, text, tint) => `
-                    <td width="33%" valign="top" align="center" style="padding:0 6px;">
-                      <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 10px;">
-                        <tr><td align="center" valign="middle" width="44" height="44"
-                                style="width:44px;height:44px;border-radius:50%;background:${tint};color:#ffffff;font-size:19px;line-height:44px;font-family:Arial,Helvetica,sans-serif;font-weight:700;">${glyph}</td></tr>
-                      </table>
-                      <p style="margin:0 0 3px;color:#43061F;font-size:13px;font-weight:700;letter-spacing:0.4px;font-family:Arial,Helvetica,sans-serif;">${title}</p>
-                      <p style="margin:0;color:#7A6670;font-size:11.5px;line-height:1.55;font-family:Arial,Helvetica,sans-serif;">${text}</p>
-                    </td>`;
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 18px;">
+          <tr><td align="center" valign="middle" width="108" height="108" style="background:rgba(255,255,255,0.10);border:1px solid rgba(255,255,255,0.28);border-radius:50%;width:108px;height:108px;">
+            <div style="width:11px;height:16px;margin:0 auto;background:#FFC857;border-radius:50% 50% 50% 50% / 62% 62% 38% 38%;box-shadow:0 0 10px 3px rgba(255,200,87,0.6);"></div>
+            <div style="width:5px;height:13px;margin:2px auto 0;background:#FFFFFF;border-radius:2px;"></div>
+            <div style="width:48px;height:13px;margin:0 auto;background:#FBC4DA;border-radius:8px 8px 0 0;border-bottom:3px solid #FFFFFF;"></div>
+            <div style="width:64px;height:14px;margin:0 auto;background:#F06FA3;border-bottom:3px solid #FFFFFF;"></div>
+            <div style="width:80px;height:15px;margin:0 auto;background:#D41367;border-radius:0 0 6px 6px;"></div>
+            <div style="width:92px;height:4px;margin:3px auto 0;background:rgba(255,255,255,0.85);border-radius:2px;"></div>
+          </td></tr>
+        </table>`;
 
       const subject =
         `Happy Birthday ${member.full_name}! — ${clubName}`;
@@ -1694,125 +1682,66 @@ class EmailService {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1.0" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="x-apple-disable-message-reformatting" />
   <meta name="color-scheme" content="light only" />
   <meta name="supported-color-schemes" content="light only" />
-  <title>Happy Birthday, ${firstName}!</title>
+  <title>Happy Birthday, ${nameHtml}!</title>
+  <style>${this._emailCss()}</style>
 </head>
-<body style="margin:0;padding:0;background-color:#F6EDF1;font-family:Arial,Helvetica,sans-serif;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;">
-  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#F6EDF1;font-size:1px;line-height:1px;">
+<body style="margin:0;padding:0;width:100%;background-color:#ffffff;font-family:${FF};-webkit-font-smoothing:antialiased;">
+  <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:#ffffff;font-size:1px;line-height:1px;">
     Warm birthday wishes from all of us at ${safeClub}.
   </div>
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color:#F6EDF1;padding:28px 12px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="em-outer" style="background-color:#ffffff;padding:0;">
     <tr><td align="center">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0"
-             style="max-width:600px;width:100%;background-color:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 14px 44px rgba(67,6,31,0.16);">
-
-        <!-- colour ribbon -->
-        <tr>
-          <td style="font-size:0;line-height:0;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-              <td width="25%" height="6" style="background:#43061F;font-size:0;line-height:0;">&nbsp;</td>
-              <td width="25%" height="6" style="background:#B30F57;font-size:0;line-height:0;">&nbsp;</td>
-              <td width="25%" height="6" style="background:#F06FA3;font-size:0;line-height:0;">&nbsp;</td>
-              <td width="25%" height="6" style="background:#FFC857;font-size:0;line-height:0;">&nbsp;</td>
-            </tr></table>
-          </td>
-        </tr>
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" class="em-card" style="max-width:600px;width:100%;background:#ffffff;">
 
         <!-- hero -->
         <tr>
-          <td align="center" bgcolor="#6B0A33"
-              style="background-color:#6B0A33;background-image:linear-gradient(145deg,#43061F 0%,#B30F57 62%,#D41367 100%);padding:34px 28px 38px;text-align:center;">
+          <td align="center" class="em-hdr" bgcolor="#7D0A3C"
+              style="background-color:#7D0A3C;background-image:linear-gradient(150deg,#43061F 0%,#9C1C42 60%,#C2185B 100%);padding:36px 24px 34px;text-align:center;">
             ${logoHtml}
-            ${confettiRow(['#FFC857', '#F06FA3', '#FFFFFF', '#FFC857', '#F06FA3', '#FFFFFF', '#FFC857'])}
-            <div style="height:16px;line-height:16px;font-size:0;">&nbsp;</div>
-            ${cakeIcon}
-            <p style="margin:0 0 8px;color:#FFD98A;font-size:12px;font-weight:700;letter-spacing:5px;font-family:Arial,Helvetica,sans-serif;">
-              &#10022;&nbsp; HAPPY BIRTHDAY &nbsp;&#10022;
-            </p>
-            <h1 style="margin:0 0 10px;color:#ffffff;font-size:36px;line-height:1.15;font-weight:700;font-family:Georgia,'Times New Roman',serif;">
-              ${safeName}
-            </h1>
-            <p style="margin:0;color:rgba(255,255,255,0.88);font-size:14px;line-height:1.6;font-family:Arial,Helvetica,sans-serif;">
-              Today the whole club celebrates you.
-            </p>
+            ${dots(['#FFC857', '#F06FA3', '#FFFFFF', '#FFC857', '#F06FA3', '#FFFFFF', '#FFC857'])}
             <div style="height:18px;line-height:18px;font-size:0;">&nbsp;</div>
-            ${confettiRow(['#FFFFFF', '#FFC857', '#F06FA3', '#FFFFFF', '#FFC857', '#F06FA3', '#FFFFFF'])}
+            ${cakeIcon}
+            <p style="margin:0 0 10px;color:#FFD98A;font-size:12px;font-weight:700;letter-spacing:5px;font-family:${FF};">HAPPY BIRTHDAY</p>
+            <h1 class="bd-h1" style="margin:0 0 10px;color:#ffffff;font-size:36px;line-height:1.2;font-weight:700;font-family:Georgia,'Times New Roman',serif;">${nameHtml}</h1>
+            <p style="margin:0;color:rgba(255,255,255,0.88);font-size:15px;line-height:1.6;font-family:${FF};">Today the whole club celebrates you.</p>
           </td>
         </tr>
 
         <!-- message -->
         <tr>
-          <td style="padding:36px 34px 8px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
-            <p style="margin:0 0 14px;color:#43061F;font-size:20px;font-weight:700;font-family:Georgia,'Times New Roman',serif;">
-              Dear ${firstName},
-            </p>
-            <p style="margin:0 auto 26px;max-width:440px;color:#4A3A41;font-size:14.5px;line-height:1.95;">
-              On behalf of the entire <strong style="color:#B30F57;">${safeClub}</strong> family,
-              we wish you a very happy birthday. May this special day bring you joy, success and fulfilment,
-              and may the year ahead be filled with moments that make you proud.
+          <td class="em-pad" style="padding:34px 30px 8px;text-align:center;font-family:${FF};">
+            <p style="margin:0 0 14px;color:#43061F;font-size:21px;font-weight:700;font-family:Georgia,'Times New Roman',serif;">Dear ${nameHtml},</p>
+            <p style="margin:0 auto 22px;max-width:460px;color:#4A3A41;font-size:15px;line-height:1.85;">
+              On behalf of the entire <strong style="color:#B30F57;">${safeClub}</strong> family, we wish you a very happy birthday.
+              May this special day bring you joy, success and fulfilment, and may the year ahead be filled with moments that make you proud.
               Your dedication and service to Rotaract inspire us all.
             </p>
+            <p style="margin:0 0 6px;color:#B30F57;font-size:13px;font-weight:700;letter-spacing:2px;font-family:${FF};">JOY &nbsp;&middot;&nbsp; SUCCESS &nbsp;&middot;&nbsp; FULFILMENT</p>
           </td>
         </tr>
 
-        <!-- three wishes -->
+        <!-- motto + sign-off -->
         <tr>
-          <td style="padding:0 28px 28px;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"
-                   style="background-color:#FCF5F8;border:1px solid #F3DCE6;border-radius:14px;">
-              <tr><td style="padding:22px 10px;">
-                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0"><tr>
-                  ${pillar('&#9733;', 'JOY', 'Laughter and good company all year round', '#B30F57')}
-                  ${pillar('&#10022;', 'SUCCESS', 'Every goal you chase within your reach', '#D41367')}
-                  ${pillar('&#9670;', 'FULFILMENT', 'Meaning in the service you give', '#6B0A33')}
-                </tr></table>
-              </td></tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- motto -->
-        <tr>
-          <td style="padding:0 34px 30px;">
-            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
-              <tr>
-                <td width="4" style="background:#FFC857;border-radius:4px;font-size:0;line-height:0;">&nbsp;</td>
-                <td style="padding:6px 0 6px 18px;text-align:left;">
-                  <p style="margin:0 0 3px;color:#43061F;font-size:16px;font-style:italic;font-weight:700;font-family:Georgia,'Times New Roman',serif;">
-                    &ldquo;Service Above Self&rdquo;
-                  </p>
-                  <p style="margin:0;color:#8A7580;font-size:12px;font-family:Arial,Helvetica,sans-serif;">
-                    Thank you for living it every day, Rotaractor.
-                  </p>
-                </td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-
-        <!-- sign-off -->
-        <tr>
-          <td align="center" style="padding:0 34px 34px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
-            <p style="margin:0 0 4px;color:#7A6670;font-size:13px;">With warm regards,</p>
-            <p style="margin:0 0 3px;color:#43061F;font-size:15px;font-weight:700;">${safeClub}</p>
+          <td class="em-pad" align="center" style="padding:20px 30px 34px;text-align:center;font-family:${FF};">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" align="center" style="margin:0 auto 18px;"><tr><td width="44" height="3" style="background:#FFC857;border-radius:3px;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+            <p style="margin:0 0 4px;color:#43061F;font-size:17px;font-style:italic;font-weight:700;font-family:Georgia,'Times New Roman',serif;">&ldquo;Service Above Self&rdquo;</p>
+            <p style="margin:0 0 22px;color:#8A7580;font-size:13px;">Thank you for living it every day.</p>
+            <p style="margin:0 0 3px;color:#7A6670;font-size:13px;">With warm regards,</p>
+            <p style="margin:0 0 2px;color:#43061F;font-size:15px;font-weight:700;">${safeClub}</p>
             <p style="margin:0;color:#9A8690;font-size:12px;">Parented by ${safeParent}</p>
           </td>
         </tr>
 
         <!-- footer -->
         <tr>
-          <td bgcolor="#43061F" align="center"
-              style="background-color:#43061F;padding:20px 28px;text-align:center;font-family:Arial,Helvetica,sans-serif;">
-            <p style="margin:0 0 4px;color:#FFD98A;font-size:11px;font-weight:700;letter-spacing:1.5px;">
-              CLUB ID ${safeClubId} &nbsp;&#9670;&nbsp; ROTARY INTERNATIONAL DISTRICT 3206
-            </p>
-            <p style="margin:0;color:rgba(255,255,255,0.55);font-size:10.5px;">
-              Sent automatically by the Rotaract Club Portal &middot; ${year}
-            </p>
+          <td class="em-ftr" bgcolor="#43061F" align="center" style="background-color:#43061F;padding:18px 24px;text-align:center;font-family:${FF};">
+            <p style="margin:0 0 3px;color:#FFD98A;font-size:11px;font-weight:700;letter-spacing:1.2px;">CLUB ID ${safeClubId} &nbsp;&bull;&nbsp; ROTARY INTERNATIONAL DISTRICT 3206</p>
+            <p style="margin:0;color:rgba(255,255,255,0.55);font-size:10.5px;">Sent by the Rotaract Club Portal &middot; ${year}</p>
           </td>
         </tr>
-
       </table>
     </td></tr>
   </table>
