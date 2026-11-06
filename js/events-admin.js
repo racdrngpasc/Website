@@ -229,8 +229,13 @@ const GeoTag = (() => {
   }
   const fmtCoord = (v, pos, neg) => `${Math.abs(v).toFixed(6)}° ${v >= 0 ? pos : neg}`;
 
-  /* ---------- street map card (CARTO Voyager tiles — the closest open match to the Google Maps look) ---------- */
-  function loadImg(url, ms = 6000) {
+  /* ---------- street map card: only providers that need no key, tried in this order ---------- */
+  const TILE_PROVIDERS = [
+    { name: 'OpenStreetMap',        credit: '© OpenStreetMap contributors', url: (z, x, y) => `https://tile.openstreetmap.org/${z}/${x}/${y}.png` },
+    { name: 'OpenStreetMap France', credit: '© OpenStreetMap France',        url: (z, x, y) => `https://${'abc'[Math.abs(x + y) % 3]}.tile.openstreetmap.fr/osmfr/${z}/${x}/${y}.png` },
+    { name: 'Esri',                 credit: '© Esri, HERE, Garmin, OpenStreetMap', url: (z, x, y) => `https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/${z}/${y}/${x}` }
+  ];
+  function loadImg(url, ms = 5000) {
     return new Promise((resolve) => {
       const img = new Image(); img.crossOrigin = 'anonymous';
       const t = setTimeout(() => resolve(null), ms);
@@ -250,18 +255,16 @@ const GeoTag = (() => {
     const cv = document.createElement('canvas'); cv.width = cv.height = size;
     const ctx = cv.getContext('2d');
     ctx.fillStyle = '#EAF0E4'; ctx.fillRect(0, 0, size, size);
-    const jobs = [];
-    for (let tx = Math.floor(x0 / 256); tx <= Math.floor((x0 + span) / 256); tx++) {
-      for (let ty = Math.floor(y0 / 256); ty <= Math.floor((y0 + span) / 256); ty++) {
-        const sub = 'abcd'[Math.abs(tx + ty) % 4];
-        jobs.push((async () => {
-          const img = await loadImg(`https://${sub}.basemaps.cartocdn.com/rastertiles/voyager/${z}/${tx}/${ty}@2x.png`)
-                   || await loadImg(`https://tile.openstreetmap.org/${z}/${tx}/${ty}.png`);
-          return img ? { img, tx, ty } : null;
-        })());
-      }
+    // every tile of the map must come from ONE provider (mixing styles looks wrong); fall through the list until one is complete
+    const needed = [];
+    for (let tx = Math.floor(x0 / 256); tx <= Math.floor((x0 + span) / 256); tx++) for (let ty = Math.floor(y0 / 256); ty <= Math.floor((y0 + span) / 256); ty++) needed.push([tx, ty]);
+    let tiles = [], used = null, bestPartial = { tiles: [], prov: null };
+    for (const prov of TILE_PROVIDERS) {
+      const got = (await Promise.all(needed.map(async ([tx, ty]) => { const img = await loadImg(prov.url(z, tx, ty)); return img ? { img, tx, ty } : null; }))).filter(Boolean);
+      if (got.length === needed.length) { tiles = got; used = prov; break; }
+      if (got.length > bestPartial.tiles.length) bestPartial = { tiles: got, prov };
     }
-    const tiles = (await Promise.all(jobs)).filter(Boolean);
+    if (!used && bestPartial.tiles.length) { tiles = bestPartial.tiles; used = bestPartial.prov; }   // better a partly drawn real map than none
     let real = tiles.length > 0;
     tiles.forEach(({ img, tx, ty }) => ctx.drawImage(img, (tx * 256 - x0) * s, (ty * 256 - y0) * s, 256 * s, 256 * s));
     if (!real) {                                          // offline: draw a tidy placeholder street grid
@@ -269,7 +272,7 @@ const GeoTag = (() => {
       for (let i = -1; i < 6; i++) { ctx.beginPath(); ctx.moveTo(i * size / 4, 0); ctx.lineTo(i * size / 4 + size * 0.3, size); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i * size / 4 + 10); ctx.lineTo(size, i * size / 4 - 14); ctx.stroke(); }
       ctx.fillStyle = 'rgba(120,150,110,.35)'; ctx.fillRect(size * 0.1, size * 0.55, size * 0.3, size * 0.25);
     }
-    const res = { canvas: cv, real };
+    const res = { canvas: cv, real, credit: used ? used.credit : '' };
     mapCache.set(key, res);
     return res;
   }
@@ -285,7 +288,6 @@ const GeoTag = (() => {
   function iconPin(ctx, x, y, h, color) { ctx.save(); ctx.fillStyle = color; pinShape(ctx, x + h * 0.35, y + h, h * 0.33); ctx.fill(); ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.beginPath(); ctx.arc(x + h * 0.35, y + h * 0.34, h * 0.12, 0, 6.3); ctx.fill(); ctx.restore(); }
   function iconCalendar(ctx, x, y, h, color) { ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = h * 0.09; rr(ctx, x + h * 0.04, y + h * 0.14, h * 0.82, h * 0.74, h * 0.1); ctx.stroke(); ctx.fillRect(x + h * 0.04, y + h * 0.14, h * 0.82, h * 0.22); ctx.fillRect(x + h * 0.25, y, h * 0.09, h * 0.26); ctx.fillRect(x + h * 0.57, y, h * 0.09, h * 0.26); ctx.restore(); }
   function iconClock(ctx, x, y, h, color) { ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = h * 0.09; ctx.beginPath(); ctx.arc(x + h * 0.45, y + h * 0.5, h * 0.42, 0, 6.3); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x + h * 0.45, y + h * 0.22); ctx.lineTo(x + h * 0.45, y + h * 0.5); ctx.lineTo(x + h * 0.66, y + h * 0.62); ctx.stroke(); ctx.restore(); }
-  function iconTarget(ctx, x, y, h, color) { ctx.save(); ctx.strokeStyle = color; ctx.fillStyle = color; ctx.lineWidth = h * 0.11; ctx.beginPath(); ctx.arc(x + h / 2, y + h / 2, h * 0.34, 0, 6.3); ctx.stroke(); ctx.beginPath(); ctx.arc(x + h / 2, y + h / 2, h * 0.1, 0, 6.3); ctx.fill(); [[0.5, 0, 0.5, 0.22], [0.5, 0.78, 0.5, 1], [0, 0.5, 0.22, 0.5], [0.78, 0.5, 1, 0.5]].forEach(l => { ctx.beginPath(); ctx.moveTo(x + h * l[0], y + h * l[1]); ctx.lineTo(x + h * l[2], y + h * l[3]); ctx.stroke(); }); ctx.restore(); }
   function wrap(ctx, text, maxW, maxLines) {
     const words = String(text || '').split(/\s+/).filter(Boolean), lines = []; let cur = '';
     for (const w of words) {
@@ -349,17 +351,16 @@ const GeoTag = (() => {
     ctx.fillStyle = '#C5221F'; ctx.beginPath(); ctx.moveTo(mx + mapS - 2.2 * u, mapY + 0.9 * u); ctx.lineTo(mx + mapS - 2.9 * u, mapY + 2.4 * u); ctx.lineTo(mx + mapS - 1.5 * u, mapY + 2.4 * u); ctx.fill();
     ctx.fillStyle = '#444'; ctx.font = `800 ${1.0 * u}px ${FONT}`; ctx.textAlign = 'center'; ctx.fillText('N', mx + mapS - 2.2 * u, mapY + 3.55 * u); ctx.textAlign = 'left';
     ctx.fillStyle = 'rgba(255,255,255,.82)'; ctx.fillRect(mx, mapY + mapS - 1.55 * u, mapS, 1.55 * u);
-    ctx.fillStyle = '#555'; ctx.font = `600 ${0.95 * u}px ${FONT}`; ctx.fillText(map.real ? '© OpenStreetMap · CARTO' : 'Map preview', mx + 0.7 * u, mapY + mapS - 0.5 * u);
+    ctx.fillStyle = '#555'; ctx.font = `600 ${0.95 * u}px ${FONT}`; ctx.fillText(map.real ? (map.credit || '© OpenStreetMap contributors') : 'Map preview', mx + 0.7 * u, mapY + mapS - 0.5 * u);
     ctx.restore();
 
     // text column
     let y = top + (cardH - textH) / 2;
-    ctx.font = `800 ${1.5 * u}px ${FONT}`; const pillText = 'GEO-TAGGED', pw = ctx.measureText(pillText).width + pillH + 1.4 * u;
-    rr(ctx, textX, y, pw, pillH, pillH / 2); ctx.fillStyle = accent; ctx.fill();
-    iconTarget(ctx, textX + 0.7 * u, y + 0.35 * u, pillH - 0.7 * u, '#FFFFFF');
-    ctx.fillStyle = '#FFFFFF'; ctx.textBaseline = 'middle'; ctx.fillText(pillText, textX + pillH + 0.5 * u, y + pillH / 2 + 0.05 * u);
-    ctx.font = `600 ${1.35 * u}px ${FONT}`; ctx.fillStyle = 'rgba(255,255,255,.68)'; ctx.textAlign = 'right';
-    ctx.fillText(info.brand || 'ROTARACT CLUB  ·  SERVICE ABOVE SELF', textX + textW, y + pillH / 2); ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+    const clubName = info.brand || 'Rotaract Club of Dr. N.G.P Arts & Science College';
+    let cfs = 1.55 * u; ctx.font = `700 ${cfs}px ${FONT}`;
+    while (ctx.measureText(clubName).width > textW - 1.6 * u && cfs > 0.9 * u) { cfs -= 0.05 * u; ctx.font = `700 ${cfs}px ${FONT}`; }
+    ctx.fillStyle = accent; ctx.fillRect(textX, y + pillH * 0.12, 0.5 * u, pillH * 0.76);
+    ctx.fillStyle = 'rgba(255,255,255,0.92)'; ctx.textBaseline = 'middle'; ctx.fillText(clubName, textX + 1.3 * u, y + pillH / 2 + 0.05 * u); ctx.textBaseline = 'alphabetic';
     y += pillH + gap;
 
     ctx.font = `800 ${3.3 * u}px ${FONT}`; ctx.fillStyle = '#FFFFFF'; ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 0.5 * u;
@@ -3000,7 +3001,8 @@ class EventsAdminManager {
     const day = String(ev.event_date || '').slice(0, 10);
     const when = new Date(`${day}T00:00:00`); when.setSeconds(sec);
     return { eventName: ev.title || 'Event', placeName: g.info.name || ev.venue || 'Location', lat: g.info.lat, lng: g.info.lng,
-             dateText: GeoTag.fmtDate(day), timeText: GeoTag.fmtClock(sec), when: isNaN(when) ? new Date() : when };
+             dateText: GeoTag.fmtDate(day), timeText: GeoTag.fmtClock(sec), when: isNaN(when) ? new Date() : when,
+             brand: (typeof CLUB_INFO !== 'undefined' && CLUB_INFO.name) || undefined };
   }
 
   async _geoPreview() {
