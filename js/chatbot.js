@@ -12,7 +12,7 @@ class RotaractChatbot {
     this.isOpen = false;
     this.isTyping = false;
     this.conversationHistory = [];
-    this.maxHistory = 20;
+    this.maxHistory = 24;
     this._settings = {};
     this._settingsLoaded = false;
 
@@ -220,129 +220,157 @@ class RotaractChatbot {
   /* ============================================================
      AI API CALL
      ============================================================ */
-  async getAIResponse(userMessage) {
-    const apiUrl = AI_CONFIG.apiUrl;
-    const model = AI_CONFIG.model;
+  async getLiveClubContext() {
+    // Cache live club data for 5 minutes so every question is grounded in real data
+    if (this._liveCtx && Date.now() - this._liveCtxAt < 5 * 60 * 1000) return this._liveCtx;
+    const lines = [];
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      const [up, done, board, stats] = await Promise.all([
+        this.db.from('events').select('title,avenue,event_date,venue,description,status')
+          .gte('event_date', today).order('event_date', { ascending: true }).limit(8),
+        this.db.from('events').select('title,avenue,event_date,venue,status')
+          .eq('status', 'completed').order('event_date', { ascending: false }).limit(10),
+        this.db.from('members').select('full_name,portfolio,role,avenue')
+          .eq('is_active', true).eq('is_board_member', true).limit(30),
+        this.db.from('club_statistics').select('*').single()
+      ]);
+      const fmt = e => `- ${e.title} | ${(e.avenue || '').replace(/_/g, ' ')} | ${e.event_date || 'date TBA'} | ${e.venue || 'venue TBA'}` +
+        (e.description ? ` | ${String(e.description).slice(0, 140)}` : '');
+      if (up.data?.length)   lines.push('UPCOMING EVENTS (live from club database):\n' + up.data.map(fmt).join('\n'));
+      else                   lines.push('UPCOMING EVENTS: none currently scheduled in the database.');
+      if (done.data?.length) lines.push('RECENT COMPLETED PROJECTS:\n' + done.data.map(fmt).join('\n'));
+      if (board.data?.length) lines.push('BOARD / OFFICE BEARERS:\n' + board.data.map(m => `- ${m.full_name} — ${m.portfolio || m.role || 'Board member'}`).join('\n'));
+      if (stats.data) {
+        const d = stats.data;
+        lines.push(`CLUB IMPACT STATS: ${d.total_projects || 0} projects, ${d.total_members || 0} members, ` +
+          `${Math.round(d.total_service_hours || 0)} service hours, ${d.total_beneficiaries || 0} lives impacted.`);
+      }
+    } catch (e) { console.warn('Live context error:', e); }
+    this._liveCtx = lines.join('\n\n');
+    this._liveCtxAt = Date.now();
+    return this._liveCtx;
+  }
+
+  buildSystemPrompt(liveContext) {
     const clubName = this.getSetting('club_name', CLUB_INFO.name);
     const clubId = this.getSetting('club_id', CLUB_INFO.clubId);
     const charterDate = this.getSetting('charter_date', CLUB_INFO.charterDate);
     const parentClub = this.getSetting('parent_club', CLUB_INFO.parentClub);
+    const now = new Date().toLocaleString('en-IN', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Kolkata' });
 
-    const systemPrompt = `You are the official AI assistant for the ${clubName}, 
-    parented by ${parentClub}. Club ID: ${clubId}. Charter Date: ${charterDate}. 
-    Rotary International District 3206 (Coimbatore | Pallakkad).
-    
-    You are a comprehensive expert on:
-    
-    ROTARY INTERNATIONAL:
-    - History: Founded February 23, 1905 by Paul P. Harris in Chicago
-    - Motto: "Service Above Self"
-    - Object of Rotary: Four-part object focusing on friendship, ethics, service, and international understanding
-    - The Four-Way Test: Truth, Fairness, Goodwill & Friendships, Beneficial to all
-    - Rotary Foundation: charitable arm funding scholarships, grants, peace programs
-    - Paul Harris Fellow recognition
-    - Major programs: End Polio Now, Global Grants, Peace Fellowships, RYLA, RYPEN
-    - Areas of Focus: Peace, Disease Prevention, Water & Sanitation, Maternal Health, Education, Economic Development, Environment
-    - Rotary clubs worldwide: 35,000+ clubs, 1.4 million members, 200+ countries
-    
-    ROTARACT:
-    - Founded 1968 in Charlotte, North Carolina
-    - Age group: 18-30 years
-    - Currently 217,000+ members worldwide
-    - Avenues of Service: Club Service, Community Service, Professional Service, International Service
-    - How to join: Contact local club, attend meetings, apply for membership
-    - Benefits: Leadership development, networking, community service, professional growth, international connections
-    - Rotaract distinguishing pin and ID
-    - RI ID system for Rotaractors
-    
-    ROTARY INTERNATIONAL DISTRICT 3206:
-    - Covers: Coimbatore and Pallakkad regions
-    - States: Tamil Nadu and Kerala, India
-    - District Governor (DG) leads the district
-    - District Priority Projects: specific initiatives prioritized by the district
-    - District Conference, District Assembly, PETS (Presidents-Elect Training Seminar)
-    - Groups 1-6 classification of clubs
-    - RSAMDIO: Rotaract and Interact Multi District Interactive Organisation
-    - District Rotaract Representative (DRR)
-    - District Rotaract Committee (DRC)
-    
-    ROTARACT DISTRICT ORGANISATION 3206 (RDO 3206):
-    - Official district-level body for Rotaract clubs
-    - Organizes district-level Rotaract events
-    - Coordinates between clubs and district administration
-    - District Rotaract Meet (DRM)
-    - Inter-Club activities and competitions
-    
-    RSAMDIO:
-    - Rotaract and Interact Multi District Interactive Organisation
-    - Brings together multiple Rotary districts' Rotaract and Interact clubs
-    - Promotes fellowship, service, and collaboration across districts
-    - Joint programs and events
-    
-    END POLIO NOW:
-    - Rotary's commitment to eradicate polio worldwide since 1985
-    - Partnership with WHO, UNICEF, CDC, Bill & Melinda Gates Foundation
-    - National Immunization Days (NIDs)
-    - Wild poliovirus cases reduced by 99.9%
-    - Remaining endemic countries: Pakistan and Afghanistan
-    - "This Close" campaign
-    - World Polio Day: October 24
-    - Purple pinky finger symbolizes vaccination
-    
-    OUR CLUB SPECIFICS:
-    - Club Name: ${clubName}
-    - Parent Club: ${parentClub}
-    - Club ID: ${clubId}
-    - Charter Date: ${charterDate}
-    - RI District: 3206 (Coimbatore | Pallakkad)
-    - Location: Dr. N.G.P. Arts and Science College, Coimbatore
-    - Email: rac.drngpasc@gmail.com
-    - Social Media: @rotaractdrngpasc
-    - Avenues: Club Service, Community Service, Professional Service, International Service, District Priority Projects
-    
-    GUIDELINES:
-    - Always be helpful, accurate, and encouraging
-    - Keep responses concise but comprehensive (2-4 paragraphs max unless more detail is needed)
-    - Use professional yet friendly language
-    - If asked about something completely unrelated to Rotary/Rotaract, politely say you specialize in Rotary and Rotaract topics
-    - Format responses clearly with proper punctuation
-    - When mentioning our club, use the full name: ${clubName}
-    - Never make up facts about Rotary; if uncertain, say so`;
+    return `You are the official AI assistant of the ${clubName}, sponsored by ${parentClub}, Rotary International District 3206 (Coimbatore | Palakkad). You are a highly capable, accurate, friendly assistant. Current date/time (IST): ${now}.
 
-    const messages = [
-      { role: 'system', content: systemPrompt },
-      ...this.conversationHistory.slice(-10), // Last 10 messages for context
-      { role: 'user', content: userMessage }
-    ];
+CORE BEHAVIOUR
+- Answer EVERY question the visitor asks, directly and correctly. You are an expert on Rotary and Rotaract, and you are also a capable general assistant: general knowledge, science, maths, history, careers, studies, writing help, coding, translation, event ideas, speeches, captions, social media posts and more.
+- For Rotary/Rotaract/club questions, use the knowledge below. Where the question is about our club's own events, members or numbers, use ONLY the LIVE CLUB DATA below; if it is not there, say you don't have that detail and suggest contacting the club at ${CLUB_INFO.email} or Instagram @${CLUB_INFO.socialHandle}. Never invent club-specific facts, dates, names or phone numbers.
+- Think step by step for maths, logic and reasoning questions and show the final answer clearly.
+- Reply in the same language the user writes in (English, Tamil, Hindi, Malayalam, Tanglish, etc.).
+- Be concise: usually 2-6 short sentences or a compact list. Give more detail only when asked or when the question needs it. Lead with the answer, no filler, no repeating the question.
+- Use Markdown: **bold** key terms, short bullet lists, numbered steps, and code blocks for code. Avoid tables.
+- Understand follow-ups using the conversation history ("it", "that", "tell me more").
+- If a question is ambiguous, give your best answer and offer one brief clarifying follow-up.
+- If you are not sure about a fact, say so honestly rather than guessing. For medical, legal or financial matters, give general info and recommend a professional.
+- Politely decline anything harmful, hateful, sexual or illegal. Stay neutral on party politics and religion.
+- When relevant, gently point people to the "Join Our Club" section of this website, the Projects section, or the contact details.
 
-    try {
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-          'apikey': SUPABASE_ANON_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          model,
-          messages,
-          max_tokens: AI_CONFIG.maxTokens,
-          temperature: AI_CONFIG.temperature,
-          stream: false
-        })
-      });
+ROTARY INTERNATIONAL
+- Founded 23 Feb 1905 in Chicago by Paul P. Harris (with Gustavus Loehr, Silvester Schiele, Hiram Shorey). Motto: "Service Above Self". Each Rotary year has a new presidential theme. Headquarters: Evanston, Illinois, USA. 46,000+ clubs and ~1.4 million members in 200+ countries.
+- Four-Way Test: Is it the TRUTH? Is it FAIR to all concerned? Will it build GOODWILL and BETTER FRIENDSHIPS? Will it be BENEFICIAL to all concerned?
+- Object of Rotary: encourage and foster the ideal of service as a basis of worthy enterprise.
+- Seven Areas of Focus: Peacebuilding & conflict prevention; Disease prevention & treatment; Water, sanitation & hygiene; Maternal & child health; Basic education & literacy; Community economic development; Protecting the environment.
+- The Rotary Foundation (est. 1917): grants, Global Grants, District Grants, Peace Fellowships (Rotary Peace Centers), scholarships, PolioPlus. "Doing Good in the World". Paul Harris Fellow (PHF) = recognition for a USD 1,000 contribution to the Foundation.
+- Programs: Rotaract, Interact (ages 12-18), RYLA (Rotary Youth Leadership Awards), RYPEN, Youth Exchange, Rotary Community Corps (RCC), New Generations, Rotary Fellowships, Rotary Friendship Exchange.
+- Leadership: Club President, Secretary, Treasurer; District Governor (DG); RI President; Rotary year runs 1 July - 30 June. Events: PETS, District Assembly, District Conference, Rotary International Convention, Rotary Day at the UN.
+- Rotary and polio: PolioPlus launched 1985; with WHO, UNICEF, CDC, Gates Foundation and Gavi (Global Polio Eradication Initiative). Wild poliovirus cases down over 99.9%; wild polio remains endemic only in Pakistan and Afghanistan. India was declared polio-free in 2014 (certified by WHO on 27 March 2014). World Polio Day: 24 October. Purple pinky marks vaccinated children. Campaign: "End Polio Now" / "This Close".
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+ROTARACT
+- Started 13 March 1968 by Rotary Club of Charlotte, North Carolina, USA, at Charlotte's college. Name = ROTary + ACT. Became an official RI program of Rotary in 1971. Traditionally for ages 18-30 (RI's rules now allow adults 18+; our club follows the 18-30 student/young-professional profile). Clubs are university-based or community-based. Over 250,000 Rotaractors in 180+ countries.
+- Motto "Fellowship Through Service". Rotaract Avenues of Service: Club Service, Professional Service (Professional Development), Community Service, International Service; in District 3206 we also highlight District Priority Projects. Many clubs add Youth Service/Environment focus.
+- Rotaract Club structure: President, Immediate Past President, President-Elect, Vice President, Secretary, Joint Secretary, Treasurer, Sergeant-at-Arms, Editor, Avenue Directors, Club Service Director, Community Service Director, Professional Service Director, International Service Director, Public Relations Director/Chair, Rotary Foundation Chair, Membership Chair.
+- Rotaract Club is sponsored by a Rotary Club (ours: ${parentClub}) which mentors it. Meetings are usually weekly/fortnightly; attendance, projects, dues and Rotaract Rotary ID (RI ID) registered on My Rotary.
+- Benefits: leadership, public speaking, project management, networking, friendships, internships/career connections, international exchange, certificates, cultural experiences and the joy of service.
+- DRR = District Rotaract Representative; DRC = District Rotaract Committee; RSAMDIO = the South Asia multi-district information organisation that coordinates Rotaract and Interact clubs across districts (MDIO = Multi District Information Organisation). Do not invent exact office-bearer names.
+
+DISTRICT 3206
+- Rotary International District 3206 covers the Coimbatore region of Tamil Nadu and Palakkad in Kerala. Led by the District Governor (DG) and District Rotaract Chair/DRR. Rotaract District Organisation (RDO 3206) organises district meets, trainings, awards, and inter-club projects. Clubs are grouped into Groups with Assistant Governors.
+
+OUR CLUB
+- Name: ${clubName}. Club ID: ${clubId}. Charter date: ${charterDate}. Parent club: ${parentClub}. District: 3206.
+- Location: Dr. N.G.P. Arts and Science College (Autonomous, affiliated to Bharathiar University), Dr. N.G.P. - Kalapatti Road, Coimbatore - 641048, Tamil Nadu.
+- Contact: ${CLUB_INFO.email} | Instagram/Social: @${CLUB_INFO.socialHandle}.
+- Website features: Projects, Members, Blood Request page (urgent blood donor requests), Membership Application page, Games page, Admin portal for office bearers.
+- To join: students of the college can apply via the "Join Our Club" section / Apply page of this website; the club board reviews applications.
+
+LIVE CLUB DATA
+${liveContext || '(Live data unavailable right now.)'}`;
+  }
+
+  async getAIResponse(userMessage) {
+    const liveContext = await this.getLiveClubContext();
+    const systemPrompt = this.buildSystemPrompt(liveContext);
+
+    // conversationHistory already contains the latest user message (pushed in sendMessage)
+    const history = this.conversationHistory.slice(-14);
+    const messages = [{ role: 'system', content: systemPrompt }, ...history];
+
+    let lastError = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 40000);
+      try {
+        const response = await fetch(AI_CONFIG.apiUrl, {
+          method: 'POST',
+          signal: controller.signal,
+          headers: {
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            model: AI_CONFIG.model,
+            messages,
+            max_tokens: AI_CONFIG.maxTokens,
+            temperature: AI_CONFIG.temperature,
+            stream: false
+          })
+        });
+        clearTimeout(timer);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error?.message || `API Error: ${response.status}`);
+        }
+        const data = await response.json();
+        const text = data.choices?.[0]?.message?.content;
+        if (text && text.trim()) return text.trim();
+        throw new Error('Empty response');
+      } catch (error) {
+        clearTimeout(timer);
+        lastError = error;
+        await new Promise(r => setTimeout(r, 600 * (attempt + 1)));
       }
-
-      const data = await response.json();
-      return data.choices?.[0]?.message?.content || null;
-    } catch (error) {
-      console.error('AI API error:', error);
-      throw error;
     }
+    console.error('AI API error:', lastError);
+    // Never leave the visitor without an answer
+    return this.getOfflineAnswer(userMessage);
+  }
+
+  /* Built-in answers used only if the AI service is unreachable */
+  getOfflineAnswer(q) {
+    const t = (q || '').toLowerCase();
+    const has = (...w) => w.some(x => t.includes(x));
+    if (has('polio')) return '**End Polio Now** is Rotary\'s campaign, running since 1985 (PolioPlus), to eradicate polio worldwide with WHO, UNICEF, CDC and the Gates Foundation. Wild polio cases are down over 99.9%, and India was declared polio-free in 2014. World Polio Day is **24 October**.';
+    if (has('four-way', 'four way', '4 way')) return 'The **Four-Way Test**: 1) Is it the **truth**? 2) Is it **fair** to all concerned? 3) Will it build **goodwill and better friendships**? 4) Will it be **beneficial** to all concerned?';
+    if (has('paul harris')) return '**Paul Harris** founded Rotary in Chicago on 23 February 1905. A **Paul Harris Fellow** is a recognition given for a USD 1,000 contribution to The Rotary Foundation.';
+    if (has('rsamdio')) return '**RSAMDIO** is the Rotaract and Interact multi-district information organisation for South Asia that coordinates and supports Rotaract and Interact clubs across districts.';
+    if (has('3206', 'district')) return '**Rotary International District 3206** covers the Coimbatore and Palakkad region across Tamil Nadu and Kerala. It is led by the District Governor, and **RDO 3206** coordinates Rotaract clubs in the district.';
+    if (has('join', 'member', 'apply')) return 'To join, open the **Join Our Club** section on this website (or the Apply page) and submit the form. You can also email **' + CLUB_INFO.email + '** or message **@' + CLUB_INFO.socialHandle + '** on social media.';
+    if (has('foundation')) return '**The Rotary Foundation** (est. 1917) is Rotary\'s charity arm. It funds Global and District Grants, scholarships, Peace Fellowships and polio eradication.';
+    if (has('avenue')) return 'Rotaract\'s **Avenues of Service** are **Club Service**, **Community Service**, **Professional Service** and **International Service**, plus District Priority Projects in District 3206.';
+    if (has('rotaract')) return '**Rotaract** is Rotary\'s program for young adults, started in 1968 in Charlotte, USA. Its motto is "Fellowship Through Service", focusing on leadership, community service and friendships.';
+    if (has('rotary')) return '**Rotary International** was founded in 1905 by Paul Harris in Chicago. Its motto is "Service Above Self", with 1.4 million members worldwide.';
+    if (has('contact', 'email', 'reach')) return 'You can reach us at **' + CLUB_INFO.email + '** or on social media at **@' + CLUB_INFO.socialHandle + '**.';
+    return 'I\'m having trouble reaching the AI service right now. Please try again in a moment, or contact the club at **' + CLUB_INFO.email + '**.';
   }
 
   /* ============================================================
@@ -419,41 +447,48 @@ class RotaractChatbot {
      ============================================================ */
   formatMessage(content) {
     if (!content) return '';
+    const esc = StringUtils.sanitize;
+    const blocks = [];
+    // 1) pull out fenced code blocks first
+    let text = String(content).replace(/```(\w*)\n?([\s\S]*?)```/g, (_, lang, code) => {
+      blocks.push(`<pre style="background:var(--bg-secondary);padding:8px 10px;border-radius:8px;overflow-x:auto;font-size:0.78rem;margin:6px 0;"><code>${esc(code.replace(/\n$/, ''))}</code></pre>`);
+      return `\u0000B${blocks.length - 1}\u0000`;
+    });
 
-    let formatted = StringUtils.sanitize(content);
+    const inline = (raw) => {
+      let h = esc(raw);
+      h = h.replace(/`([^`]+)`/g, '<code style="background:var(--bg-secondary);padding:1px 4px;border-radius:3px;font-size:0.82em;">$1</code>');
+      h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      h = h.replace(/(^|[\s(])\*([^*\s][^*]*?)\*(?=[\s).,!?:;]|$)/g, '$1<em>$2</em>');
+      h = h.replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline;">$1</a>');
+      h = h.replace(/(^|[\s(])(https?:\/\/[^\s<)]+)/g, '$1<a href="$2" target="_blank" rel="noopener noreferrer" style="color:var(--accent);text-decoration:underline;">$2</a>');
+      h = h.replace(/([\w.+-]+@[\w-]+\.[\w.-]+\w)/g, '<a href="mailto:$1" style="color:var(--accent);text-decoration:underline;">$1</a>');
+      return h;
+    };
 
-    // Bold: **text** or __text__
-    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-    formatted = formatted.replace(/__(.*?)__/g, '<strong>$1</strong>');
-
-    // Italic: *text* or _text_
-    formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    formatted = formatted.replace(/_(.*?)_/g, '<em>$1</em>');
-
-    // Code: `text`
-    formatted = formatted.replace(/`(.*?)`/g, '<code style="background:var(--bg-secondary);padding:1px 4px;border-radius:3px;font-size:0.82em;">$1</code>');
-
-    // Line breaks
-    formatted = formatted.replace(/\n\n/g, '</p><p>');
-    formatted = formatted.replace(/\n/g, '<br>');
-
-    // Bullet points: - item or • item
-    formatted = formatted.replace(/^[-•] (.+)$/gm, '<li>$1</li>');
-    formatted = formatted.replace(/(<li>.*<\/li>)/s, '<ul style="padding-left:16px;margin:8px 0;">$1</ul>');
-
-    // Numbered lists
-    formatted = formatted.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-
-    // Headers: # Header
-    formatted = formatted.replace(/^# (.+)$/gm, '<h3 style="font-size:0.95rem;font-weight:700;margin:8px 0 4px;color:var(--text-heading);">$1</h3>');
-    formatted = formatted.replace(/^## (.+)$/gm, '<h4 style="font-size:0.88rem;font-weight:700;margin:6px 0 4px;color:var(--text-heading);">$1</h4>');
-
-    // Wrap in paragraph if not already
-    if (!formatted.startsWith('<')) {
-      formatted = `<p>${formatted}</p>`;
+    const out = [];
+    let list = null; // 'ul' | 'ol'
+    const closeList = () => { if (list) { out.push(`</${list}>`); list = null; } };
+    const lines = text.split('\n');
+    for (const rawLine of lines) {
+      const line = rawLine.trimEnd();
+      let m;
+      if (/^\u0000B\d+\u0000$/.test(line.trim())) { closeList(); out.push(line.trim()); continue; }
+      if ((m = line.match(/^\s*[-*•]\s+(.+)$/))) {
+        if (list !== 'ul') { closeList(); out.push('<ul style="padding-left:18px;margin:6px 0;">'); list = 'ul'; }
+        out.push(`<li>${inline(m[1])}</li>`); continue;
+      }
+      if ((m = line.match(/^\s*\d+[.)]\s+(.+)$/))) {
+        if (list !== 'ol') { closeList(); out.push('<ol style="padding-left:20px;margin:6px 0;">'); list = 'ol'; }
+        out.push(`<li>${inline(m[1])}</li>`); continue;
+      }
+      closeList();
+      if ((m = line.match(/^#{1,6}\s+(.+)$/))) { out.push(`<h4 style="font-size:0.9rem;font-weight:700;margin:8px 0 4px;color:var(--text-heading);">${inline(m[1])}</h4>`); continue; }
+      if (!line.trim()) { out.push(''); continue; }
+      out.push(`<p style="margin:0 0 6px;">${inline(line)}</p>`);
     }
-
-    return formatted;
+    closeList();
+    return out.join('').replace(/\u0000B(\d+)\u0000/g, (_, i) => blocks[+i]);
   }
 
   /* ============================================================
@@ -549,7 +584,7 @@ class RotaractChatbot {
      ============================================================ */
   saveChatHistory() {
     try {
-      const historyToSave = this.conversationHistory.slice(-20);
+      const historyToSave = this.conversationHistory.slice(-24);
       Storage.set('chatbot_history', historyToSave, 24 * 60 * 60 * 1000); // 24 hours
     } catch (e) {
       console.warn('Save chat history error:', e);
