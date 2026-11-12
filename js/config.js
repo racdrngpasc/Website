@@ -45,8 +45,8 @@ const AI_CONFIG = {
   // apiKey removed: the AI key lives in the ai-chat edge function (OPENROUTER_API_KEY secret)
   apiUrl: `${SUPABASE_URL}/functions/v1/ai-chat`,
   model: 'openai/gpt-4o-mini',
-  maxTokens: 1024,
-  temperature: 0.7,
+  maxTokens: 1500,
+  temperature: 0.5,
   systemPrompt: `You are the official AI assistant for the Rotaract Club of Dr. N.G.P Arts & Science College,
   parented by Rotary Club of Coimbatore Meridian. Club ID: 217835. Charter Date: 11.02.2020.
   Rotary International District 3206 (Coimbatore | Pallakkad).
