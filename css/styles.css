@@ -663,10 +663,6 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); width
 .hero-meta-divider { display: none; }
 .hero-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; width: 100%; }
 .hero-cta .btn { flex: 1 1 200px; max-width: 280px; }
-.hero-scroll-indicator { position: absolute; bottom: 22px; left: 50%; transform: translateX(-50%); z-index: 1; opacity: .8; }
-.scroll-mouse { width: 24px; height: 38px; border: 2px solid var(--text-muted); border-radius: 14px; display: flex; justify-content: center; padding-top: 7px; }
-.scroll-wheel { width: 3px; height: 8px; border-radius: 3px; background: var(--accent); animation: cbWheel 1.6s ease infinite; }
-@keyframes cbWheel { 0% { opacity: 1; transform: translateY(0); } 100% { opacity: 0; transform: translateY(12px); } }
 
 .ticker-bar {
   display: flex; align-items: stretch; overflow: hidden;
@@ -1355,7 +1351,7 @@ input[type="checkbox"], input[type="radio"] { accent-color: var(--accent); width
 }
 @media print {
   body { background: #fff !important; color: #000; }
-  .navbar, .ticker-bar, .hero-scroll-indicator, .chatbot-fab, .chatbot-window, .back-to-top, .toast-container, .loading-screen { display: none !important; }
+  .navbar, .ticker-bar, .chatbot-fab, .chatbot-window, .back-to-top, .toast-container, .loading-screen { display: none !important; }
   .neu-card { box-shadow: none !important; border: 1px solid #ccc; break-inside: avoid; }
   .section { padding: 24px 0; }
 }
