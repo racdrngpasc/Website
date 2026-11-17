@@ -1,0 +1,7 @@
+# Rotaract Club of Dr. N.G.P Arts & Science College
+# Search engines and AI search crawlers are welcome. Private pages (admin, attendance) are
+# kept out of results with a noindex tag on the page itself, so they are not listed here.
+User-agent: *
+Allow: /
+
+Sitemap: https://www.rotaractdrngpasc.in/sitemap.xml
